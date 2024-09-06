@@ -1,5 +1,6 @@
 package com.nerdysoft.walletservice.model;
 
+import com.nerdysoft.walletservice.dto.request.CreateWalletDto;
 import com.nerdysoft.walletservice.model.enums.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +20,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Wallet {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,4 +35,10 @@ public class Wallet {
   private Currency currency;
 
   private final LocalDate createdAt = LocalDate.now();
+
+  public Wallet(CreateWalletDto createWalletDto) {
+    this.accountId = createWalletDto.accountId();
+    this.balance = 0.0;
+    this.currency = createWalletDto.currency();
+  }
 }
