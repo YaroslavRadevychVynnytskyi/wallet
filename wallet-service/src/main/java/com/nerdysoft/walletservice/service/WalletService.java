@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class WalletService {
-
   private final WalletRepository walletRepository;
 
   private final TransactionService transactionService;
