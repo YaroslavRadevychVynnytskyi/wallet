@@ -1,9 +1,11 @@
 package com.nerdysoft.controller;
 
-import com.nerdysoft.dto.AddOrUpdateRateRequestDto;
-import com.nerdysoft.dto.AddOrUpdateRateResponseDto;
-import com.nerdysoft.dto.ExchangeRateRequestDto;
-import com.nerdysoft.dto.ExchangeRateResponseDto;
+import com.nerdysoft.dto.request.AddOrUpdateRateRequestDto;
+import com.nerdysoft.dto.request.ConvertAmountRequestDto;
+import com.nerdysoft.dto.request.ExchangeRateRequestDto;
+import com.nerdysoft.dto.response.AddOrUpdateRateResponseDto;
+import com.nerdysoft.dto.response.ConvertAmountResponseDto;
+import com.nerdysoft.dto.response.ExchangeRateResponseDto;
 import com.nerdysoft.service.CurrencyExchangeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,13 +26,22 @@ public class CurrencyExchangeController {
 
     @Operation(summary = "Display current exchange rates")
     @GetMapping
-    public ResponseEntity<ExchangeRateResponseDto> getExchangeRate(@RequestBody ExchangeRateRequestDto requestDto) {
+    public ResponseEntity<ExchangeRateResponseDto> getExchangeRate(
+            @RequestBody ExchangeRateRequestDto requestDto) {
         return ResponseEntity.ok(currencyExchangeService.getExchangeRate(requestDto));
     }
 
     @Operation(summary = "Manually add or update exchange rate")
     @PostMapping
-    public ResponseEntity<AddOrUpdateRateResponseDto> addOrUpdateExchangeRate(@RequestBody AddOrUpdateRateRequestDto requestDto) {
+    public ResponseEntity<AddOrUpdateRateResponseDto> addOrUpdateExchangeRate(
+            @RequestBody AddOrUpdateRateRequestDto requestDto) {
         return ResponseEntity.ok(currencyExchangeService.addOrUpdateExchangeRate(requestDto));
+    }
+
+    @Operation(summary = "Convert amount from one currency to another")
+    @PostMapping("/convert")
+    public ResponseEntity<ConvertAmountResponseDto> convert(
+            @RequestBody ConvertAmountRequestDto requestDto) {
+        return ResponseEntity.ok(currencyExchangeService.convert(requestDto));
     }
 }

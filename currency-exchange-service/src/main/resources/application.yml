@@ -1,16 +1,9 @@
 spring:
   application:
     name: currency-exchange-service
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/exchange_db
-    username: postgres
-    password: postgres
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/exchange_db
 external:
   api:
     exchange:

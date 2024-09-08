@@ -1,4 +1,4 @@
-package com.nerdysoft.dto;
+package com.nerdysoft.dto.response;
 
 import java.time.LocalDateTime;
 

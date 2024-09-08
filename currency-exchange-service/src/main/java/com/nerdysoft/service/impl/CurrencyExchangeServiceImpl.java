@@ -1,19 +1,25 @@
 package com.nerdysoft.service.impl;
 
-import com.nerdysoft.dto.AddOrUpdateRateRequestDto;
-import com.nerdysoft.dto.AddOrUpdateRateResponseDto;
-import com.nerdysoft.dto.CurrencyExchangeRatesDto;
-import com.nerdysoft.dto.ExchangeRateRequestDto;
-import com.nerdysoft.dto.ExchangeRateResponseDto;
+import com.nerdysoft.dto.generic.ConversionRatesDto;
+import com.nerdysoft.dto.request.AddOrUpdateRateRequestDto;
+import com.nerdysoft.dto.request.ConvertAmountRequestDto;
+import com.nerdysoft.dto.request.ExchangeRateRequestDto;
+import com.nerdysoft.dto.response.AddOrUpdateRateResponseDto;
+import com.nerdysoft.dto.response.ConvertAmountResponseDto;
+import com.nerdysoft.dto.response.ExchangeRateResponseDto;
 import com.nerdysoft.entity.ExchangeRate;
-import com.nerdysoft.mapper.ExchangeRateMapper;
+import com.nerdysoft.entity.enums.Currency;
 import com.nerdysoft.repo.ExchangeRateRepository;
 import com.nerdysoft.service.CurrencyExchangeService;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -21,8 +27,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     private final ExchangeRateRepository exchangeRateRepository;
-    private final ExchangeRateMapper exchangeRateMapper;
-
     private final WebClient webClient;
 
     @Value("${external.api.exchange.url}")
@@ -30,52 +34,64 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
     @Override
     public ExchangeRateResponseDto getExchangeRate(ExchangeRateRequestDto requestDto) {
-        Optional<ExchangeRate> cachedExchangeRate = exchangeRateRepository.findByFromCurrencyAndToCurrency(requestDto.fromCurrency(), requestDto.toCurrency());
-        if (cachedExchangeRate.isPresent()) {
-            return exchangeRateMapper.toDto(cachedExchangeRate.get());
-        }
+        ExchangeRate rate = getExchangeRate(requestDto.fromCurrency(), requestDto.toCurrency());
+        return new ExchangeRateResponseDto(rate, requestDto.toCurrency());
+    }
 
-        ExchangeRate fetchedExchangeRate = fetchExchangeRate(requestDto.fromCurrency(), requestDto.toCurrency());
-        ExchangeRate savedExchangeRate = exchangeRateRepository.save(fetchedExchangeRate);
-
-        return exchangeRateMapper.toDto(savedExchangeRate);
+    private ExchangeRate getExchangeRate(String fromCurrency, String toCurrency) {
+        LocalDate today = LocalDate.now();
+        return exchangeRateRepository.findByFromCurrencyAndToCurrency(
+                fromCurrency,
+                toCurrency,
+                today.atStartOfDay(),
+                today.atStartOfDay().plusDays(1)
+                ).orElseThrow(() -> new NoSuchElementException("Can't find such exchange rate"));
     }
 
     @Override
     public AddOrUpdateRateResponseDto addOrUpdateExchangeRate(AddOrUpdateRateRequestDto requestDto) {
-        Optional<ExchangeRate> cachedExchangeRate = exchangeRateRepository.findByFromCurrencyAndToCurrency(requestDto.fromCurrency(), requestDto.toCurrency());
+        ExchangeRate rate = exchangeRateRepository
+                .findByBaseCode(requestDto.fromCurrency())
+                .orElseThrow();
 
         LocalDateTime now = LocalDateTime.now();
 
-        ExchangeRate exchangeRate = cachedExchangeRate
-                .map(r -> {
-                    r.setExchangeRate(requestDto.exchangeRate());
-                    r.setTimestamp(now);
-                    return r;
-                })
-                .orElseGet(() -> {
-                    ExchangeRate newRate = exchangeRateMapper.toModel(requestDto);
-                    newRate.setTimestamp(now);
-                    return newRate;
-                });
+        rate.getConversionRates().put(requestDto.toCurrency(), requestDto.exchangeRate());
+        rate.setTimestamp(now);
 
-        exchangeRateRepository.save(exchangeRate);
+        exchangeRateRepository.save(rate);
         return new AddOrUpdateRateResponseDto("success", now);
     }
 
-    private ExchangeRate fetchExchangeRate(String fromCurrency, String toCurrency) {
-        CurrencyExchangeRatesDto exchangeRates = webClient.get()
-                .uri(exchangeApiUrl + fromCurrency)
+    @Override
+    public ConvertAmountResponseDto convert(ConvertAmountRequestDto requestDto) {
+        ExchangeRate exchangeRate = getExchangeRate(requestDto.fromCurrency(), requestDto.toCurrency());
+
+        BigDecimal rateValue = exchangeRate.getConversionRates().get(requestDto.toCurrency());
+        BigDecimal convertedAmount = requestDto.amount().multiply(rateValue);
+
+        return new ConvertAmountResponseDto(requestDto, rateValue, convertedAmount);
+    }
+
+    private ExchangeRate fetchExchangeRates(String baseCode) {
+        ConversionRatesDto rates = webClient.get()
+                .uri(exchangeApiUrl + baseCode)
                 .retrieve()
-                .bodyToMono(CurrencyExchangeRatesDto.class)
+                .bodyToMono(ConversionRatesDto.class)
                 .block();
-        Double rate = exchangeRates.conversionRates().get(toCurrency);
 
         return ExchangeRate.builder()
-                .fromCurrency(fromCurrency)
-                .toCurrency(toCurrency)
-                .exchangeRate(BigDecimal.valueOf(rate))
+                .baseCode(baseCode)
+                .conversionRates(rates.conversionRates())
                 .timestamp(LocalDateTime.now())
                 .build();
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateExchangeRates() {
+        List<ExchangeRate> actualRates = Arrays.stream(Currency.values())
+                .map(c -> fetchExchangeRates(c.getCode()))
+                .toList();
+        exchangeRateRepository.saveAll(actualRates);
     }
 }
