@@ -10,3 +10,5 @@ spring:
       ddl-auto: update
   application:
     name: wallet-service
+server:
+  port: 8081
