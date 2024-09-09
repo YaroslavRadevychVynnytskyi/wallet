@@ -3,7 +3,7 @@ package com.nerdysoft.walletservice.dto.response;
 import com.nerdysoft.walletservice.model.enums.Currency;
 import com.nerdysoft.walletservice.model.enums.TransactionStatus;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record TransferResponseDto(UUID transactionId,
@@ -12,4 +12,4 @@ public record TransferResponseDto(UUID transactionId,
                                   BigDecimal amount,
                                   Currency currency,
                                   TransactionStatus status,
-                                  LocalDate createdAt) {}
+                                  LocalDateTime createdAt) {}
