@@ -4,7 +4,7 @@ import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransactionStatus;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record TransactionResponseDto(
@@ -14,7 +14,7 @@ public record TransactionResponseDto(
         BigDecimal amount,
         Currency currency,
         TransactionStatus status,
-        LocalDate createdAt
+        LocalDateTime createdAt
 ) {
     public TransactionResponseDto(Transaction transaction, UUID fromAccountId, UUID toAccountId) {
         this(
