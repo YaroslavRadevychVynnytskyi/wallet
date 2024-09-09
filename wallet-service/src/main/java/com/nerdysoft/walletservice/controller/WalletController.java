@@ -7,6 +7,7 @@ import com.nerdysoft.walletservice.model.Transaction;
 import com.nerdysoft.walletservice.model.Wallet;
 import com.nerdysoft.walletservice.model.enums.Currency;
 import com.nerdysoft.walletservice.service.WalletService;
+import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -49,13 +50,13 @@ public class WalletController {
 
   @PostMapping("{walletId}/deposit")
   private ResponseEntity<Transaction> deposit(@PathVariable UUID walletId, @RequestBody TransactionRequestDto transactionRequestDto) {
-    return new ResponseEntity<>(walletService.transaction(walletId, transactionRequestDto, Double::sum),
+    return new ResponseEntity<>(walletService.transaction(walletId, transactionRequestDto, BigDecimal::add),
         HttpStatus.ACCEPTED);
   }
 
   @PostMapping("{walletId}/withdraw")
   private ResponseEntity<Transaction> withdraw(@PathVariable UUID walletId, @RequestBody TransactionRequestDto transactionRequestDto) {
-    return new ResponseEntity<>(walletService.transaction(walletId, transactionRequestDto, (a, b) -> a - b),
+    return new ResponseEntity<>(walletService.transaction(walletId, transactionRequestDto, BigDecimal::subtract),
         HttpStatus.ACCEPTED);
   }
 

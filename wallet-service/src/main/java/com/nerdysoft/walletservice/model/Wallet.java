@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -29,7 +30,7 @@ public class Wallet {
   private UUID accountId;
 
   @Column(nullable = false)
-  private Double balance;
+  private BigDecimal balance;
 
   @Enumerated(EnumType.STRING)
   private Currency currency;
@@ -38,7 +39,7 @@ public class Wallet {
 
   public Wallet(CreateWalletDto createWalletDto) {
     this.accountId = createWalletDto.accountId();
-    this.balance = 0.0;
+    this.balance = BigDecimal.valueOf(0.0);
     this.currency = createWalletDto.currency();
   }
 }

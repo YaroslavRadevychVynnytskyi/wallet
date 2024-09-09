@@ -10,6 +10,7 @@ import com.nerdysoft.walletservice.model.enums.Currency;
 import com.nerdysoft.walletservice.model.enums.TransactionStatus;
 import com.nerdysoft.walletservice.repository.WalletRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,11 +52,11 @@ public class WalletService {
   }
 
   public Transaction transaction(UUID walletId, TransactionRequestDto transactionRequestDto,
-      BiFunction<Double, Double, Double> operation) {
+      BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
     Optional<Wallet> wallet = walletRepository.findById(walletId);
     if (wallet.isPresent() && wallet.get().getCurrency().equals(transactionRequestDto.currency())) {
-      Double balance = operation.apply(wallet.get().getBalance(), transactionRequestDto.amount());
-      if (balance >= 0) {
+      BigDecimal balance = operation.apply(wallet.get().getBalance(), transactionRequestDto.amount());
+      if (balance.compareTo(BigDecimal.ZERO) >= 0) {
         wallet.get().setBalance(balance);
         walletRepository.save(wallet.get());
         return transactionService.saveTransaction(walletId, transactionRequestDto,
@@ -77,12 +78,12 @@ public class WalletService {
         (senderWallet.isPresent() && receivingWallet.isPresent()) &&
         (senderWallet.get().getCurrency().equals(receivingWallet.get().getCurrency()))
     ) {
-      double senderWalletBalance = senderWallet.get().getBalance() - transferRequestDto.amount();
-      if (senderWalletBalance >= 0) {
+      BigDecimal senderWalletBalance = senderWallet.get().getBalance().subtract(transferRequestDto.amount());
+      if (senderWalletBalance.compareTo(BigDecimal.ZERO) >= 0) {
         senderWallet.get()
             .setBalance(senderWalletBalance);
         receivingWallet.get()
-            .setBalance(receivingWallet.get().getBalance() + transferRequestDto.amount());
+            .setBalance(receivingWallet.get().getBalance().add(transferRequestDto.amount()));
         walletRepository.saveAll(List.of(senderWallet.get(), receivingWallet.get()));
         return transactionService.saveTransaction(walletId, transferRequestDto,
             TransactionStatus.SUCCESS);
