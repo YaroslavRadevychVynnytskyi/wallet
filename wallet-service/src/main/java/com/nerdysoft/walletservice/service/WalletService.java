@@ -7,7 +7,6 @@ import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransferResponseDto;
 import com.nerdysoft.walletservice.exception.AccountHasAlreadyWalletOnThisCurrencyException;
 import com.nerdysoft.walletservice.mapper.TransactionMapper;
-import com.nerdysoft.walletservice.model.Transaction;
 import com.nerdysoft.walletservice.model.Wallet;
 import com.nerdysoft.walletservice.model.enums.Currency;
 import com.nerdysoft.walletservice.model.enums.TransactionStatus;
@@ -81,7 +80,8 @@ public class WalletService {
     Optional<Wallet> receivingWallet = walletRepository.findById(transferRequestDto.toWalletId());
     if (
         (senderWallet.isPresent() && receivingWallet.isPresent()) &&
-        (senderWallet.get().getCurrency().equals(receivingWallet.get().getCurrency()))
+        senderWallet.get().getCurrency().equals(transferRequestDto.currency()) &&
+        senderWallet.get().getCurrency().equals(receivingWallet.get().getCurrency())
     ) {
       BigDecimal senderWalletBalance = senderWallet.get().getBalance().subtract(transferRequestDto.amount());
       if (senderWalletBalance.compareTo(BigDecimal.ZERO) >= 0) {
