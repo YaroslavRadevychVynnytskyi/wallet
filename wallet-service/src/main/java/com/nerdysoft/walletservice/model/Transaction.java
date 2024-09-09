@@ -22,20 +22,18 @@ public class Transaction {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID transactionId;
 
+  @Column(nullable = false)
   private UUID walletId;
 
-  @Column(updatable = false)
   private UUID toWalletId;
 
-  @Column(updatable = false, nullable = false)
+  @Column(nullable = false)
   private Double amount;
 
   @Enumerated(EnumType.STRING)
-  @Column(updatable = false)
   private Currency currency;
 
   @Enumerated(EnumType.STRING)
-  @Column(updatable = false)
   private TransactionStatus status;
 
   private final LocalDate createdAt = LocalDate.now();
