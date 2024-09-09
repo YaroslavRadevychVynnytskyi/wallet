@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: api-gateway
+server:
+  port: 9090
+eureka:
+  client:
+    service-url:
+      defaultZone: http://10.10.50.91:8761/eureka
