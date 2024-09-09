@@ -1,10 +1,12 @@
-package com.application.controller;
+package com.nerdysoft.controller;
 
-import com.application.dto.AccountResponseDto;
-import com.application.dto.CreateAccountRequestDto;
-import com.application.dto.UpdateAccountRequestDto;
-import com.application.dto.UpdatedAccountResponseDto;
-import com.application.service.AccountService;
+import com.nerdysoft.dto.request.CreateAccountRequestDto;
+import com.nerdysoft.dto.request.CreateTransactionRequestDto;
+import com.nerdysoft.dto.request.UpdateAccountRequestDto;
+import com.nerdysoft.dto.response.AccountResponseDto;
+import com.nerdysoft.dto.response.TransactionResponseDto;
+import com.nerdysoft.dto.response.UpdatedAccountResponseDto;
+import com.nerdysoft.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
@@ -40,7 +42,9 @@ public class AccountController {
 
     @Operation(summary = "Update account data by ID")
     @PutMapping("/{accountId}")
-    public ResponseEntity<UpdatedAccountResponseDto> update(@PathVariable UUID accountId, @RequestBody UpdateAccountRequestDto requestDto) {
+    public ResponseEntity<UpdatedAccountResponseDto> update(
+            @PathVariable UUID accountId,
+            @RequestBody UpdateAccountRequestDto requestDto) {
         return ResponseEntity.ok(accountService.update(accountId, requestDto));
     }
 
@@ -49,5 +53,12 @@ public class AccountController {
     public ResponseEntity<Void> delete(@PathVariable UUID accountId) {
         accountService.deleteById(accountId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{accountId}/transactions")
+    public ResponseEntity<TransactionResponseDto> createTransaction(
+            @PathVariable UUID accountId,
+            @RequestBody CreateTransactionRequestDto requestDto) {
+        return ResponseEntity.ok(accountService.createTransaction(accountId, requestDto));
     }
 }

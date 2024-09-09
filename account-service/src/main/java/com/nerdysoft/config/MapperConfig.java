@@ -1,4 +1,4 @@
-package com.application.config;
+package com.nerdysoft.config;
 
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.NullValueCheckStrategy;

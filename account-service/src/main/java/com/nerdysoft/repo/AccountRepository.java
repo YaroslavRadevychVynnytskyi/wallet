@@ -1,6 +1,6 @@
-package com.application.repo;
+package com.nerdysoft.repo;
 
-import com.application.entity.Account;
+import com.nerdysoft.entity.Account;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
