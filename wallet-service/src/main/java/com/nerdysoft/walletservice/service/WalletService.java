@@ -3,7 +3,10 @@ package com.nerdysoft.walletservice.service;
 import com.nerdysoft.walletservice.dto.request.CreateWalletDto;
 import com.nerdysoft.walletservice.dto.request.TransactionRequestDto;
 import com.nerdysoft.walletservice.dto.request.TransferRequestDto;
+import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
+import com.nerdysoft.walletservice.dto.response.TransferResponseDto;
 import com.nerdysoft.walletservice.exception.AccountHasAlreadyWalletOnThisCurrencyException;
+import com.nerdysoft.walletservice.mapper.TransactionMapper;
 import com.nerdysoft.walletservice.model.Transaction;
 import com.nerdysoft.walletservice.model.Wallet;
 import com.nerdysoft.walletservice.model.enums.Currency;
@@ -24,6 +27,8 @@ public class WalletService {
   private final WalletRepository walletRepository;
 
   private final TransactionService transactionService;
+
+  private final TransactionMapper transactionMapper;
 
   public Wallet createWallet(CreateWalletDto createWalletDto) {
     if (walletRepository.hasAccountWalletOnThisCurrency(createWalletDto.accountId(),
@@ -51,7 +56,7 @@ public class WalletService {
     return String.format("Wallet with id %s was deleted", walletId);
   }
 
-  public Transaction transaction(UUID walletId, TransactionRequestDto transactionRequestDto,
+  public TransactionResponseDto transaction(UUID walletId, TransactionRequestDto transactionRequestDto,
       BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
     Optional<Wallet> wallet = walletRepository.findById(walletId);
     if (wallet.isPresent() && wallet.get().getCurrency().equals(transactionRequestDto.currency())) {
@@ -59,19 +64,19 @@ public class WalletService {
       if (balance.compareTo(BigDecimal.ZERO) >= 0) {
         wallet.get().setBalance(balance);
         walletRepository.save(wallet.get());
-        return transactionService.saveTransaction(walletId, transactionRequestDto,
-            TransactionStatus.SUCCESS);
+        return transactionMapper.transactionToTransactionResponseDto(transactionService.saveTransaction(walletId, transactionRequestDto,
+            TransactionStatus.SUCCESS));
       } else {
-        return transactionService.saveTransaction(walletId, transactionRequestDto,
-            TransactionStatus.FAILURE);
+        return transactionMapper.transactionToTransactionResponseDto(transactionService.saveTransaction(walletId, transactionRequestDto,
+            TransactionStatus.FAILURE));
       }
     } else {
-      return transactionService.saveTransaction(walletId, transactionRequestDto,
-          TransactionStatus.FAILURE);
+      return transactionMapper.transactionToTransactionResponseDto(transactionService.saveTransaction(walletId, transactionRequestDto,
+          TransactionStatus.FAILURE));
     }
   }
 
-  public Transaction transferToAnotherWallet(UUID walletId, TransferRequestDto transferRequestDto) {
+  public TransferResponseDto transferToAnotherWallet(UUID walletId, TransferRequestDto transferRequestDto) {
     Optional<Wallet> senderWallet = walletRepository.findById(walletId);
     Optional<Wallet> receivingWallet = walletRepository.findById(transferRequestDto.toWalletId());
     if (
@@ -85,15 +90,15 @@ public class WalletService {
         receivingWallet.get()
             .setBalance(receivingWallet.get().getBalance().add(transferRequestDto.amount()));
         walletRepository.saveAll(List.of(senderWallet.get(), receivingWallet.get()));
-        return transactionService.saveTransaction(walletId, transferRequestDto,
-            TransactionStatus.SUCCESS);
+        return transactionMapper.transactionToTransferResponseDto(transactionService.saveTransaction(walletId, transferRequestDto,
+            TransactionStatus.SUCCESS));
       } else {
-        return transactionService.saveTransaction(walletId, transferRequestDto,
-            TransactionStatus.FAILURE);
+        return transactionMapper.transactionToTransferResponseDto(transactionService.saveTransaction(walletId, transferRequestDto,
+            TransactionStatus.FAILURE));
       }
     } else {
-      return transactionService.saveTransaction(walletId, transferRequestDto,
-          TransactionStatus.FAILURE);
+      return transactionMapper.transactionToTransferResponseDto(transactionService.saveTransaction(walletId, transferRequestDto,
+          TransactionStatus.FAILURE));
     }
   }
 

@@ -3,6 +3,8 @@ package com.nerdysoft.walletservice.controller;
 import com.nerdysoft.walletservice.dto.request.CreateWalletDto;
 import com.nerdysoft.walletservice.dto.request.TransactionRequestDto;
 import com.nerdysoft.walletservice.dto.request.TransferRequestDto;
+import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
+import com.nerdysoft.walletservice.dto.response.TransferResponseDto;
 import com.nerdysoft.walletservice.model.Transaction;
 import com.nerdysoft.walletservice.model.Wallet;
 import com.nerdysoft.walletservice.model.enums.Currency;
@@ -49,19 +51,19 @@ public class WalletController {
   }
 
   @PostMapping("{walletId}/deposit")
-  private ResponseEntity<Transaction> deposit(@PathVariable UUID walletId, @RequestBody TransactionRequestDto transactionRequestDto) {
+  private ResponseEntity<TransactionResponseDto> deposit(@PathVariable UUID walletId, @RequestBody TransactionRequestDto transactionRequestDto) {
     return new ResponseEntity<>(walletService.transaction(walletId, transactionRequestDto, BigDecimal::add),
         HttpStatus.ACCEPTED);
   }
 
   @PostMapping("{walletId}/withdraw")
-  private ResponseEntity<Transaction> withdraw(@PathVariable UUID walletId, @RequestBody TransactionRequestDto transactionRequestDto) {
+  private ResponseEntity<TransactionResponseDto> withdraw(@PathVariable UUID walletId, @RequestBody TransactionRequestDto transactionRequestDto) {
     return new ResponseEntity<>(walletService.transaction(walletId, transactionRequestDto, BigDecimal::subtract),
         HttpStatus.ACCEPTED);
   }
 
   @PostMapping("{walletId}/transfer")
-  private ResponseEntity<Transaction> transfer(@PathVariable UUID walletId, @RequestBody TransferRequestDto transferRequestDto) {
+  private ResponseEntity<TransferResponseDto> transfer(@PathVariable UUID walletId, @RequestBody TransferRequestDto transferRequestDto) {
     return new ResponseEntity<>(walletService.transferToAnotherWallet(walletId, transferRequestDto), HttpStatus.ACCEPTED);
   }
 

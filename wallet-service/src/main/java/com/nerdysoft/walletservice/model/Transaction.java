@@ -10,7 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,7 +37,7 @@ public class Transaction {
   @Enumerated(EnumType.STRING)
   private TransactionStatus status;
 
-  private final LocalDate createdAt = LocalDate.now();
+  private final LocalDateTime createdAt = LocalDateTime.now();
 
   public Transaction(UUID walletId, BigDecimal amount, Currency currency, TransactionStatus status) {
     this.walletId = walletId;
