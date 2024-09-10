@@ -3,9 +3,11 @@ package com.nerdysoft.dto.feign;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Wallet {
     private UUID walletId;
     private UUID accountId;

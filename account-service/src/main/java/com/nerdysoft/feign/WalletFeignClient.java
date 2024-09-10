@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(value = "wallet-service", path = "wallets")
+@FeignClient(value = "api-gateway")
 public interface WalletFeignClient {
-    @PostMapping
+    @PostMapping("/wallet-service/wallets")
     ResponseEntity<Wallet> createWallet(@RequestBody CreateWalletDto createWalletDto);
 
-    @PostMapping("{walletId}/transfer")
+    @PostMapping("/wallet-service/wallets{walletId}/transfer")
     ResponseEntity<Transaction> transfer(@PathVariable UUID walletId,
                                          @RequestBody TransferRequestDto transferRequestDto);
 
-    @GetMapping("account/{accountId}")
+    @GetMapping("/wallet-service/wallets/account/{accountId}")
     ResponseEntity<Wallet> getWalletByAccountIdAndCurrency(@PathVariable UUID accountId,
                                                            @RequestParam Currency currency);
 }
