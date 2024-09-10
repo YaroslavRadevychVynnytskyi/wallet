@@ -61,11 +61,12 @@ public class AccountServiceTest {
                 "johnPassword123"
         );
 
-        Account account = new Account();
-        account.setUsername(requestDto.username());
-        account.setEmail(requestDto.email());
-        account.setPassword(requestDto.password());
-        account.setCreatedAt(LocalDateTime.now());
+        Account account = Account.builder()
+                .username(requestDto.username())
+                .email(requestDto.email())
+                .password(requestDto.password())
+                .createdAt(LocalDateTime.now())
+                .build();
 
         UUID accountMockId = UUID.randomUUID();
 
@@ -74,7 +75,7 @@ public class AccountServiceTest {
                 Currency.USD
         );
 
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
 
         Wallet wallet = new Wallet(
                 UUID.randomUUID(),
@@ -117,13 +118,14 @@ public class AccountServiceTest {
     void getById_ExistingId_ShouldReturnValidAccountResponseDto() {
         //Given
         UUID accountMockId = UUID.randomUUID();
-        Account account = new Account(
-                accountMockId,
-                "John Peters",
-                "john@email.com",
-                "123john56",
-                LocalDateTime.now()
-        );
+
+        Account account = Account.builder()
+                .accountId(accountMockId)
+                .username("John Peters")
+                .email("john@email.com")
+                .password("123john56")
+                .createdAt(LocalDateTime.now())
+                .build();
 
         AccountResponseDto expected = new AccountResponseDto(
                 account.getAccountId(),
@@ -169,13 +171,13 @@ public class AccountServiceTest {
                 "peter.smith@email.com"
         );
 
-        Account account = new Account(
-                accountMockId,
-                "Peter Jackson",
-                "peter@email.com",
-                "1234peter56",
-                LocalDateTime.now()
-        );
+        Account account = Account.builder()
+                .accountId(accountMockId)
+                .username("Peter Jackson")
+                .email("peter@email.com")
+                .password("1234peter56")
+                .createdAt(LocalDateTime.now())
+                .build();
 
         UpdatedAccountResponseDto expected = new UpdatedAccountResponseDto(
                 accountMockId,
@@ -237,7 +239,7 @@ public class AccountServiceTest {
                 fromAccountId,
                 BigDecimal.valueOf(4200),
                 currency,
-                LocalDate.of(2019, Month.AUGUST, 4)
+                LocalDateTime.of(2019, Month.AUGUST, 4, 0, 0)
         );
 
         Wallet toWallet = new Wallet(
@@ -245,7 +247,7 @@ public class AccountServiceTest {
                 toAccountId,
                 BigDecimal.valueOf(2000),
                 currency,
-                LocalDate.of(2021, Month.JUNE, 28)
+                LocalDateTime.of(2021, Month.JUNE, 28, 0, 0)
         );
 
         TransferRequestDto transferRequestDto = new TransferRequestDto(

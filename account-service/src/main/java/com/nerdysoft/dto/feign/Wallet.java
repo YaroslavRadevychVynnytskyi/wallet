@@ -1,7 +1,7 @@
 package com.nerdysoft.dto.feign;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,5 +13,5 @@ public class Wallet {
     private UUID accountId;
     private BigDecimal balance;
     private Currency currency;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 }
