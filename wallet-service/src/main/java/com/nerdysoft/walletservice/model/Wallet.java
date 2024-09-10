@@ -10,7 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +34,7 @@ public class Wallet {
   @Enumerated(EnumType.STRING)
   private Currency currency;
 
-  private final LocalDate createdAt = LocalDate.now();
+  private final LocalDateTime createdAt = LocalDateTime.now();
 
   public Wallet(CreateWalletDto createWalletDto) {
     this.accountId = createWalletDto.accountId();
