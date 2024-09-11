@@ -1,11 +1,11 @@
-package com.application.mapper;
+package com.nerdysoft.mapper;
 
-import com.application.config.MapperConfig;
-import com.application.dto.AccountResponseDto;
-import com.application.dto.CreateAccountRequestDto;
-import com.application.dto.UpdateAccountRequestDto;
-import com.application.dto.UpdatedAccountResponseDto;
-import com.application.entity.Account;
+import com.nerdysoft.config.MapperConfig;
+import com.nerdysoft.dto.request.CreateAccountRequestDto;
+import com.nerdysoft.dto.request.UpdateAccountRequestDto;
+import com.nerdysoft.dto.response.AccountResponseDto;
+import com.nerdysoft.dto.response.UpdatedAccountResponseDto;
+import com.nerdysoft.entity.Account;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

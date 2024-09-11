@@ -1,4 +1,4 @@
-package com.application.dto;
+package com.nerdysoft.dto.request;
 
 public record CreateAccountRequestDto(
         String username,
