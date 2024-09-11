@@ -16,15 +16,24 @@ public class TransactionService {
 
   public Transaction saveTransaction(UUID walletId, TransactionRequestDto transactionRequestDto,
       TransactionStatus status) {
-    Transaction transaction = new Transaction(walletId, transactionRequestDto.amount(),
-        transactionRequestDto.currency(), status);
+    Transaction transaction = Transaction.builder()
+        .walletId(walletId)
+        .amount(transactionRequestDto.amount())
+        .currency(transactionRequestDto.currency())
+        .status(status)
+        .build();
     return transactionRepository.save(transaction);
   }
 
   public Transaction saveTransaction(UUID walletId, TransferRequestDto transferRequestDto,
       TransactionStatus status) {
-    Transaction transaction = new Transaction(walletId, transferRequestDto.amount(),
-        transferRequestDto.currency(), status, transferRequestDto.toWalletId());
+    Transaction transaction = Transaction.builder()
+        .walletId(walletId)
+        .amount(transferRequestDto.amount())
+        .currency(transferRequestDto.currency())
+        .status(status)
+        .toWalletId(transferRequestDto.toWalletId())
+        .build();
     return transactionRepository.save(transaction);
   }
 }

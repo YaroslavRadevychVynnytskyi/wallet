@@ -16,7 +16,7 @@ import com.nerdysoft.walletservice.dto.request.TransactionRequestDto;
 import com.nerdysoft.walletservice.dto.request.TransferRequestDto;
 import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransferResponseDto;
-import com.nerdysoft.walletservice.exception.AccountHasAlreadyWalletOnThisCurrencyException;
+import com.nerdysoft.walletservice.exception.UniqueException;
 import com.nerdysoft.walletservice.mapper.TransactionMapper;
 import com.nerdysoft.walletservice.model.Transaction;
 import com.nerdysoft.walletservice.model.Wallet;
@@ -81,7 +81,7 @@ class WalletServiceTest {
   public void shouldThrowExceptionWhenAccountTriesToCreateAnotherWalletOnSameCurrency() {
     CreateWalletDto createWalletDto = new CreateWalletDto(uuid, Currency.USD);
     when(walletRepository.hasAccountWalletOnThisCurrency(createWalletDto.accountId(), createWalletDto.currency())).thenReturn(true);
-    assertThrows(AccountHasAlreadyWalletOnThisCurrencyException.class, () -> walletService.createWallet(createWalletDto));
+    assertThrows(UniqueException.class, () -> walletService.createWallet(createWalletDto));
     verify(walletRepository, times(0)).save(any(Wallet.class));
   }
 

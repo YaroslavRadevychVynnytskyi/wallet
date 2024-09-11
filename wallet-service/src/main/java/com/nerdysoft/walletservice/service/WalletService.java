@@ -5,7 +5,7 @@ import com.nerdysoft.walletservice.dto.request.TransactionRequestDto;
 import com.nerdysoft.walletservice.dto.request.TransferRequestDto;
 import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransferResponseDto;
-import com.nerdysoft.walletservice.exception.AccountHasAlreadyWalletOnThisCurrencyException;
+import com.nerdysoft.walletservice.exception.UniqueException;
 import com.nerdysoft.walletservice.mapper.TransactionMapper;
 import com.nerdysoft.walletservice.model.Wallet;
 import com.nerdysoft.walletservice.model.enums.Currency;
@@ -18,7 +18,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class WalletService {
   public Wallet createWallet(CreateWalletDto createWalletDto) {
     if (walletRepository.hasAccountWalletOnThisCurrency(createWalletDto.accountId(),
         createWalletDto.currency())) {
-      throw new AccountHasAlreadyWalletOnThisCurrencyException();
+      throw new UniqueException(String.format("This account has already wallet on %s currency", createWalletDto.currency()), HttpStatus.NOT_ACCEPTABLE);
     } else {
       Wallet wallet = new Wallet(createWalletDto);
       return walletRepository.save(wallet);
@@ -55,6 +57,7 @@ public class WalletService {
     return String.format("Wallet with id %s was deleted", walletId);
   }
 
+  @Transactional
   public TransactionResponseDto transaction(UUID walletId, TransactionRequestDto transactionRequestDto,
       BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
     Optional<Wallet> wallet = walletRepository.findById(walletId);
@@ -75,6 +78,7 @@ public class WalletService {
     }
   }
 
+  @Transactional
   public TransferResponseDto transferToAnotherWallet(UUID walletId, TransferRequestDto transferRequestDto) {
     Optional<Wallet> senderWallet = walletRepository.findById(walletId);
     Optional<Wallet> receivingWallet = walletRepository.findById(transferRequestDto.toWalletId());

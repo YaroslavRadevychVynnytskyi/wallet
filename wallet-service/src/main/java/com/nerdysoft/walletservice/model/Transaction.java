@@ -12,12 +12,16 @@ import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Transaction {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,16 +42,4 @@ public class Transaction {
   private TransactionStatus status;
 
   private final LocalDateTime createdAt = LocalDateTime.now();
-
-  public Transaction(UUID walletId, BigDecimal amount, Currency currency, TransactionStatus status) {
-    this.walletId = walletId;
-    this.amount = amount;
-    this.currency = currency;
-    this.status = status;
-  }
-
-  public Transaction(UUID walletId, BigDecimal amount, Currency currency, TransactionStatus status, UUID toWalletId) {
-    this(walletId, amount, currency, status);
-    this.toWalletId = toWalletId;
-  }
 }
