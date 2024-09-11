@@ -22,7 +22,7 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Exchange transactionExchangeFanout() {
+    public Exchange transactionExchange() {
         return new DirectExchange(TRANSACTION_EXCHANGE);
     }
 
@@ -30,7 +30,7 @@ public class RabbitConfig {
     public Binding transactionQueueBinding() {
         return BindingBuilder
                 .bind(transactionQueue())
-                .to(transactionExchangeFanout())
+                .to(transactionExchange())
                 .with(TRANSACTION_ROUTING_KEY)
                 .noargs();
     }
