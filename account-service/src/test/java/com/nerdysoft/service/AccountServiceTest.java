@@ -65,7 +65,6 @@ public class AccountServiceTest {
                 .username(requestDto.username())
                 .email(requestDto.email())
                 .password(requestDto.password())
-                .createdAt(LocalDateTime.now())
                 .build();
 
         UUID accountMockId = UUID.randomUUID();
@@ -124,7 +123,6 @@ public class AccountServiceTest {
                 .username("John Peters")
                 .email("john@email.com")
                 .password("123john56")
-                .createdAt(LocalDateTime.now())
                 .build();
 
         AccountResponseDto expected = new AccountResponseDto(
@@ -176,7 +174,6 @@ public class AccountServiceTest {
                 .username("Peter Jackson")
                 .email("peter@email.com")
                 .password("1234peter56")
-                .createdAt(LocalDateTime.now())
                 .build();
 
         UpdatedAccountResponseDto expected = new UpdatedAccountResponseDto(
