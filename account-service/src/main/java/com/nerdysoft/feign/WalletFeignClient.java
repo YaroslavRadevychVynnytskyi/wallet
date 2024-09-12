@@ -19,7 +19,7 @@ public interface WalletFeignClient {
     @PostMapping("/wallet-service/wallets")
     ResponseEntity<Wallet> createWallet(@RequestBody CreateWalletDto createWalletDto);
 
-    @PostMapping("/wallet-service/wallets{walletId}/transfer")
+    @PostMapping("/wallet-service/wallets/{walletId}/transfer")
     ResponseEntity<Transaction> transfer(@PathVariable UUID walletId,
                                          @RequestBody TransferRequestDto transferRequestDto);
 
