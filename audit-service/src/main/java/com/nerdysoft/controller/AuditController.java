@@ -24,6 +24,6 @@ public class AuditController {
 
     @GetMapping("/transactions/{transactionId}")
     public ResponseEntity<TransactionEvent> getById(@PathVariable UUID transactionId) {
-        return ResponseEntity.ok(auditService.getById(transactionId));
+        return ResponseEntity.ok(auditService.getByTransactionId(transactionId));
     }
 }

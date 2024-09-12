@@ -14,8 +14,10 @@ import com.nerdysoft.dto.response.UpdatedAccountResponseDto;
 import com.nerdysoft.entity.Account;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
+import com.nerdysoft.mapper.TransactionMapper;
 import com.nerdysoft.repo.AccountRepository;
 import com.nerdysoft.service.AccountService;
+import com.nerdysoft.service.EventProducer;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final WalletFeignClient walletFeignClient;
+    private final EventProducer eventProducer;
+    private final TransactionMapper transactionMapper;
 
     @Override
     public AccountResponseDto create(CreateAccountRequestDto requestDto) {
@@ -81,6 +85,8 @@ public class AccountServiceImpl implements AccountService {
                 fromWallet.getWalletId(),
                 transferRequestDto)
                 .getBody();
+
+        eventProducer.sendTransactionEvent(transactionMapper.toTransactionEvent(transaction));
 
         return new TransactionResponseDto(transaction, accountId, requestDto.toAccountId());
     }

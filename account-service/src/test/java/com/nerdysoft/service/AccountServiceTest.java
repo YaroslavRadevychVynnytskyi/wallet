@@ -22,6 +22,7 @@ import com.nerdysoft.dto.response.UpdatedAccountResponseDto;
 import com.nerdysoft.entity.Account;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
+import com.nerdysoft.mapper.TransactionMapper;
 import com.nerdysoft.repo.AccountRepository;
 import com.nerdysoft.service.impl.AccountServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -48,6 +49,12 @@ public class AccountServiceTest {
 
     @Mock
     private WalletFeignClient walletFeignClient;
+
+    @Mock
+    private TransactionMapper transactionMapper;
+
+    @Mock
+    private EventProducer eventProducer;
 
     @InjectMocks
     private AccountServiceImpl accountService;

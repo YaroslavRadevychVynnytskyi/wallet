@@ -19,8 +19,8 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public TransactionEvent getById(UUID transactionId) {
-        return transactionEventRepository.findById(transactionId).orElseThrow();
+    public TransactionEvent getByTransactionId(UUID transactionId) {
+        return transactionEventRepository.findByTransactionId(transactionId).orElseThrow();
     }
 
     @Override

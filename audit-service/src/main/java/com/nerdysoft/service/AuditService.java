@@ -7,7 +7,7 @@ import java.util.UUID;
 public interface AuditService {
     List<TransactionEvent> getAll();
 
-    TransactionEvent getById(UUID transactionId);
+    TransactionEvent getByTransactionId(UUID transactionId);
 
     void saveTransactionEvent(TransactionEvent transactionEvent);
 }

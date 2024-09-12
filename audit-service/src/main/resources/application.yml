@@ -10,3 +10,11 @@ eureka:
   client:
     service-url.defaultZone:
       http://localhost:8761/eureka
+rabbitmq:
+  transaction:
+    exchange:
+      transaction-exchange
+    queue:
+      transaction-queue
+    routing_key:
+      transaction-key
