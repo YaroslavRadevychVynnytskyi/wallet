@@ -7,10 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Data;
-import lombok.ToString;
 
 @Data
-@ToString
 public class TransactionEvent implements Serializable {
     private UUID transactionId;
     private UUID fromWalletId;
