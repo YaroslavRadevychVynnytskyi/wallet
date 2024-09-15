@@ -1,4 +1,4 @@
-package com.nerdysoft.dto.rabbit.enums;
+package com.nerdysoft.entity.transaction.enums;
 
 public enum TransactionStatus {
     SUCCESS,

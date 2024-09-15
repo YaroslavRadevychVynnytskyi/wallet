@@ -1,4 +1,4 @@
-package com.nerdysoft.entity.enums;
+package com.nerdysoft.entity.transaction.enums;
 
 public enum TransactionType {
     WALLET_TO_WALLET,

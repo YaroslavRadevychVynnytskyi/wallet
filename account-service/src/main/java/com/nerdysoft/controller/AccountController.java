@@ -1,11 +1,11 @@
 package com.nerdysoft.controller;
 
-import com.nerdysoft.dto.request.CreateAccountRequestDto;
-import com.nerdysoft.dto.request.CreateTransactionRequestDto;
-import com.nerdysoft.dto.request.UpdateAccountRequestDto;
-import com.nerdysoft.dto.response.AccountResponseDto;
-import com.nerdysoft.dto.response.TransactionResponseDto;
-import com.nerdysoft.dto.response.UpdatedAccountResponseDto;
+import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
+import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
+import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
+import com.nerdysoft.dto.api.response.AccountResponseDto;
+import com.nerdysoft.dto.api.response.TransactionResponseDto;
+import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

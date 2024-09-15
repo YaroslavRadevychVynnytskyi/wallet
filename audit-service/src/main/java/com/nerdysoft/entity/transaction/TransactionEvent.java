@@ -1,7 +1,7 @@
-package com.nerdysoft.entity;
+package com.nerdysoft.entity.transaction;
 
-import com.nerdysoft.entity.enums.TransactionStatus;
-import com.nerdysoft.entity.enums.TransactionType;
+import com.nerdysoft.entity.transaction.enums.TransactionStatus;
+import com.nerdysoft.entity.transaction.enums.TransactionType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;

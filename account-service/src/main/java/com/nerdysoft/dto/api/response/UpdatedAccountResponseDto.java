@@ -1,12 +1,12 @@
-package com.nerdysoft.dto.response;
+package com.nerdysoft.dto.api.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record AccountResponseDto(
+public record UpdatedAccountResponseDto(
         UUID accountId,
         String username,
         String email,
-        LocalDateTime createdAt
+        LocalDateTime updatedAt
 ) {
 }

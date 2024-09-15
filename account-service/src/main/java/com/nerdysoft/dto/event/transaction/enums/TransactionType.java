@@ -1,4 +1,4 @@
-package com.nerdysoft.dto.rabbit.enums;
+package com.nerdysoft.dto.event.transaction.enums;
 
 public enum TransactionType {
     WALLET_TO_WALLET,
