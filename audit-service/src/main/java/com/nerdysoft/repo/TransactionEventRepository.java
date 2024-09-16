@@ -1,6 +1,6 @@
 package com.nerdysoft.repo;
 
-import com.nerdysoft.entity.TransactionEvent;
+import com.nerdysoft.entity.transaction.TransactionEvent;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.mongodb.repository.MongoRepository;

@@ -1,4 +1,4 @@
-package com.nerdysoft.dto.request;
+package com.nerdysoft.dto.api.request;
 
 import com.nerdysoft.dto.feign.Currency;
 import java.math.BigDecimal;

@@ -14,6 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.mapstruct.control.DeepClone;
 
 @Entity
 @Table(name = "accounts")
@@ -23,6 +24,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@DeepClone
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
