@@ -1,6 +1,5 @@
 package com.nerdysoft.controller;
 
-import com.nerdysoft.dto.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.request.CreateTransactionRequestDto;
 import com.nerdysoft.dto.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.response.AccountResponseDto;
@@ -27,12 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
-
-    @Operation(summary = "Create new account")
-    @PostMapping
-    public ResponseEntity<AccountResponseDto> create(@RequestBody CreateAccountRequestDto requestDto) {
-        return ResponseEntity.ok(accountService.create(requestDto));
-    }
 
     @Operation(summary = "Get account data by ID")
     @GetMapping("/{accountId}")

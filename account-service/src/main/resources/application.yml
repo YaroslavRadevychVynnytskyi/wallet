@@ -14,8 +14,8 @@ spring:
       ddl-auto: update
 eureka:
   client:
-    service-url.defaultZone:
-      http://localhost:8761/eureka
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 rabbitmq:
   transaction:
     exchange:
@@ -24,3 +24,7 @@ rabbitmq:
       transaction-queue
     routing_key:
       transaction-key
+application:
+  api-gateway-url: http://localhost:9090
+  secret-key: kdshhgfywgyt253648127yjdsbuysdgcafd65as5crdvsnnsjivdsuhvyd8ydts7876475gshdsgfr1r1io3buyg0df0dldbl0dblmbdkjdudushhjftaaghfrqg722g
+  token-expiration-time: 86_400_000

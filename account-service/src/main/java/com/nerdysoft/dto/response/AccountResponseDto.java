@@ -2,11 +2,17 @@ package com.nerdysoft.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-public record AccountResponseDto(
-        UUID accountId,
-        String username,
-        String email,
-        LocalDateTime createdAt
-) {
+@Getter
+@Setter
+@Builder
+public class AccountResponseDto {
+  private UUID accountId;
+  private String fullName;
+  private String email;
+  private LocalDateTime createdAt;
+  private String accessToken;
 }

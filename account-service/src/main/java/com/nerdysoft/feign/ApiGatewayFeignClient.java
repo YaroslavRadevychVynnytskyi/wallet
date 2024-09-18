@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(value = "api-gateway")
-public interface WalletFeignClient {
+@FeignClient(value = "api-gateway", url = "${application.api-gateway-url}")
+public interface ApiGatewayFeignClient {
     @PostMapping("/wallet-service/wallets")
     ResponseEntity<Wallet> createWallet(@RequestBody CreateWalletDto createWalletDto);
 
