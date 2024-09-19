@@ -25,6 +25,5 @@ rabbitmq:
     transaction-key: transaction-key
     activity-key: activity-key
 application:
-  api-gateway-url: http://localhost:9090
-  secret-key: kdshhgfywgyt253648127yjdsbuysdgcafd65as5crdvsnnsjivdsuhvyd8ydts7876475gshdsgfr1r1io3buyg0df0dldbl0dblmbdkjdudushhjftaaghfrqg722g
+  secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
   token-expiration-time: 86_400_000

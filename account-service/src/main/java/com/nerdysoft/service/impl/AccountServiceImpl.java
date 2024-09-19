@@ -16,7 +16,7 @@ import com.nerdysoft.dto.feign.Wallet;
 import com.nerdysoft.entity.Account;
 import com.nerdysoft.entity.Role;
 import com.nerdysoft.entity.enums.RoleName;
-import com.nerdysoft.feign.ApiGatewayFeignClient;
+import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.mapper.TransactionMapper;
 import com.nerdysoft.repo.AccountRepository;
@@ -27,6 +27,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,29 +36,34 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
-    private final ApiGatewayFeignClient apiGatewayFeignClient;
+    private final WalletFeignClient walletFeignClient;
     private final EventProducer eventProducer;
     private final TransactionMapper transactionMapper;
     private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
-    public Account create(CreateAccountRequestDto requestDto) {
-        Account savedAccount = accountMapper.toModel(requestDto);
-        Role role = roleService.getRoleByName(RoleName.USER);
-        savedAccount.getRoles().add(role);
-        savedAccount = accountRepository.save(savedAccount);
+    public AccountResponseDto create(CreateAccountRequestDto requestDto) {
+        Account account = accountMapper.toModel(requestDto);
+        account.setPassword(passwordEncoder.encode(requestDto.password()));
 
-        CreateWalletDto walletDto = new CreateWalletDto(savedAccount.getAccountId(), Currency.USD);
-        apiGatewayFeignClient.createWallet(walletDto);
+        Role role = roleService.getRoleByName(RoleName.USER);
+        account.getRoles().add(role);
+        account = accountRepository.save(account);
+
+        CreateWalletDto walletDto = new CreateWalletDto(account.getAccountId(), Currency.USD);
+        walletFeignClient.createWallet(walletDto);
+
         eventProducer.sendEvent(
-            savedAccount.getAccountId(),
-            savedAccount.getAccountId(),
+            account.getAccountId(),
+            account.getAccountId(),
             ActionType.CREATE,
             EntityType.ACCOUNT,
             Optional.empty(),
-            Optional.of(savedAccount));
-        return savedAccount;
+            Optional.of(account));
+
+        return accountMapper.toDto(account);
     }
 
     @Override
@@ -111,12 +117,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public TransactionResponseDto createTransaction(UUID accountId,
                                                     CreateTransactionRequestDto requestDto) {
-        Wallet fromWallet = apiGatewayFeignClient.getWalletByAccountIdAndCurrency(
+        Wallet fromWallet = walletFeignClient.getWalletByAccountIdAndCurrency(
                 accountId,
                 requestDto.currency())
                 .getBody();
 
-        Wallet toWallet = apiGatewayFeignClient.getWalletByAccountIdAndCurrency(
+        Wallet toWallet = walletFeignClient.getWalletByAccountIdAndCurrency(
                 requestDto.toAccountId(),
                 requestDto.currency())
                 .getBody();
@@ -127,7 +133,7 @@ public class AccountServiceImpl implements AccountService {
                 requestDto.currency()
         );
 
-        Transaction transaction = apiGatewayFeignClient.transfer(
+        Transaction transaction = walletFeignClient.transfer(
                 fromWallet.getWalletId(),
                 transferRequestDto)
                 .getBody();

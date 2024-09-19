@@ -14,5 +14,4 @@ public class AccountResponseDto {
   private String fullName;
   private String email;
   private LocalDateTime createdAt;
-  private String accessToken;
 }

@@ -10,7 +10,7 @@ import com.nerdysoft.entity.Account;
 import java.util.UUID;
 
 public interface AccountService {
-    Account create(CreateAccountRequestDto requestDto);
+    AccountResponseDto create(CreateAccountRequestDto requestDto);
 
     AccountResponseDto getById(UUID accountId);
 

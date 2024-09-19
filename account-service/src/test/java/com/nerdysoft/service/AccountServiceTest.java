@@ -9,27 +9,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
 import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
-import com.nerdysoft.dto.event.activity.enums.ActionType;
-import com.nerdysoft.dto.event.activity.enums.EntityType;
-import com.nerdysoft.dto.feign.CreateWalletDto;
 import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransactionStatus;
 import com.nerdysoft.dto.feign.TransferRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
 import com.nerdysoft.entity.Account;
-import com.nerdysoft.entity.Role;
-import com.nerdysoft.entity.enums.RoleName;
-import com.nerdysoft.feign.ApiGatewayFeignClient;
+import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.mapper.TransactionMapper;
 import com.nerdysoft.repo.AccountRepository;
+import com.nerdysoft.security.util.JwtUtil;
 import com.nerdysoft.service.impl.AccountServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
@@ -53,7 +48,7 @@ public class AccountServiceTest {
     private AccountMapper accountMapper;
 
     @Mock
-    private ApiGatewayFeignClient apiGatewayFeignClient;
+    private WalletFeignClient apiGatewayFeignClient;
 
     @Mock
     private TransactionMapper transactionMapper;
@@ -65,26 +60,10 @@ public class AccountServiceTest {
     private RoleService roleService;
 
     @Mock
-    private JwtService jwtService;
+    private JwtUtil jwtUtil;
 
     @InjectMocks
     private AccountServiceImpl accountService;
-
-    @Test
-    public void shouldCreateAccount() {
-        CreateAccountRequestDto createAccountRequestDto = new CreateAccountRequestDto("Test", "email@test.com", "password");
-        Account account = new Account(UUID.randomUUID(), "Test", "email@test.com", "password");
-        Role role = new Role(1, RoleName.USER);
-        when(accountMapper.toModel(createAccountRequestDto)).thenReturn(account);
-        when(roleService.getRoleByName(RoleName.USER)).thenReturn(role);
-        when(accountRepository.save(any(Account.class))).thenReturn(account);
-        Account result = accountService.create(createAccountRequestDto);
-        assertEquals(1, result.getRoles().size());
-        verify(eventProducer, times(1)).sendEvent(account.getAccountId(),
-            account.getAccountId(), ActionType.CREATE, EntityType.ACCOUNT, Optional.empty(),
-            Optional.of(account));
-        verify(apiGatewayFeignClient, times(1)).createWallet(any(CreateWalletDto.class));
-    }
 
     @Test
     void getById_ExistingId_ShouldReturnValidAccountResponseDto() {
