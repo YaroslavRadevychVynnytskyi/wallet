@@ -1,4 +1,4 @@
-package com.nerdysoft.dto.response;
+package com.nerdysoft.dto.api.response;
 
 import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;

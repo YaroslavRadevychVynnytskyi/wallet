@@ -1,4 +1,4 @@
-package com.nerdysoft.dto.request;
+package com.nerdysoft.dto.api.request;
 
 public record UpdateAccountRequestDto(
         String fullName,

@@ -9,18 +9,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
+import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
+import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
+import com.nerdysoft.dto.api.response.AccountResponseDto;
+import com.nerdysoft.dto.api.response.TransactionResponseDto;
+import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
+import com.nerdysoft.dto.event.activity.enums.ActionType;
+import com.nerdysoft.dto.event.activity.enums.EntityType;
 import com.nerdysoft.dto.feign.CreateWalletDto;
 import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransactionStatus;
 import com.nerdysoft.dto.feign.TransferRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
-import com.nerdysoft.dto.request.CreateAccountRequestDto;
-import com.nerdysoft.dto.request.CreateTransactionRequestDto;
-import com.nerdysoft.dto.request.UpdateAccountRequestDto;
-import com.nerdysoft.dto.response.AccountResponseDto;
-import com.nerdysoft.dto.response.TransactionResponseDto;
-import com.nerdysoft.dto.response.UpdatedAccountResponseDto;
 import com.nerdysoft.entity.Account;
 import com.nerdysoft.entity.Role;
 import com.nerdysoft.entity.enums.RoleName;
@@ -78,6 +80,9 @@ public class AccountServiceTest {
         when(accountRepository.save(any(Account.class))).thenReturn(account);
         Account result = accountService.create(createAccountRequestDto);
         assertEquals(1, result.getRoles().size());
+        verify(eventProducer, times(1)).sendEvent(account.getAccountId(),
+            account.getAccountId(), ActionType.CREATE, EntityType.ACCOUNT, Optional.empty(),
+            Optional.of(account));
         verify(apiGatewayFeignClient, times(1)).createWallet(any(CreateWalletDto.class));
     }
 
@@ -159,6 +164,7 @@ public class AccountServiceTest {
 
         when(accountRepository.save(account)).thenReturn(account);
         when(accountMapper.toUpdateResponseDto(account)).thenReturn(expected);
+        when(accountMapper.clone(account)).thenReturn(new Account());
 
         //When
         UpdatedAccountResponseDto actual = accountService.update(accountMockId, requestDto);
@@ -174,13 +180,14 @@ public class AccountServiceTest {
     @Test
     void deleteById_ExistingId_ShouldDelete() {
         //Given
-        UUID accountMockId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
 
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account()));
         //When
-        accountService.deleteById(accountMockId);
+        accountService.deleteById(accountId);
 
         //Then
-        verify(accountRepository, times(1)).deleteById(accountMockId);
+        verify(accountRepository, times(1)).deleteById(accountId);
     }
 
     @Test

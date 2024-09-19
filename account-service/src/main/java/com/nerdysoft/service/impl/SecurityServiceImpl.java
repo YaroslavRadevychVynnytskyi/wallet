@@ -1,9 +1,9 @@
 package com.nerdysoft.service.impl;
 
-import com.nerdysoft.dto.request.CreateAccountRequestDto;
-import com.nerdysoft.dto.request.SignInRequestDto;
-import com.nerdysoft.dto.response.AccountResponseDto;
-import com.nerdysoft.dto.response.SignInResponseDto;
+import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
+import com.nerdysoft.dto.api.request.SignInRequestDto;
+import com.nerdysoft.dto.api.response.AccountResponseDto;
+import com.nerdysoft.dto.api.response.SignInResponseDto;
 import com.nerdysoft.entity.Account;
 import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.service.AccountService;

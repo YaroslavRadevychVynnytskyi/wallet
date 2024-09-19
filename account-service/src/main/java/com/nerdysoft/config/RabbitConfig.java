@@ -13,31 +13,50 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableRabbit
 public class RabbitConfig {
-    @Value("${rabbitmq.transaction.queue}")
+    @Value("${rabbitmq.exchange}")
+    private String exchange;
+
+    @Value("${rabbitmq.queue.transaction-queue}")
     private String transactionQueue;
 
-    @Value("${rabbitmq.transaction.exchange}")
-    private String transactionExchange;
-
-    @Value("${rabbitmq.transaction.routing_key}")
+    @Value("${rabbitmq.routing-key.transaction-key}")
     private String transactionKey;
+
+    @Value("${rabbitmq.queue.activity-queue}")
+    private String activityQueue;
+
+    @Value("${rabbitmq.routing-key.activity-key}")
+    private String activityKey;
+
+    @Bean
+    public Exchange exchange() {
+        return new DirectExchange(exchange);
+    }
 
     @Bean
     public Queue transactionQueue() {
         return new Queue(transactionQueue);
     }
 
-    @Bean
-    public Exchange transactionExchange() {
-        return new DirectExchange(transactionExchange);
+    @Bean Queue activityQueue() {
+        return new Queue(activityQueue);
     }
 
     @Bean
     public Binding transactionQueueBinding() {
         return BindingBuilder
                 .bind(transactionQueue())
-                .to(transactionExchange())
+                .to(exchange())
                 .with(transactionKey)
+                .noargs();
+    }
+
+    @Bean
+    public Binding activityQueueBinding() {
+        return BindingBuilder
+                .bind(activityQueue())
+                .to(exchange())
+                .with(activityKey)
                 .noargs();
     }
 }

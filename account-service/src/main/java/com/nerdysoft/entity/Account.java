@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.mapstruct.control.DeepClone;
 
 @Entity
 @Getter
@@ -25,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@DeepClone
 public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -17,13 +17,13 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 rabbitmq:
-  transaction:
-    exchange:
-      transaction-exchange
-    queue:
-      transaction-queue
-    routing_key:
-      transaction-key
+  exchange: exchange
+  queue:
+    transaction-queue: transaction-queue
+    activity-queue: activity-queue
+  routing-key:
+    transaction-key: transaction-key
+    activity-key: activity-key
 application:
   api-gateway-url: http://localhost:9090
   secret-key: kdshhgfywgyt253648127yjdsbuysdgcafd65as5crdvsnnsjivdsuhvyd8ydts7876475gshdsgfr1r1io3buyg0df0dldbl0dblmbdkjdudushhjftaaghfrqg722g

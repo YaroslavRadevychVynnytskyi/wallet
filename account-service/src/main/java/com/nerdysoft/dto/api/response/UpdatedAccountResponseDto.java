@@ -1,4 +1,4 @@
-package com.nerdysoft.dto.response;
+package com.nerdysoft.dto.api.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

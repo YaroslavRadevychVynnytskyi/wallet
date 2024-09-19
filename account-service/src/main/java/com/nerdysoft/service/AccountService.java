@@ -1,11 +1,11 @@
 package com.nerdysoft.service;
 
-import com.nerdysoft.dto.request.CreateAccountRequestDto;
-import com.nerdysoft.dto.request.CreateTransactionRequestDto;
-import com.nerdysoft.dto.request.UpdateAccountRequestDto;
-import com.nerdysoft.dto.response.AccountResponseDto;
-import com.nerdysoft.dto.response.TransactionResponseDto;
-import com.nerdysoft.dto.response.UpdatedAccountResponseDto;
+import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
+import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
+import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
+import com.nerdysoft.dto.api.response.AccountResponseDto;
+import com.nerdysoft.dto.api.response.TransactionResponseDto;
+import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.entity.Account;
 import java.util.UUID;
 

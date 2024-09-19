@@ -1,3 +1,3 @@
-package com.nerdysoft.dto.response;
+package com.nerdysoft.dto.api.response;
 
 public record SignInResponseDto(String accessToken) {}

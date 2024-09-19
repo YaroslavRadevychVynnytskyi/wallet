@@ -1,8 +1,8 @@
 package com.nerdysoft.mapper;
 
 import com.nerdysoft.config.MapperConfig;
+import com.nerdysoft.dto.event.transaction.TransactionEvent;
 import com.nerdysoft.dto.feign.Transaction;
-import com.nerdysoft.dto.rabbit.TransactionEvent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
