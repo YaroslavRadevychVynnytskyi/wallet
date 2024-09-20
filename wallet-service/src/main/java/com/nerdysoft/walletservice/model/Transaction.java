@@ -42,4 +42,16 @@ public class Transaction {
   private TransactionStatus status;
 
   private final LocalDateTime createdAt = LocalDateTime.now();
+
+  public Transaction(UUID transactionId, BigDecimal amount, Currency currency, TransactionStatus status) {
+    this.transactionId = transactionId;
+    this.amount = amount;
+    this.currency = currency;
+    this.status = status;
+  }
+
+  public Transaction(UUID transactionId, BigDecimal amount, Currency currency, TransactionStatus status, UUID walletId) {
+    this(transactionId, amount, currency, status);
+    this.walletId = walletId;
+  }
 }

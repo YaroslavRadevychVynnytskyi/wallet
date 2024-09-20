@@ -11,12 +11,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.nerdysoft.walletservice.dto.request.ConvertAmountRequestDto;
 import com.nerdysoft.walletservice.dto.request.CreateWalletDto;
 import com.nerdysoft.walletservice.dto.request.TransactionRequestDto;
 import com.nerdysoft.walletservice.dto.request.TransferRequestDto;
+import com.nerdysoft.walletservice.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransferResponseDto;
 import com.nerdysoft.walletservice.exception.UniqueException;
+import com.nerdysoft.walletservice.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.walletservice.mapper.TransactionMapper;
 import com.nerdysoft.walletservice.model.Transaction;
 import com.nerdysoft.walletservice.model.Wallet;
@@ -35,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
 
 class WalletServiceTest {
   @Mock
@@ -45,6 +49,9 @@ class WalletServiceTest {
 
   @Mock
   private TransactionMapper transactionMapper;
+
+  @Mock
+  private CurrencyExchangeFeignClient currencyExchangeFeignClient;
 
   @InjectMocks
   private WalletService walletService;
@@ -209,6 +216,16 @@ class WalletServiceTest {
     TransactionRequestDto transactionRequestDto = new TransactionRequestDto(withdrawAmount, withdrawCurrency);
     TransactionResponseDto transactionResponseDto = new TransactionResponseDto(uuid, uuid, withdrawAmount, withdrawCurrency, TransactionStatus.FAILURE, LocalDateTime.now());
     when(walletRepository.findById(uuid)).thenReturn(Optional.of(wallet));
+    when(currencyExchangeFeignClient.convert(new ConvertAmountRequestDto(transactionRequestDto.currency().getCode(),
+            wallet.getCurrency().getCode(), transactionRequestDto.amount())))
+            .thenReturn(ResponseEntity.ofNullable(new ConvertAmountResponseDto(
+            transactionRequestDto.currency().getCode(),
+            wallet.getCurrency().getCode(),
+            transactionRequestDto.amount(),
+            BigDecimal.valueOf(400L),
+            BigDecimal.valueOf(2L),
+            LocalDateTime.now()
+    )));
     when(transactionService.saveTransaction(any(UUID.class), any(TransactionRequestDto.class), any(TransactionStatus.class)))
         .thenReturn(transaction);
     when(transactionMapper.transactionToTransactionResponseDto(any(Transaction.class))).thenReturn(transactionResponseDto);
@@ -286,12 +303,21 @@ class WalletServiceTest {
     TransferResponseDto transferResponseDto = new TransferResponseDto(uuid, senderWalletId, receivingWalletId, transferAmount, transferCurrency, TransactionStatus.FAILURE, LocalDateTime.now());
     when(walletRepository.findById(senderWalletId)).thenReturn(Optional.of(senderWallet));
     when(walletRepository.findById(receivingWalletId)).thenReturn(Optional.of(receivingWallet));
+    ConvertAmountResponseDto convertAmountResponseDto = new ConvertAmountResponseDto(
+            transferCurrency.getCode(),
+            transferRequestDto.currency().getCode(),
+            transferAmount,
+            transferAmount.multiply(BigDecimal.valueOf(2L)),
+            BigDecimal.valueOf(2L),
+            LocalDateTime.now()
+    );
+    when(currencyExchangeFeignClient.convert(any(ConvertAmountRequestDto.class))).thenReturn(ResponseEntity.ofNullable(convertAmountResponseDto));
     when(transactionService.saveTransaction(any(UUID.class), any(TransferRequestDto.class), any(TransactionStatus.class)))
         .thenReturn(transaction);
     when(transactionMapper.transactionToTransferResponseDto(any(Transaction.class))).thenReturn(transferResponseDto);
     TransferResponseDto response = walletService.transferToAnotherWallet(senderWalletId, transferRequestDto);
     assertEquals(TransactionStatus.FAILURE, response.status());
-    verify(walletRepository, times(0)).saveAll(anyList());
+    verify(walletRepository, times(1)).saveAll(anyList());
   }
 
   @Test
@@ -314,12 +340,20 @@ class WalletServiceTest {
     TransferResponseDto transferResponseDto = new TransferResponseDto(uuid, senderWalletId, receivingWalletId, transferAmount, senderCurrency, TransactionStatus.FAILURE, LocalDateTime.now());
     when(walletRepository.findById(senderWalletId)).thenReturn(Optional.of(senderWallet));
     when(walletRepository.findById(receivingWalletId)).thenReturn(Optional.of(receivingWallet));
+    when(currencyExchangeFeignClient.convert(any(ConvertAmountRequestDto.class))).thenReturn(ResponseEntity.ok(new ConvertAmountResponseDto(
+            senderCurrency.getCode(),
+            transferRequestDto.currency().getCode(),
+            transferAmount,
+            transferAmount.multiply(BigDecimal.valueOf(2L)),
+            BigDecimal.valueOf(2L),
+            LocalDateTime.now()
+    )));
     when(transactionService.saveTransaction(any(UUID.class), any(TransferRequestDto.class), any(TransactionStatus.class)))
         .thenReturn(transaction);
     when(transactionMapper.transactionToTransferResponseDto(any(Transaction.class))).thenReturn(transferResponseDto);
     TransferResponseDto response = walletService.transferToAnotherWallet(senderWalletId, transferRequestDto);
     assertEquals(TransactionStatus.FAILURE, response.status());
-    verify(walletRepository, times(0)).saveAll(anyList());
+    verify(walletRepository, times(1)).saveAll(anyList());
   }
 
   @Test
