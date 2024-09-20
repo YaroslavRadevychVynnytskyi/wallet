@@ -1,8 +1,10 @@
 package com.nerdysoft.entity.enums;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum Currency {
     UAH("UAH"),
     AED("AED"),
@@ -168,8 +170,4 @@ public enum Currency {
     ZWL("ZWL");
 
     private final String code;
-
-    Currency(String code) {
-        this.code = code;
-    }
 }

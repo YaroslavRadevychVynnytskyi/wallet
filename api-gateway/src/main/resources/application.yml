@@ -13,4 +13,5 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
-open-endpoints: /auth/login,/auth/register
+application:
+  open-endpoints: /auth/login,/auth/register
