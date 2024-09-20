@@ -6,6 +6,7 @@ import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
+import com.nerdysoft.entity.Account;
 import java.util.UUID;
 
 public interface AccountService {
@@ -18,4 +19,6 @@ public interface AccountService {
     void deleteById(UUID accountId);
 
     TransactionResponseDto createTransaction(UUID accountId, CreateTransactionRequestDto requestDto);
+
+    Account findByEmail(String email);
 }

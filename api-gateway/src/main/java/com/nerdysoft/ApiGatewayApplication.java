@@ -1,4 +1,4 @@
-package com.nerdysoft.apigateway;
+package com.nerdysoft;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

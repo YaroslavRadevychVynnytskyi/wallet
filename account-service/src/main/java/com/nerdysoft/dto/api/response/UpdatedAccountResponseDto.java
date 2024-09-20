@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record UpdatedAccountResponseDto(
         UUID accountId,
-        String username,
+        String fullName,
         String email,
         LocalDateTime updatedAt
 ) {

@@ -1,19 +1,19 @@
 package com.nerdysoft.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
 import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
-import com.nerdysoft.dto.feign.CreateWalletDto;
 import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransactionStatus;
@@ -24,8 +24,8 @@ import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.mapper.TransactionMapper;
 import com.nerdysoft.repo.AccountRepository;
+import com.nerdysoft.security.util.JwtUtil;
 import com.nerdysoft.service.impl.AccountServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -48,7 +48,7 @@ public class AccountServiceTest {
     private AccountMapper accountMapper;
 
     @Mock
-    private WalletFeignClient walletFeignClient;
+    private WalletFeignClient apiGatewayFeignClient;
 
     @Mock
     private TransactionMapper transactionMapper;
@@ -56,69 +56,14 @@ public class AccountServiceTest {
     @Mock
     private EventProducer eventProducer;
 
+    @Mock
+    private RoleService roleService;
+
+    @Mock
+    private JwtUtil jwtUtil;
+
     @InjectMocks
     private AccountServiceImpl accountService;
-
-    @Test
-    void create_WithCorrectCreateAccountRequestDto_ShouldReturnValidAccountResponseDto() throws JsonProcessingException {
-        //Given
-        CreateAccountRequestDto requestDto = new CreateAccountRequestDto(
-                "John Doe",
-                "john@email.com",
-                "johnPassword123"
-        );
-
-        Account account = Account.builder()
-                .username(requestDto.username())
-                .email(requestDto.email())
-                .password(requestDto.password())
-                .build();
-
-        UUID accountMockId = UUID.randomUUID();
-
-        CreateWalletDto createWalletDto = new CreateWalletDto(
-                accountMockId,
-                Currency.USD
-        );
-
-        LocalDateTime now = LocalDateTime.now();
-
-        Wallet wallet = new Wallet(
-                UUID.randomUUID(),
-                accountMockId,
-                BigDecimal.valueOf(0),
-                Currency.USD,
-                now
-        );
-
-        AccountResponseDto expected = new AccountResponseDto(
-                account.getAccountId(),
-                account.getUsername(),
-                account.getEmail(),
-                account.getCreatedAt()
-        );
-
-
-
-        when(accountMapper.toModel(requestDto)).thenReturn(account);
-
-        account.setAccountId(accountMockId);
-        when(accountRepository.save(account)).thenReturn(account);
-        when(walletFeignClient.createWallet(createWalletDto))
-                .thenReturn(ResponseEntity.ofNullable(wallet));
-        when(accountMapper.toDto(account)).thenReturn(expected);
-
-        //When
-        AccountResponseDto actual = accountService.create(requestDto);
-
-        //Then
-        assertEquals(expected, actual);
-
-        verify(accountMapper, times(1)).toModel(requestDto);
-        verify(accountRepository, times(1)).save(account);
-        verify(walletFeignClient, times(1)).createWallet(createWalletDto);
-        verify(accountMapper, times(1)).toDto(account);
-    }
 
     @Test
     void getById_ExistingId_ShouldReturnValidAccountResponseDto() {
@@ -127,17 +72,17 @@ public class AccountServiceTest {
 
         Account account = Account.builder()
                 .accountId(accountMockId)
-                .username("John Peters")
+                .fullName("John Peters")
                 .email("john@email.com")
                 .password("123john56")
                 .build();
 
-        AccountResponseDto expected = new AccountResponseDto(
-                account.getAccountId(),
-                account.getUsername(),
-                account.getEmail(),
-                account.getCreatedAt()
-        );
+        AccountResponseDto expected = AccountResponseDto.builder()
+            .accountId(account.getAccountId())
+            .fullName(account.getFullName())
+            .email(account.getEmail())
+            .createdAt(account.getCreatedAt())
+            .build();
 
         when(accountRepository.findById(accountMockId)).thenReturn(Optional.of(account));
         when(accountMapper.toDto(account)).thenReturn(expected);
@@ -178,7 +123,7 @@ public class AccountServiceTest {
 
         Account account = Account.builder()
                 .accountId(accountMockId)
-                .username("Peter Jackson")
+                .fullName("Peter Jackson")
                 .email("peter@email.com")
                 .password("1234peter56")
                 .build();
@@ -193,7 +138,7 @@ public class AccountServiceTest {
         when(accountRepository.findById(accountMockId)).thenReturn(Optional.of(account));
 
         doNothing().when(accountMapper).updateFromDto(account, requestDto);
-        account.setUsername("Peter Smith");
+        account.setFullName("Peter Smith");
         account.setEmail("peter.smith@email.com");
 
         when(accountRepository.save(account)).thenReturn(account);
@@ -278,13 +223,13 @@ public class AccountServiceTest {
                 toAccountId
         );
 
-        when(walletFeignClient.getWalletByAccountIdAndCurrency(fromAccountId, currency))
+        when(apiGatewayFeignClient.getWalletByAccountIdAndCurrency(fromAccountId, currency))
                 .thenReturn(ResponseEntity.ofNullable(fromWallet));
 
-        when(walletFeignClient.getWalletByAccountIdAndCurrency(toAccountId, currency))
+        when(apiGatewayFeignClient.getWalletByAccountIdAndCurrency(toAccountId, currency))
                 .thenReturn(ResponseEntity.ofNullable(toWallet));
 
-        when(walletFeignClient.transfer(fromWallet.getWalletId(), transferRequestDto))
+        when(apiGatewayFeignClient.transfer(fromWallet.getWalletId(), transferRequestDto))
                 .thenReturn(ResponseEntity.ofNullable(transaction));
 
         //When
@@ -294,8 +239,23 @@ public class AccountServiceTest {
         //Then
         assertEquals(expected, transactionResponseDto);
 
-        verify(walletFeignClient, times(1)).getWalletByAccountIdAndCurrency(fromAccountId, currency);
-        verify(walletFeignClient, times(1)).getWalletByAccountIdAndCurrency(toAccountId, currency);
-        verify(walletFeignClient, times(1)).transfer(fromWallet.getWalletId(), transferRequestDto);
+        verify(apiGatewayFeignClient, times(1)).getWalletByAccountIdAndCurrency(fromAccountId, currency);
+        verify(apiGatewayFeignClient, times(1)).getWalletByAccountIdAndCurrency(toAccountId, currency);
+        verify(apiGatewayFeignClient, times(1)).transfer(fromWallet.getWalletId(), transferRequestDto);
+    }
+
+    @Test
+    public void shouldFindAccountByEmail() {
+        final String EMAIL = "email@test.com";
+        final Account ACCOUNT = new Account(UUID.randomUUID(), "Test", EMAIL, "password");
+        when(accountRepository.findByEmail(EMAIL)).thenReturn(Optional.of(ACCOUNT));
+        assertDoesNotThrow(() -> accountService.findByEmail(EMAIL));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAccountNotFoundByEmail() {
+        final String EMAIL = "email@test.com";
+        when(accountRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> accountService.findByEmail(EMAIL));
     }
 }
