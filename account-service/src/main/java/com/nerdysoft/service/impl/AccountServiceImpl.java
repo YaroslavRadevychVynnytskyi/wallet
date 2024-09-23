@@ -116,15 +116,17 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public TransactionResponseDto createTransaction(UUID accountId,
-                                                    CreateTransactionRequestDto requestDto) {
+                                                    CreateTransactionRequestDto requestDto,
+                                                    Currency fromWalletCurrency,
+                                                    Currency toWalletCurrency) {
         Wallet fromWallet = walletFeignClient.getWalletByAccountIdAndCurrency(
                 accountId,
-                requestDto.currency())
+                fromWalletCurrency)
                 .getBody();
 
         Wallet toWallet = walletFeignClient.getWalletByAccountIdAndCurrency(
                 requestDto.toAccountId(),
-                requestDto.currency())
+                toWalletCurrency)
                 .getBody();
 
         TransferRequestDto transferRequestDto = new TransferRequestDto(

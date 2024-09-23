@@ -6,6 +6,7 @@ import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
+import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Account management", description = "Endpoints for managing accounts")
@@ -64,7 +66,9 @@ public class AccountController {
     @PostMapping("/{accountId}/transactions")
     public ResponseEntity<TransactionResponseDto> createTransaction(
             @PathVariable UUID accountId,
-            @RequestBody CreateTransactionRequestDto requestDto) {
-        return ResponseEntity.ok(accountService.createTransaction(accountId, requestDto));
+            @RequestBody CreateTransactionRequestDto requestDto,
+            @RequestParam Currency fromWalletCurrency,
+            @RequestParam Currency toWalletCurrency) {
+        return ResponseEntity.ok(accountService.createTransaction(accountId, requestDto, fromWalletCurrency, toWalletCurrency));
     }
 }

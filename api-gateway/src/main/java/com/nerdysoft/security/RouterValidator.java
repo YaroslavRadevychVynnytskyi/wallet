@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RouterValidator {
-    @Value("#{'${open-endpoints}'.split(',')}")
+    @Value("#{'${application.open-endpoints}'.split(',')}")
     private List<String> openEndpoints;
 
     public Predicate<ServerHttpRequest> isSecured =
