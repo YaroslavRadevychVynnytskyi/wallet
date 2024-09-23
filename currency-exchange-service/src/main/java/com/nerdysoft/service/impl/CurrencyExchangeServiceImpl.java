@@ -87,11 +87,17 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
                 .build();
     }
 
+    @Override
     @Scheduled(cron = "0 0 0 * * *")
     public void updateExchangeRates() {
         List<ExchangeRate> actualRates = Arrays.stream(Currency.values())
                 .map(c -> fetchExchangeRates(c.getCode()))
                 .toList();
         exchangeRateRepository.saveAll(actualRates);
+    }
+
+    @Override
+    public boolean hasDbData() {
+        return exchangeRateRepository.count() > 0;
     }
 }
