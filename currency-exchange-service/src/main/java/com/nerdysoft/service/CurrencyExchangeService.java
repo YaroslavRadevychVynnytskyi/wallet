@@ -13,4 +13,8 @@ public interface CurrencyExchangeService {
     AddOrUpdateRateResponseDto addOrUpdateExchangeRate(AddOrUpdateRateRequestDto requestDto);
 
     ConvertAmountResponseDto convert(ConvertAmountRequestDto requestDto);
+
+    void updateExchangeRates();
+
+    boolean hasDbData();
 }
