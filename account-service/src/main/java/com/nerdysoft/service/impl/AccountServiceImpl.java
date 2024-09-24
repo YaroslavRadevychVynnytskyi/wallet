@@ -8,6 +8,8 @@ import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.dto.event.activity.enums.ActionType;
 import com.nerdysoft.dto.event.activity.enums.EntityType;
+import com.nerdysoft.dto.feign.CalcCommissionRequestDto;
+import com.nerdysoft.dto.feign.CommissionResponseDto;
 import com.nerdysoft.dto.feign.CreateWalletDto;
 import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
@@ -16,6 +18,7 @@ import com.nerdysoft.dto.feign.Wallet;
 import com.nerdysoft.entity.Account;
 import com.nerdysoft.entity.Role;
 import com.nerdysoft.entity.enums.RoleName;
+import com.nerdysoft.feign.CommissionFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.mapper.TransactionMapper;
@@ -41,6 +44,7 @@ public class AccountServiceImpl implements AccountService {
     private final TransactionMapper transactionMapper;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final CommissionFeignClient commissionFeignClient;
 
     @Override
     @Transactional
@@ -140,6 +144,14 @@ public class AccountServiceImpl implements AccountService {
                 transferRequestDto)
                 .getBody();
 
+        CommissionResponseDto commission = commissionFeignClient
+                .calculateCommission(new CalcCommissionRequestDto(
+                        transaction.transactionId(),
+                        transaction.amount(),
+                        fromWalletCurrency.getCode(),
+                        toWalletCurrency.getCode(),
+                        requestDto.currency().getCode())).getBody();
+
         eventProducer.sendEvent(transactionMapper.toTransactionEvent(transaction));
         eventProducer.sendEvent(
                 accountId,
@@ -149,7 +161,7 @@ public class AccountServiceImpl implements AccountService {
                 Optional.empty(),
                 Optional.of(transaction));
 
-        return new TransactionResponseDto(transaction, accountId, requestDto.toAccountId());
+        return new TransactionResponseDto(transaction, commission.commissionAmount(), accountId, requestDto.toAccountId());
     }
 
     @Override

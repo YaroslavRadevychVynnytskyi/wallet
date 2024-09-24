@@ -10,16 +10,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TransactionListener {
+public class EventListener {
     private final AuditService auditService;
 
     @RabbitListener(queues = "${rabbitmq.queue.transaction-queue}")
-    public void listenAndSaveTransaction(Message<TransactionEvent> message) {
+    public void listenAndSaveTransactionEvent(Message<TransactionEvent> message) {
         auditService.saveTransactionEvent(message.getPayload());
     }
 
     @RabbitListener(queues = "${rabbitmq.queue.activity-queue}")
-    public void listAndSaveActivity(Message<UserActivityEvent> message) {
+    public void listenAndSaveActivityEvent(Message<UserActivityEvent> message) {
         auditService.saveUserActivityEvent(message.getPayload());
     }
 }
