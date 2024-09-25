@@ -9,7 +9,7 @@ spring:
 external:
   api:
     exchange:
-      url: https://v6.exchangerate-api.com/v6/25c384179a8f196917319899/latest/
+      url: https://v6.exchangerate-api.com/v6/f587d1b33cdefe0a90641bae/latest/
 eureka:
   client:
     service-url.defaultZone:
