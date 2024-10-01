@@ -12,16 +12,18 @@ public record TransactionResponseDto(
         UUID fromAccountId,
         UUID toAccountId,
         BigDecimal amount,
+        BigDecimal commissionFee,
         Currency currency,
         TransactionStatus status,
         LocalDateTime createdAt
 ) {
-    public TransactionResponseDto(Transaction transaction, UUID fromAccountId, UUID toAccountId) {
+    public TransactionResponseDto(Transaction transaction, BigDecimal commissionFee, UUID fromAccountId, UUID toAccountId) {
         this(
                 transaction.transactionId(),
                 fromAccountId,
                 toAccountId,
                 transaction.amount(),
+                commissionFee,
                 transaction.currency(),
                 transaction.status(),
                 transaction.createdAt()

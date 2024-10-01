@@ -14,12 +14,15 @@ import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
+import com.nerdysoft.dto.feign.CalcCommissionRequestDto;
+import com.nerdysoft.dto.feign.CommissionResponseDto;
 import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransactionStatus;
 import com.nerdysoft.dto.feign.TransferRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
 import com.nerdysoft.entity.Account;
+import com.nerdysoft.feign.CommissionFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.mapper.TransactionMapper;
@@ -48,7 +51,7 @@ public class AccountServiceTest {
     private AccountMapper accountMapper;
 
     @Mock
-    private WalletFeignClient apiGatewayFeignClient;
+    private WalletFeignClient walletFeignClient;
 
     @Mock
     private TransactionMapper transactionMapper;
@@ -61,6 +64,9 @@ public class AccountServiceTest {
 
     @Mock
     private JwtUtil jwtUtil;
+
+    @Mock
+    private CommissionFeignClient commissionFeignClient;
 
     @InjectMocks
     private AccountServiceImpl accountService;
@@ -175,6 +181,7 @@ public class AccountServiceTest {
         UUID fromAccountId = UUID.randomUUID();
         UUID toAccountId = UUID.randomUUID();
         Currency currency = Currency.USD;
+        BigDecimal commissionFee = BigDecimal.valueOf(1.6);
 
         CreateTransactionRequestDto requestDto = new CreateTransactionRequestDto(
                 toAccountId,
@@ -219,29 +226,43 @@ public class AccountServiceTest {
 
         TransactionResponseDto expected = new TransactionResponseDto(
                 transaction,
+                commissionFee,
                 fromAccountId,
                 toAccountId
         );
 
-        when(apiGatewayFeignClient.getWalletByAccountIdAndCurrency(fromAccountId, currency))
+        CalcCommissionRequestDto calcCommissionRequestDto = new CalcCommissionRequestDto(
+                transaction.transactionId(),
+                transaction.amount(),
+                currency.getCode(),
+                currency.getCode(),
+                requestDto.currency().getCode());
+
+        CommissionResponseDto commissionResponseDto = new CommissionResponseDto(transaction.transactionId(), commissionFee);
+
+        when(walletFeignClient.getWalletByAccountIdAndCurrency(fromAccountId, currency))
                 .thenReturn(ResponseEntity.ofNullable(fromWallet));
 
-        when(apiGatewayFeignClient.getWalletByAccountIdAndCurrency(toAccountId, currency))
+        when(walletFeignClient.getWalletByAccountIdAndCurrency(toAccountId, currency))
                 .thenReturn(ResponseEntity.ofNullable(toWallet));
 
-        when(apiGatewayFeignClient.transfer(fromWallet.getWalletId(), transferRequestDto))
+        when(walletFeignClient.transfer(fromWallet.getWalletId(), transferRequestDto))
                 .thenReturn(ResponseEntity.ofNullable(transaction));
+
+        when(commissionFeignClient.calculateCommission(calcCommissionRequestDto))
+                .thenReturn(ResponseEntity.ofNullable(commissionResponseDto));
 
         //When
         TransactionResponseDto transactionResponseDto = accountService
-                .createTransaction(fromAccountId, requestDto);
+                .createTransaction(fromAccountId, requestDto, currency, currency);
 
         //Then
         assertEquals(expected, transactionResponseDto);
 
-        verify(apiGatewayFeignClient, times(1)).getWalletByAccountIdAndCurrency(fromAccountId, currency);
-        verify(apiGatewayFeignClient, times(1)).getWalletByAccountIdAndCurrency(toAccountId, currency);
-        verify(apiGatewayFeignClient, times(1)).transfer(fromWallet.getWalletId(), transferRequestDto);
+        verify(walletFeignClient, times(1)).getWalletByAccountIdAndCurrency(fromAccountId, currency);
+        verify(walletFeignClient, times(1)).getWalletByAccountIdAndCurrency(toAccountId, currency);
+        verify(walletFeignClient, times(1)).transfer(fromWallet.getWalletId(), transferRequestDto);
+        verify(commissionFeignClient, times(1)).calculateCommission(calcCommissionRequestDto);
     }
 
     @Test
