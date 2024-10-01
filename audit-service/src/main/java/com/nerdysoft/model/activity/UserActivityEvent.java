@@ -1,8 +1,8 @@
-package com.nerdysoft.entity.activity;
+package com.nerdysoft.model.activity;
 
-import com.nerdysoft.entity.activity.enums.ActionType;
-import com.nerdysoft.entity.activity.enums.EntityType;
-import com.nerdysoft.entity.activity.enums.Status;
+import com.nerdysoft.model.activity.enums.ActionType;
+import com.nerdysoft.model.activity.enums.EntityType;
+import com.nerdysoft.model.activity.enums.Status;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;

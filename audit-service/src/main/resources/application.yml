@@ -18,3 +18,6 @@ rabbitmq:
   routing-key:
     transaction-key: transaction-key
     activity-key: activity-key
+application:
+  secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
+  internal-token: oyuwitystyvstdvsdytvdsyvv7621vgfztrxcnvjzgxvdz

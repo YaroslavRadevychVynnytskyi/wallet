@@ -1,4 +1,4 @@
-package com.nerdysoft.entity.transaction.enums;
+package com.nerdysoft.model.transaction.enums;
 
 public enum TransactionStatus {
     SUCCESS,

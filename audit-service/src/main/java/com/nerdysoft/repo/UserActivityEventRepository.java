@@ -1,6 +1,6 @@
 package com.nerdysoft.repo;
 
-import com.nerdysoft.entity.activity.UserActivityEvent;
+import com.nerdysoft.model.activity.UserActivityEvent;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.mongodb.repository.MongoRepository;

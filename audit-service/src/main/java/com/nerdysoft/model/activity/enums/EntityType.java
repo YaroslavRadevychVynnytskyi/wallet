@@ -1,4 +1,4 @@
-package com.nerdysoft.entity.activity.enums;
+package com.nerdysoft.model.activity.enums;
 
 public enum EntityType {
     WALLET,
