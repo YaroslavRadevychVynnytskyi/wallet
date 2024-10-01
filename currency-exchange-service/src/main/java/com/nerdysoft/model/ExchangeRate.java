@@ -1,4 +1,4 @@
-package com.nerdysoft.entity;
+package com.nerdysoft.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

@@ -11,7 +11,7 @@ import com.nerdysoft.entity.Account;
 import java.util.UUID;
 
 public interface AccountService {
-    AccountResponseDto create(CreateAccountRequestDto requestDto);
+    Account create(CreateAccountRequestDto requestDto);
 
     AccountResponseDto getById(UUID accountId);
 

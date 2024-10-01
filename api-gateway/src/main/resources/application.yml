@@ -14,4 +14,5 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 application:
-  open-endpoints: /auth/login,/auth/register
+  secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
+  internal-token: oyuwitystyvstdvsdytvdsyvv7621vgfztrxcnvjzgxvdz

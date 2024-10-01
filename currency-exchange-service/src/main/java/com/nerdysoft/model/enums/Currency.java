@@ -1,4 +1,4 @@
-package com.nerdysoft.entity.enums;
+package com.nerdysoft.model.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

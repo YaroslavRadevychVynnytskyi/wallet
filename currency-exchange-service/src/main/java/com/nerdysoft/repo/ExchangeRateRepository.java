@@ -1,6 +1,6 @@
 package com.nerdysoft.repo;
 
-import com.nerdysoft.entity.ExchangeRate;
+import com.nerdysoft.model.ExchangeRate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
