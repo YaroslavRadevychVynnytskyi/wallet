@@ -84,16 +84,16 @@ public class WalletService {
         walletRepository.save(wallet.get());
         return transactionMapper.transactionToTransactionResponseDto(
             transactionService.saveTransaction(walletId, transactionRequestDto,
-                TransactionStatus.SUCCESS));
+                TransactionStatus.SUCCESS, wallet.get().getBalance()));
       } else {
         return transactionMapper.transactionToTransactionResponseDto(
             transactionService.saveTransaction(walletId, transactionRequestDto,
-                TransactionStatus.FAILURE));
+                TransactionStatus.FAILURE, wallet.get().getBalance()));
       }
     } else {
       return transactionMapper.transactionToTransactionResponseDto(
           transactionService.saveTransaction(walletId, transactionRequestDto,
-              TransactionStatus.FAILURE));
+              TransactionStatus.FAILURE, BigDecimal.ZERO));
     }
   }
 
@@ -131,16 +131,16 @@ public class WalletService {
         walletRepository.saveAll(List.of(senderWallet.get(), receivingWallet.get()));
         return transactionMapper.transactionToTransferResponseDto(
             transactionService.saveTransaction(walletId, transferRequestDto,
-                TransactionStatus.SUCCESS));
+                TransactionStatus.SUCCESS, senderWallet.get().getBalance()));
       } else {
         return transactionMapper.transactionToTransferResponseDto(
             transactionService.saveTransaction(walletId, transferRequestDto,
-                TransactionStatus.FAILURE));
+                TransactionStatus.FAILURE, senderWallet.get().getBalance()));
       }
     } else {
       return transactionMapper.transactionToTransferResponseDto(
           transactionService.saveTransaction(walletId, transferRequestDto,
-              TransactionStatus.FAILURE));
+              TransactionStatus.FAILURE, BigDecimal.ZERO));
     }
   }
 

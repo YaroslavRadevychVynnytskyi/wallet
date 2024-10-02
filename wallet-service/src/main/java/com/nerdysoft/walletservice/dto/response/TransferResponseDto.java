@@ -10,6 +10,7 @@ public record TransferResponseDto(UUID transactionId,
                                   UUID fromWalletId,
                                   UUID toWalletId,
                                   BigDecimal amount,
+                                  BigDecimal walletBalance,
                                   Currency currency,
                                   TransactionStatus status,
                                   LocalDateTime createdAt) {}
