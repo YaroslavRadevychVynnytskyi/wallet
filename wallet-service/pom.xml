@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.nerdysoft</groupId>
 	<artifactId>wallet-service</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 	<name>wallet-service</name>
 	<description>wallet-service</description>
 	<properties>
@@ -19,6 +19,7 @@
 		<mapstruct.binding.version>0.2.0</mapstruct.binding.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
 		<springdoc.version>2.6.0</springdoc.version>
+		<jjwt.version>0.12.5</jjwt.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -73,6 +74,30 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>${jjwt.version}</version>
 		</dependency>
 	</dependencies>
 

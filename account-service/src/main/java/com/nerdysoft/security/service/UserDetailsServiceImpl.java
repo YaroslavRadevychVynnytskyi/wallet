@@ -1,7 +1,6 @@
 package com.nerdysoft.security.service;
 
 import com.nerdysoft.repo.AccountRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +14,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return accountRepository.findByEmail(username).orElseThrow(EntityNotFoundException::new);
+    return accountRepository.findByEmail(username).orElseThrow(
+        () -> new UsernameNotFoundException(String.format("No user with email: %s", username)));
   }
 }

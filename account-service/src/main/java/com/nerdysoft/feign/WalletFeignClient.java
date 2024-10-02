@@ -1,5 +1,6 @@
 package com.nerdysoft.feign;
 
+import com.nerdysoft.config.FeignConfig;
 import com.nerdysoft.dto.feign.CreateWalletDto;
 import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(contextId = "walletFeignClient", value = "api-gateway")
+@FeignClient(contextId = "walletFeignClient", value = "api-gateway", configuration = FeignConfig.class)
 public interface WalletFeignClient {
     @PostMapping("/wallet-service/wallets")
     ResponseEntity<Wallet> createWallet(@RequestBody CreateWalletDto createWalletDto);

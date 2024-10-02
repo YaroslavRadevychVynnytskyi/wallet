@@ -48,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountResponseDto create(CreateAccountRequestDto requestDto) {
+    public Account create(CreateAccountRequestDto requestDto) {
         Account account = accountMapper.toModel(requestDto);
         account.setPassword(passwordEncoder.encode(requestDto.password()));
 
@@ -67,7 +67,7 @@ public class AccountServiceImpl implements AccountService {
             Optional.empty(),
             Optional.of(account));
 
-        return accountMapper.toDto(account);
+        return account;
     }
 
     @Override

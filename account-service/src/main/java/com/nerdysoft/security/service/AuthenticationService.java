@@ -2,8 +2,8 @@ package com.nerdysoft.security.service;
 
 import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.LoginRequestDto;
-import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.AuthResponseDto;
+import com.nerdysoft.entity.Account;
 import com.nerdysoft.security.util.JwtUtil;
 import com.nerdysoft.service.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +20,15 @@ public class AuthenticationService {
   private final JwtUtil jwtUtil;
 
   public AuthResponseDto register(CreateAccountRequestDto requestDto) {
-    AccountResponseDto account = accountService.create(requestDto);
-
-    return new AuthResponseDto(jwtUtil.generateToken(account.getEmail()));
+    Account account = accountService.create(requestDto);
+    return new AuthResponseDto(jwtUtil.generateToken(account));
   }
 
   public AuthResponseDto login(LoginRequestDto requestDto) {
     Authentication authenticate = authManager.authenticate(new UsernamePasswordAuthenticationToken(
             requestDto.email(), requestDto.password()
     ));
-
-    return new AuthResponseDto(jwtUtil.generateToken(authenticate.getName()));
+    Account account = accountService.findByEmail(authenticate.getName());
+    return new AuthResponseDto(jwtUtil.generateToken(account));
   }
 }
