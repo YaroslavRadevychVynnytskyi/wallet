@@ -1,4 +1,4 @@
-package com.nerdysoft.entity;
+package com.nerdysoft.entity.loanlimit;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,32 +9,27 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
-public class CreditProduct {
+@NoArgsConstructor
+public class LoanLimit {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    @Column(nullable = false)
+    private UUID accountId;
 
     @Column(nullable = false)
-    private BigDecimal minAmount;
+    private BigDecimal availableLoanLimit;
 
-    @Column(nullable = false)
-    private BigDecimal maxAmount;
-
-    @Column(nullable = false)
-    private BigDecimal interestRate;
-
-    @Column(nullable = false)
-    private Integer termInMonths;
-
-    @Column(nullable = false)
-    private BigDecimal penaltyRate;
+    public LoanLimit(UUID accountId, BigDecimal availableLoanLimit) {
+        this.accountId = accountId;
+        this.availableLoanLimit = availableLoanLimit;
+    }
 }

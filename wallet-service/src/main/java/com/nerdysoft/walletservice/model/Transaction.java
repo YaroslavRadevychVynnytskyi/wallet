@@ -33,6 +33,9 @@ public class Transaction {
   private UUID toWalletId;
 
   @Column(nullable = false)
+  private BigDecimal walletBalance;
+
+  @Column(nullable = false)
   private BigDecimal amount;
 
   @Enumerated(EnumType.STRING)
@@ -43,15 +46,16 @@ public class Transaction {
 
   private final LocalDateTime createdAt = LocalDateTime.now();
 
-  public Transaction(UUID transactionId, BigDecimal amount, Currency currency, TransactionStatus status) {
+  public Transaction(UUID transactionId, BigDecimal amount, Currency currency, TransactionStatus status, BigDecimal walletBalance) {
     this.transactionId = transactionId;
     this.amount = amount;
     this.currency = currency;
     this.status = status;
+    this.walletBalance = walletBalance;
   }
 
-  public Transaction(UUID transactionId, BigDecimal amount, Currency currency, TransactionStatus status, UUID walletId) {
-    this(transactionId, amount, currency, status);
+  public Transaction(UUID transactionId, BigDecimal amount, Currency currency, TransactionStatus status, UUID walletId, BigDecimal walletBalance) {
+    this(transactionId, amount, currency, status, walletBalance);
     this.walletId = walletId;
   }
 }
