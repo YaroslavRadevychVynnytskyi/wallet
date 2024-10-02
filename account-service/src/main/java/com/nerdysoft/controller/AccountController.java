@@ -6,14 +6,17 @@ import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
+import com.nerdysoft.dto.api.response.UserDetailsDto;
 import com.nerdysoft.dto.feign.Currency;
+import com.nerdysoft.entity.Account;
+import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,21 +34,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
     private final AccountService accountService;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    private final AccountMapper accountMapper;
+
+    private final UserDetailsService userDetailsService;
+
     @Operation(summary = "Create new account")
     @PostMapping
     public ResponseEntity<AccountResponseDto> create(@RequestBody CreateAccountRequestDto requestDto) {
-        return ResponseEntity.ok(accountService.create(requestDto));
+        return ResponseEntity.ok(accountMapper.toDto(accountService.create(requestDto)));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     @Operation(summary = "Get account data by ID")
     @GetMapping("/{accountId}")
     public ResponseEntity<AccountResponseDto> getById(@PathVariable UUID accountId) {
         return ResponseEntity.ok(accountService.getById(accountId));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     @Operation(summary = "Update account data by ID")
     @PutMapping("/{accountId}")
     public ResponseEntity<UpdatedAccountResponseDto> update(
@@ -54,7 +58,6 @@ public class AccountController {
         return ResponseEntity.ok(accountService.update(accountId, requestDto));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete account by ID")
     @DeleteMapping("/{accountId}")
     public ResponseEntity<Void> delete(@PathVariable UUID accountId) {
@@ -62,7 +65,6 @@ public class AccountController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/{accountId}/transactions")
     public ResponseEntity<TransactionResponseDto> createTransaction(
             @PathVariable UUID accountId,
@@ -70,5 +72,12 @@ public class AccountController {
             @RequestParam Currency fromWalletCurrency,
             @RequestParam Currency toWalletCurrency) {
         return ResponseEntity.ok(accountService.createTransaction(accountId, requestDto, fromWalletCurrency, toWalletCurrency));
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserDetailsDto> getAccountByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(accountMapper.toUserDetailsDto(
+            (Account) userDetailsService.loadUserByUsername(email)
+        ));
     }
 }
