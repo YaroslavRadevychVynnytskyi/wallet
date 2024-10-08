@@ -1,8 +1,7 @@
 package com.nerdysoft.service;
 
-import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
-import com.nerdysoft.dto.api.response.CommissionResponseDto;
+import com.nerdysoft.dto.api.request.CommissionRequestMessage;
 
 public interface CommissionService {
-    CommissionResponseDto calculateCommission(CalcCommissionRequestDto requestDto);
+    void calculateCommission(CommissionRequestMessage requestMessage);
 }

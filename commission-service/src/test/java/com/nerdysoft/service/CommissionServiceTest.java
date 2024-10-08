@@ -5,7 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
+import com.nerdysoft.dto.api.request.CommissionRequestMessage;
 import com.nerdysoft.dto.api.response.CommissionResponseDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.ConvertAmountResponseDto;
@@ -48,7 +48,7 @@ public class CommissionServiceTest {
     @Test
     void calculateCommission_SameCurrencyAndUnder100Usd_ShouldReturnCorrectCommission() {
         //Given
-        CalcCommissionRequestDto requestDto = new CalcCommissionRequestDto(
+        CommissionRequestMessage requestDto = new CommissionRequestMessage(
                 UUID.fromString("a1e059d3-5854-4a64-a02c-1dfe1c154606"),
                 BigDecimal.valueOf(90),
                 "USD",
@@ -58,7 +58,7 @@ public class CommissionServiceTest {
 
         BigDecimal expected = BigDecimal.valueOf(0.9);
 
-        when(commissionStrategy.get(requestDto.amount())).thenReturn(lowAmountCommissionHandler);
+        when(commissionStrategy.get(requestDto.amount(), message.isLoanUsed())).thenReturn(lowAmountCommissionHandler);
         when(lowAmountCommissionHandler.getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
@@ -73,7 +73,7 @@ public class CommissionServiceTest {
         //Then
         assertEquals(expected, actual.commissionAmount());
 
-        verify(commissionStrategy, times(1)).get(requestDto.amount());
+        verify(commissionStrategy, times(1)).get(requestDto.amount(), message.isLoanUsed());
 
         verify(lowAmountCommissionHandler, times(1)).getCommission(
                 requestDto.fromWalletCurrency(),
@@ -85,7 +85,7 @@ public class CommissionServiceTest {
     @Test
     void calculateCommission_DifferentFromAndToCurrencyAndUnder100Usd_ShouldReturnCorrectCommission() {
         //Given
-        CalcCommissionRequestDto requestDto = new CalcCommissionRequestDto(
+        CommissionRequestMessage requestDto = new CommissionRequestMessage(
                 UUID.fromString("a1e059d3-5854-4a64-a02c-1dfe1c154606"),
                 BigDecimal.valueOf(90),
                 "USD",
@@ -95,7 +95,7 @@ public class CommissionServiceTest {
 
         BigDecimal expected = BigDecimal.valueOf(0.04);
 
-        when(commissionStrategy.get(requestDto.amount())).thenReturn(lowAmountCommissionHandler);
+        when(commissionStrategy.get(requestDto.amount(), message.isLoanUsed())).thenReturn(lowAmountCommissionHandler);
         when(lowAmountCommissionHandler.getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
@@ -110,7 +110,7 @@ public class CommissionServiceTest {
         //Then
         assertEquals(expected, actual.commissionAmount());
 
-        verify(commissionStrategy, times(1)).get(requestDto.amount());
+        verify(commissionStrategy, times(1)).get(requestDto.amount(), message.isLoanUsed());
         verify(lowAmountCommissionHandler, times(1)).getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
@@ -121,7 +121,7 @@ public class CommissionServiceTest {
     @Test
     void calculateCommission_DifferentFromAndTransactionCurrencyAndUnder100Usd_ShouldReturnCorrectCommission() {
         //Given
-        CalcCommissionRequestDto requestDto = new CalcCommissionRequestDto(
+        CommissionRequestMessage requestDto = new CommissionRequestMessage(
                 UUID.fromString("a1e059d3-5854-4a64-a02c-1dfe1c154606"),
                 BigDecimal.valueOf(2000),
                 "USD",
@@ -148,7 +148,7 @@ public class CommissionServiceTest {
 
         when(currencyExchangeFeignClient.convert(convertRequestDto))
                 .thenReturn(ResponseEntity.ofNullable(convertResponseDto));
-        when(commissionStrategy.get(convertResponseDto.convertedAmount())).thenReturn(lowAmountCommissionHandler);
+        when(commissionStrategy.get(convertResponseDto.convertedAmount(), message.isLoanUsed())).thenReturn(lowAmountCommissionHandler);
         when(lowAmountCommissionHandler.getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
@@ -163,7 +163,7 @@ public class CommissionServiceTest {
         assertEquals(expectedInUsd, actual.commissionAmount());
 
         verify(currencyExchangeFeignClient, times(1)).convert(convertRequestDto);
-        verify(commissionStrategy, times(1)).get(convertResponseDto.convertedAmount());
+        verify(commissionStrategy, times(1)).get(convertResponseDto.convertedAmount(), message.isLoanUsed());
         verify(lowAmountCommissionHandler, times(1)).getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
@@ -174,7 +174,7 @@ public class CommissionServiceTest {
     @Test
     void calculateCommission_SameCurrencyAndOver100Usd_ShouldReturnCorrectCommission() {
         //Given
-        CalcCommissionRequestDto requestDto = new CalcCommissionRequestDto(
+        CommissionRequestMessage requestDto = new CommissionRequestMessage(
                 UUID.fromString("a1e059d3-5854-4a64-a02c-1dfe1c154606"),
                 BigDecimal.valueOf(200),
                 "USD",
@@ -184,7 +184,7 @@ public class CommissionServiceTest {
 
         BigDecimal expected = BigDecimal.valueOf(1.5);
 
-        when(commissionStrategy.get(requestDto.amount())).thenReturn(mediumAmountCommissionHandler);
+        when(commissionStrategy.get(requestDto.amount(), message.isLoanUsed())).thenReturn(mediumAmountCommissionHandler);
         when(mediumAmountCommissionHandler.getCommission(requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
                 requestDto.transactionCurrency(),
@@ -196,7 +196,7 @@ public class CommissionServiceTest {
         //Then
         assertEquals(expected, actual.commissionAmount());
 
-        verify(commissionStrategy, times(1)).get(requestDto.amount());
+        verify(commissionStrategy, times(1)).get(requestDto.amount(), message.isLoanUsed());
         verify(mediumAmountCommissionHandler, times(1)).getCommission(requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
                 requestDto.transactionCurrency(),
@@ -205,7 +205,7 @@ public class CommissionServiceTest {
 
     @Test
     void calculateCommission_DifferentFromAndTransactionCurrenciesAndOver100Usd_ShouldReturnCorrectCommission() {
-        CalcCommissionRequestDto requestDto = new CalcCommissionRequestDto(
+        CommissionRequestMessage requestDto = new CommissionRequestMessage(
                 UUID.fromString("a1e059d3-5854-4a64-a02c-1dfe1c154606"),
                 BigDecimal.valueOf(200),
                 "USD",
@@ -231,7 +231,7 @@ public class CommissionServiceTest {
         BigDecimal expected = BigDecimal.valueOf(3.35);
 
         when(currencyExchangeFeignClient.convert(covertRequestDto)).thenReturn(ResponseEntity.ofNullable(convertResponseDto));
-        when(commissionStrategy.get(convertResponseDto.convertedAmount())).thenReturn(mediumAmountCommissionHandler);
+        when(commissionStrategy.get(convertResponseDto.convertedAmount(), message.isLoanUsed())).thenReturn(mediumAmountCommissionHandler);
         when(mediumAmountCommissionHandler.getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
@@ -246,7 +246,7 @@ public class CommissionServiceTest {
         assertEquals(expected, actual.commissionAmount());
 
         verify(currencyExchangeFeignClient, times(1)).convert(covertRequestDto);
-        verify(commissionStrategy, times(1)).get(convertResponseDto.convertedAmount());
+        verify(commissionStrategy, times(1)).get(convertResponseDto.convertedAmount(), message.isLoanUsed());
         verify(mediumAmountCommissionHandler, times(1)).getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
@@ -257,7 +257,7 @@ public class CommissionServiceTest {
 
     @Test
     void calculateCommission_SameCurrencyAndOver1000Usd_ShouldReturnCorrectCommission() {
-        CalcCommissionRequestDto requestDto = new CalcCommissionRequestDto(
+        CommissionRequestMessage requestDto = new CommissionRequestMessage(
                 UUID.fromString("a1e059d3-5854-4a64-a02c-1dfe1c154606"),
                 BigDecimal.valueOf(3000),
                 "USD",
@@ -267,7 +267,7 @@ public class CommissionServiceTest {
 
         BigDecimal expected = BigDecimal.valueOf(15);
 
-        when(commissionStrategy.get(requestDto.amount())).thenReturn(highAmountCommissionHandler);
+        when(commissionStrategy.get(requestDto.amount(), message.isLoanUsed())).thenReturn(highAmountCommissionHandler);
         when(highAmountCommissionHandler.getCommission(requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
                 requestDto.transactionCurrency(),
@@ -279,7 +279,7 @@ public class CommissionServiceTest {
         //Then
         assertEquals(expected, actual.commissionAmount());
 
-        verify(commissionStrategy, times(1)).get(requestDto.amount());
+        verify(commissionStrategy, times(1)).get(requestDto.amount(), message.isLoanUsed());
         verify(highAmountCommissionHandler, times(1)).getCommission(requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
                 requestDto.transactionCurrency(),
@@ -288,7 +288,7 @@ public class CommissionServiceTest {
 
     @Test
     void calculateCommission_DifferentFromAndToCurrencyAndOver1000Usd_ShouldReturnCorrectCommission() {
-        CalcCommissionRequestDto requestDto = new CalcCommissionRequestDto(
+        CommissionRequestMessage requestDto = new CommissionRequestMessage(
                 UUID.fromString("a1e059d3-5854-4a64-a02c-1dfe1c154606"),
                 BigDecimal.valueOf(50_000),
                 "UAH",
@@ -315,7 +315,7 @@ public class CommissionServiceTest {
         BigDecimal expectedInOriginalCurrency = BigDecimal.valueOf(499.98);
 
         when(currencyExchangeFeignClient.convert(covertRequestDto)).thenReturn(ResponseEntity.ofNullable(convertResponseDto));
-        when(commissionStrategy.get(convertResponseDto.convertedAmount())).thenReturn(highAmountCommissionHandler);
+        when(commissionStrategy.get(convertResponseDto.convertedAmount(), message.isLoanUsed())).thenReturn(highAmountCommissionHandler);
         when(highAmountCommissionHandler.getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),
@@ -348,7 +348,7 @@ public class CommissionServiceTest {
         assertEquals(expectedInOriginalCurrency, actual.commissionAmount());
 
         verify(currencyExchangeFeignClient, times(1)).convert(covertRequestDto);
-        verify(commissionStrategy, times(1)).get(convertResponseDto.convertedAmount());
+        verify(commissionStrategy, times(1)).get(convertResponseDto.convertedAmount(), message.isLoanUsed());
         verify(highAmountCommissionHandler, times(1)).getCommission(
                 requestDto.fromWalletCurrency(),
                 requestDto.toWalletCurrency(),

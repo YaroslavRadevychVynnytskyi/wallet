@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 public record GenericTransactionRequestDto(
         BigDecimal amount,
+        Currency walletCurrency,
         Currency currency,
         TransactionType transactionType
 ) {

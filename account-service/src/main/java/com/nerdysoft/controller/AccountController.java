@@ -2,8 +2,10 @@ package com.nerdysoft.controller;
 
 import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
+import com.nerdysoft.dto.api.request.GenericTransactionRequestDto;
 import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
+import com.nerdysoft.dto.api.response.GenericTransactionResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.dto.api.response.UserDetailsDto;
@@ -72,6 +74,12 @@ public class AccountController {
             @RequestParam Currency fromWalletCurrency,
             @RequestParam Currency toWalletCurrency) {
         return ResponseEntity.ok(accountService.createTransaction(accountId, requestDto, fromWalletCurrency, toWalletCurrency));
+    }
+
+    @PostMapping("/{accountId}/update-balance")
+    public ResponseEntity<GenericTransactionResponseDto> updateBalance(@PathVariable UUID accountId,
+                                                                       @RequestBody GenericTransactionRequestDto requestDto) {
+        return ResponseEntity.ok(accountService.updateBalance(accountId, requestDto));
     }
 
     @GetMapping("/email/{email}")
