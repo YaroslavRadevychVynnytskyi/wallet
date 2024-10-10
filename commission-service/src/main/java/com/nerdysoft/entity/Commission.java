@@ -1,6 +1,5 @@
 package com.nerdysoft.entity;
 
-import com.nerdysoft.dto.api.request.CommissionRequestMessage;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +29,7 @@ public class Commission {
     private BigDecimal walletAmount;
 
     @Column(nullable = false)
-    private Boolean isLoanLimitUsed;
+    private boolean isLoanLimitUsed;
 
     @Column(nullable = false)
     private BigDecimal loanLimitAmount;
@@ -49,16 +48,4 @@ public class Commission {
 
     @Column(nullable = false)
     private String transactionCurrency;
-
-    public Commission(BigDecimal usdCommissionAmount, BigDecimal transferCurrencyCommissionAmount, CommissionRequestMessage commissionMessage) {
-        this.usdCommissionAmount = usdCommissionAmount;
-        this.senderCurrencyCommissionAmount = transferCurrencyCommissionAmount;
-        transactionId = commissionMessage.getTransactionId();
-        walletAmount = commissionMessage.getWalletAmount();
-        isLoanLimitUsed = commissionMessage.isLoanLimitUsed();
-        loanLimitAmount = commissionMessage.getLoanLimitAmount();
-        fromWalletCurrency = commissionMessage.getFromWalletCurrency();
-        toWalletCurrency = commissionMessage.getToWalletCurrency();
-        transactionCurrency = commissionMessage.getTransactionCurrency();
-    }
 }

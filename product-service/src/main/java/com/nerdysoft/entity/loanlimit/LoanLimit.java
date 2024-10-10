@@ -15,12 +15,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
+@ToString
 public class LoanLimit {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,10 +32,19 @@ public class LoanLimit {
     private UUID accountId;
 
     @Column(nullable = false)
+    private String accountEmail;
+
+    @Column(nullable = false)
     private UUID walletId;
 
     @Column(nullable = false)
-    private BigDecimal availableLoanLimit;
+    private BigDecimal availableAmount;
+
+    @Column(nullable = false)
+    private BigDecimal initialAmount;
+
+    @Column(nullable = false)
+    private boolean isRepaid;
 
     @Enumerated(EnumType.STRING)
     private Currency currency;
@@ -41,10 +52,14 @@ public class LoanLimit {
     @Column(nullable = false)
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    public LoanLimit(UUID accountId, UUID walletId, Currency currency, BigDecimal availableLoanLimit) {
+    private LocalDateTime dueDate = LocalDateTime.now().plusMonths(1).withDayOfMonth(25);
+
+    public LoanLimit(UUID accountId, String accountEmail, UUID walletId, Currency currency, BigDecimal initialAmount) {
         this.accountId = accountId;
+        this.accountEmail = accountEmail;
         this.walletId = walletId;
-        this.availableLoanLimit = availableLoanLimit;
+        this.availableAmount = initialAmount;
+        this.initialAmount = initialAmount;
         this.currency = currency;
     }
 }

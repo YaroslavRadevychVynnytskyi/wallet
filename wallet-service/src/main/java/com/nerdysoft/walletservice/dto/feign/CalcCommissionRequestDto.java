@@ -1,15 +1,14 @@
-package com.nerdysoft.walletservice.dto.rabbit;
+package com.nerdysoft.walletservice.dto.feign;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 @Builder
-public class CommissionRequestMessage implements Serializable {
-    private UUID transactionId;
+@ToString
+public class CalcCommissionRequestDto {
     private BigDecimal walletAmount;
     private boolean isLoanLimitUsed;
     private BigDecimal loanLimitAmount;

@@ -1,15 +1,14 @@
 package com.nerdysoft.dto.api.request;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-public class CommissionRequestMessage implements Serializable {
+@Data
+public class SaveCommissionRequestDto {
     private UUID transactionId;
+    private BigDecimal usdCommission;
+    private BigDecimal originalCurrencyCommission;
     private BigDecimal walletAmount;
     private boolean isLoanLimitUsed;
     private BigDecimal loanLimitAmount;

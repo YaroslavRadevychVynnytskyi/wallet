@@ -1,6 +1,5 @@
 package com.nerdysoft.service.loanlimit.impl;
 
-import com.nerdysoft.dto.api.request.LoanLimitRequestDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
 import com.nerdysoft.dto.feign.enums.Currency;
@@ -10,8 +9,8 @@ import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.repo.loanlimit.LoanLimitRepository;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
 import com.nerdysoft.service.loanlimit.LoanLimitService;
-import com.nerdysoft.service.loanlimit.strategy.handlers.LoanLimitHandler;
 import com.nerdysoft.service.loanlimit.strategy.LoanLimitStrategy;
+import com.nerdysoft.service.loanlimit.strategy.handlers.LoanLimitHandler;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -31,21 +30,22 @@ public class LoanLimitServiceImpl implements LoanLimitService {
 
     @Transactional
     @Override
-    public LoanLimit getLoanLimit(LoanLimitRequestDto requestDto) {
-        hasExistingLoanLimit(requestDto.accountId());
+    public LoanLimit getLoanLimit(UUID accountId, String email, Currency currency) {
+        hasExistingLoanLimit(accountId);
 
-        Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(requestDto.accountId(), requestDto.currency()).getBody();
+        Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, currency).getBody();
 
         BigDecimal maxBalanceForLastMonth = walletBalanceAnalyzer.getMaxBalanceForLastMonth(wallet.walletId());
         BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.walletId());
 
         LoanLimitHandler loanLimitHandler = loanLimitStrategy.get(
-                convertToUsd(requestDto.currency(), maxBalanceForLastMonth),
-                convertToUsd(requestDto.currency(), turnoverForLastMonth)
+                convertToUsd(currency, maxBalanceForLastMonth),
+                convertToUsd(currency, turnoverForLastMonth)
         );
 
         LoanLimit loanLimit = new LoanLimit(
-                requestDto.accountId(),
+                accountId,
+                email,
                 wallet.walletId(),
                 wallet.currency(),
                 convert(Currency.USD, wallet.currency(), loanLimitHandler.getLoanLimit())
@@ -56,21 +56,33 @@ public class LoanLimitServiceImpl implements LoanLimitService {
 
     @Override
     public LoanLimit getLoanLimitByWalletId(UUID walletId) {
-        return loanLimitRepository.findByWalletId(walletId)
+        return loanLimitRepository.findByWalletIdAndIsRepaidFalse(walletId)
                 .orElseThrow(() -> new EntityNotFoundException("Can't find loan limit with wallet ID: " + walletId));
     }
 
     @Override
     public LoanLimit updateByWalletId(UUID walletId, LoanLimit loanLimit) {
         LoanLimit oldLoanLimit = getLoanLimitByWalletId(walletId);
-        oldLoanLimit.setAvailableLoanLimit(loanLimit.getAvailableLoanLimit());
+        oldLoanLimit.setAvailableAmount(loanLimit.getAvailableAmount());
 
         return loanLimitRepository.save(oldLoanLimit);
     }
 
+    @Transactional
+    @Override
+    public LoanLimit repayLoanLimit(UUID accountId) {
+        LoanLimit loanLimit = getLoanLimitByAccountId(accountId);
+
+        // TODO: charge (initialAmount - availableAmount) from wallet; send this money to the bank reserves
+        loanLimit.setAvailableAmount(BigDecimal.ZERO);
+        loanLimit.setRepaid(true);
+
+        return loanLimitRepository.save(loanLimit);
+    }
+
     private void hasExistingLoanLimit(UUID accountId) {
-        if (loanLimitRepository.existsByAccountId(accountId)) {
-            throw new IllegalStateException("Loan limit already assigned to account with ID: " + accountId);
+        if (loanLimitRepository.existsByAccountIdAndIsRepaidFalse(accountId)) {
+            throw new IllegalStateException("Account with ID: " + accountId + " already has an active loan limit");
         }
     }
 
@@ -86,5 +98,10 @@ public class LoanLimitServiceImpl implements LoanLimitService {
                 .convert(new ConvertAmountRequestDto(fromCurrency.getCode(), toCurrency.getCode(), amount))
                 .getBody()
                 .convertedAmount();
+    }
+
+    private LoanLimit getLoanLimitByAccountId(UUID accountId) {
+        return loanLimitRepository.findByAccountIdAndIsRepaidFalse(accountId).orElseThrow(() ->
+                new EntityNotFoundException("Can't find not repaid loan limit with account ID: " + accountId));
     }
 }

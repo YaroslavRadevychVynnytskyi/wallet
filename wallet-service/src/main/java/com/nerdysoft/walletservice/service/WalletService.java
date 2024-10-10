@@ -1,7 +1,9 @@
 package com.nerdysoft.walletservice.service;
 
 import com.nerdysoft.walletservice.dto.feign.LoanLimit;
-import com.nerdysoft.walletservice.dto.rabbit.CommissionRequestMessage;
+import com.nerdysoft.walletservice.dto.feign.CalcCommissionRequestDto;
+import com.nerdysoft.walletservice.dto.feign.CalcCommissionResponseDto;
+import com.nerdysoft.walletservice.dto.feign.SaveCommissionRequestDto;
 import com.nerdysoft.walletservice.dto.request.ConvertAmountRequestDto;
 import com.nerdysoft.walletservice.dto.request.CreateWalletDto;
 import com.nerdysoft.walletservice.dto.request.TransactionRequestDto;
@@ -11,6 +13,7 @@ import com.nerdysoft.walletservice.dto.request.TransferTransactionResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransferResponseDto;
 import com.nerdysoft.walletservice.exception.UniqueException;
+import com.nerdysoft.walletservice.feign.CommissionFeignClient;
 import com.nerdysoft.walletservice.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.walletservice.feign.LoanLimitFeignClient;
 import com.nerdysoft.walletservice.mapper.TransactionMapper;
@@ -43,7 +46,7 @@ public class WalletService {
 
   private final LoanLimitFeignClient loanLimitFeignClient;
 
-  private final CommissionMessageProducer commissionMessageProducer;
+  private final CommissionFeignClient commissionFeignClient;
 
   public Wallet createWallet(CreateWalletDto createWalletDto) {
     if (walletRepository.hasAccountWalletOnThisCurrency(createWalletDto.accountId(),
@@ -128,12 +131,7 @@ public class WalletService {
               senderWallet.getBalance(), transactionMapper::transactionToTransferResponseDto);
     }
 
-    updateWalletBalances(senderWallet, receiverWallet, transferAmount, senderBalance);
-    TransferResponseDto transferResponseDto = saveTransaction(senderWallet, transferRequestDto, TransactionStatus.SUCCESS,
-            senderBalance, transactionMapper::transactionToTransferResponseDto);
-
-    commissionMessageProducer.sendMessage(CommissionRequestMessage.builder()
-            .transactionId(transferResponseDto.transactionId())
+    CalcCommissionResponseDto commission = commissionFeignClient.calculateCommission(CalcCommissionRequestDto.builder()
             .walletAmount(transferAmount.subtract(loanLimitAmount))
             .isLoanLimitUsed(isBalanceInsufficient)
             .loanLimitAmount(loanLimitAmount)
@@ -141,7 +139,13 @@ public class WalletService {
             .toWalletCurrency(receiverWallet.getCurrency().getCode())
             .transactionCurrency(transferRequestDto.currency().getCode())
             .build()
-    );
+    ).getBody();
+
+    updateWalletBalances(senderWallet, receiverWallet, transferAmount, senderBalance, commission.getOriginalCurrencyCommission());
+    TransferResponseDto transferResponseDto = saveTransaction(senderWallet, transferRequestDto, TransactionStatus.SUCCESS,
+            senderBalance, transactionMapper::transactionToTransferResponseDto);
+
+    commissionFeignClient.saveCommission(new SaveCommissionRequestDto(transferResponseDto.transactionId(), commission));
 
     return transferResponseDto;
   }
@@ -165,11 +169,11 @@ public class WalletService {
 
   private BigDecimal applyLoanLimitIfNeeded(Wallet wallet, BigDecimal transferAmount) {
     LoanLimit loanLimit = loanLimitFeignClient.getLoanLimitByWalletId(wallet.getWalletId()).getBody();
-    BigDecimal availableFunds = wallet.getBalance().add(loanLimit.getAvailableLoanLimit());
+    BigDecimal availableFunds = wallet.getBalance().add(loanLimit.getAvailableAmount());
 
     if (availableFunds.compareTo(transferAmount) >= 0) {
       BigDecimal requiredLoanAmount = transferAmount.subtract(wallet.getBalance());
-      loanLimit.setAvailableLoanLimit(loanLimit.getAvailableLoanLimit().subtract(requiredLoanAmount));
+      loanLimit.setAvailableAmount(loanLimit.getAvailableAmount().subtract(requiredLoanAmount));
       loanLimitFeignClient.updateByWalletId(wallet.getWalletId(), loanLimit);
 
       return requiredLoanAmount;
@@ -178,8 +182,10 @@ public class WalletService {
     return BigDecimal.ZERO;
   }
 
-  private void updateWalletBalances(Wallet senderWallet, Wallet receiverWallet, BigDecimal transferAmount, BigDecimal senderBalance) {
-    BigDecimal senderNewBalance = senderBalance.subtract(transferAmount);
+  private void updateWalletBalances(Wallet senderWallet, Wallet receiverWallet, BigDecimal transferAmount, BigDecimal senderBalance, BigDecimal commission) {
+    BigDecimal senderNewBalance = senderBalance.subtract(transferAmount).subtract(commission);
+
+    senderNewBalance = checkIfBalanceEnoughForCommission(senderWallet, senderNewBalance, commission);
     senderWallet.setBalance(senderNewBalance);
 
     BigDecimal receiverTransferAmount;
@@ -197,6 +203,21 @@ public class WalletService {
     receiverWallet.setBalance(receiverNewBalance);
 
     walletRepository.saveAll(List.of(senderWallet, receiverWallet));
+  }
+
+  private BigDecimal checkIfBalanceEnoughForCommission(Wallet senderWallet, BigDecimal senderNewBalance, BigDecimal commission) {
+    if (senderNewBalance.compareTo(BigDecimal.ZERO) < 0) {
+      senderWallet.setBalance(BigDecimal.ZERO);
+
+      BigDecimal loanLimit = applyLoanLimitIfNeeded(senderWallet, commission);
+      senderNewBalance = senderNewBalance.add(loanLimit);
+    }
+
+    if (senderNewBalance.compareTo(BigDecimal.ZERO) < 0) {
+      throw new IllegalStateException("Insufficient funds including loan limit");
+    }
+
+    return senderNewBalance;
   }
 
   private <T extends TransferTransactionResponseDto> T saveTransaction(Wallet wallet,

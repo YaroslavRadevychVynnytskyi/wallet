@@ -11,6 +11,13 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: yaroslav.radevych.vynnytskyi@nerdysoft.com
+    password: wsvp xuwv dlpe qrrj
+    properties.mail.smtp.auth: true
+    properties.mail.smtp.starttls.enable: true
 eureka:
   client:
     service-url:
@@ -18,3 +25,9 @@ eureka:
 application:
   secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
   internal-token: oyuwitystyvstdvsdytvdsyvv7621vgfztrxcnvjzgxvdz
+mail:
+  loan-limit:
+    subject: "[Action Required] Overdue Payment Notice for Your Loan Limit"
+    body: "This is a friendly reminder that your loan limit repayment was not done. Our records 
+          indicate that the payment has not yet been received. If we do not receive the payment within
+          the next few days, you may continue receiving daily reminders, and further actions may be taken."

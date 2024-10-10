@@ -9,6 +9,6 @@ import lombok.Data;
 public class LoanLimit {
     private UUID id;
     private UUID accountId;
-    private BigDecimal availableLoanLimit;
+    private BigDecimal availableAmount;
     private LocalDateTime timestamp;
 }
