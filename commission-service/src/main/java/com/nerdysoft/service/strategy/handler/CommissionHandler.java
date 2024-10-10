@@ -1,7 +1,8 @@
 package com.nerdysoft.service.strategy.handler;
 
+import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
 import java.math.BigDecimal;
 
 public interface CommissionHandler {
-    BigDecimal getCommission(String fromWalletCurrency, String toWalletCurrency, String transactionCurrency, BigDecimal amount);
+    BigDecimal getCommission(CalcCommissionRequestDto message, BigDecimal amount);
 }

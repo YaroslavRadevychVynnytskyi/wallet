@@ -1,13 +1,20 @@
 package com.nerdysoft.dto.api.request;
 
 import java.math.BigDecimal;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-public record CalcCommissionRequestDto(
-        UUID transactionId,
-        BigDecimal amount,
-        String fromWalletCurrency,
-        String toWalletCurrency,
-        String transactionCurrency
-) {
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+public class CalcCommissionRequestDto {
+    private BigDecimal walletAmount;
+    private boolean isLoanLimitUsed;
+    private BigDecimal loanLimitAmount;
+    private String fromWalletCurrency;
+    private String toWalletCurrency;
+    private String transactionCurrency;
 }

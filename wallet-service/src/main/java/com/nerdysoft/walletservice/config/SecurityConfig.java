@@ -41,9 +41,11 @@ public class SecurityConfig {
         .formLogin(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(requests -> requests
             .requestMatchers(permittedRoutes).permitAll()
-            .requestMatchers("/wallets/account/{accountId}").hasRole("ADMIN")
+            .requestMatchers("/wallets/account/{accountId}", "/transactions/**")
+                .access((authentication, authorizationContext) -> hasAdminRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
             .requestMatchers("/wallets/{walletId}").hasAnyRole("ADMIN", "USER")
-            .requestMatchers("/wallets/{walletId}/deposit", "/wallets/{walletId}/withdraw").hasRole("USER")
+            .requestMatchers("/wallets/{walletId}/deposit", "/wallets/{walletId}/withdraw")
+                .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
             .requestMatchers(HttpMethod.POST, "/wallets", "/wallets/{walletId}/transfer")
                 .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
             .anyRequest().authenticated()
@@ -60,6 +62,15 @@ public class SecurityConfig {
     boolean decision = internalToken.map(token -> this.internalToken.equals(token))
         .orElseGet(() -> authentication.getAuthorities().stream()
             .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER")));
+    return new AuthorizationDecision(decision);
+  }
+
+  private AuthorizationDecision hasAdminRoleOrInternalToken(HttpServletRequest request,
+                                                            Authentication authentication) {
+    Optional<String> internalToken = Optional.ofNullable(request.getHeader("internal-token"));
+    boolean decision = internalToken.map(token -> this.internalToken.equals(token))
+            .orElseGet(() -> authentication.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN")));
     return new AuthorizationDecision(decision);
   }
 }

@@ -2,23 +2,24 @@ package com.nerdysoft.service.impl;
 
 import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
+import com.nerdysoft.dto.api.request.GenericTransactionRequestDto;
 import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
+import com.nerdysoft.dto.api.response.GenericTransactionResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.dto.event.activity.enums.ActionType;
 import com.nerdysoft.dto.event.activity.enums.EntityType;
-import com.nerdysoft.dto.feign.CalcCommissionRequestDto;
-import com.nerdysoft.dto.feign.CommissionResponseDto;
 import com.nerdysoft.dto.feign.CreateWalletDto;
 import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransferRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
+import com.nerdysoft.dto.feign.WalletTransactionRequestDto;
+import com.nerdysoft.dto.feign.WalletTransactionResponseDto;
 import com.nerdysoft.entity.Account;
 import com.nerdysoft.entity.Role;
 import com.nerdysoft.entity.enums.RoleName;
-import com.nerdysoft.feign.CommissionFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.mapper.TransactionMapper;
@@ -44,7 +45,6 @@ public class AccountServiceImpl implements AccountService {
     private final TransactionMapper transactionMapper;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
-    private final CommissionFeignClient commissionFeignClient;
 
     @Override
     @Transactional
@@ -144,14 +144,6 @@ public class AccountServiceImpl implements AccountService {
                 transferRequestDto)
                 .getBody();
 
-        CommissionResponseDto commission = commissionFeignClient
-                .calculateCommission(new CalcCommissionRequestDto(
-                        transaction.transactionId(),
-                        transaction.amount(),
-                        fromWalletCurrency.getCode(),
-                        toWalletCurrency.getCode(),
-                        requestDto.currency().getCode())).getBody();
-
         eventProducer.sendEvent(transactionMapper.toTransactionEvent(transaction));
         eventProducer.sendEvent(
                 accountId,
@@ -161,7 +153,40 @@ public class AccountServiceImpl implements AccountService {
                 Optional.empty(),
                 Optional.of(transaction));
 
-        return new TransactionResponseDto(transaction, commission.commissionAmount(), accountId, requestDto.toAccountId());
+        return new TransactionResponseDto(transaction, accountId, requestDto.toAccountId());
+    }
+
+    @Override
+    public GenericTransactionResponseDto updateBalance(UUID accountId, GenericTransactionRequestDto requestDto) {
+        Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, requestDto.walletCurrency()).getBody();
+
+        WalletTransactionResponseDto walletTransactionResponseDto = processUpdateBalanceTransaction(wallet, requestDto);
+
+        eventProducer.sendEvent(transactionMapper.toTransactionEvent(walletTransactionResponseDto, requestDto.transactionType()));
+        eventProducer.sendEvent(
+                accountId,
+                walletTransactionResponseDto.transactionId(),
+                ActionType.CREATE,
+                EntityType.TRANSACTION,
+                Optional.empty(),
+                Optional.of(transactionMapper.toTransactionEvent(walletTransactionResponseDto, requestDto.transactionType()))
+        );
+
+        return new GenericTransactionResponseDto(walletTransactionResponseDto, accountId);
+    }
+
+    private WalletTransactionResponseDto processUpdateBalanceTransaction(Wallet wallet, GenericTransactionRequestDto requestDto) {
+        WalletTransactionRequestDto transactionRequestDto = new WalletTransactionRequestDto(requestDto.amount(), requestDto.currency());
+
+        switch (requestDto.transactionType()) {
+            case ACCOUNT_DEPOSIT -> {
+                return walletFeignClient.deposit(wallet.getWalletId(), transactionRequestDto).getBody();
+            }
+            case ACCOUNT_WITHDRAW -> {
+                return walletFeignClient.withdraw(wallet.getWalletId(), transactionRequestDto).getBody();
+            }
+            default -> throw new IllegalArgumentException("Unsupported operation type" + requestDto.transactionType());
+        }
     }
 
     @Override

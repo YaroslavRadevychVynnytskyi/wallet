@@ -2,8 +2,10 @@ package com.nerdysoft.service;
 
 import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
+import com.nerdysoft.dto.api.request.GenericTransactionRequestDto;
 import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
+import com.nerdysoft.dto.api.response.GenericTransactionResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.dto.feign.Currency;
@@ -22,4 +24,6 @@ public interface AccountService {
     TransactionResponseDto createTransaction(UUID accountId, CreateTransactionRequestDto requestDto, Currency fromWalletCurrency, Currency toWalletCurrency);
 
     Account findByEmail(String email);
+
+    GenericTransactionResponseDto updateBalance(UUID accountId, GenericTransactionRequestDto requestDto);
 }

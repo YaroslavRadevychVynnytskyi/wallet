@@ -6,6 +6,8 @@ import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransferRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
+import com.nerdysoft.dto.feign.WalletTransactionRequestDto;
+import com.nerdysoft.dto.feign.WalletTransactionResponseDto;
 import java.util.UUID;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -27,4 +29,10 @@ public interface WalletFeignClient {
     @GetMapping("/wallet-service/wallets/account/{accountId}")
     ResponseEntity<Wallet> getWalletByAccountIdAndCurrency(@PathVariable UUID accountId,
                                                            @RequestParam Currency currency);
+
+    @PostMapping("/wallet-service/wallets/{walletId}/deposit")
+    ResponseEntity<WalletTransactionResponseDto> deposit(@PathVariable UUID walletId, @RequestBody WalletTransactionRequestDto transactionRequestDto);
+
+    @PostMapping("/wallet-service/wallets/{walletId}/withdraw")
+    ResponseEntity<WalletTransactionResponseDto> withdraw(@PathVariable UUID walletId, @RequestBody WalletTransactionRequestDto transactionRequestDto);
 }

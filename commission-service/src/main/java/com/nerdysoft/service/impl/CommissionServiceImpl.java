@@ -1,13 +1,21 @@
 package com.nerdysoft.service.impl;
 
 import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
-import com.nerdysoft.dto.api.response.CommissionResponseDto;
+import com.nerdysoft.dto.api.request.SaveCommissionRequestDto;
+import com.nerdysoft.dto.api.response.CalcCommissionResponseDto;
+import com.nerdysoft.dto.api.response.SaveCommissionResponseDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
+import com.nerdysoft.entity.Commission;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
+import com.nerdysoft.mapper.CommissionMapper;
+import com.nerdysoft.repo.CommissionRepository;
 import com.nerdysoft.service.CommissionService;
 import com.nerdysoft.service.strategy.CommissionStrategy;
 import com.nerdysoft.service.strategy.handler.CommissionHandler;
+import com.nerdysoft.service.strategy.handler.LoanCommissionHandler;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,35 +23,54 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CommissionServiceImpl implements CommissionService {
     private final CurrencyExchangeFeignClient currencyExchangeFeignClient;
+    private final LoanCommissionHandler loanCommissionHandler;
+    private final CommissionRepository commissionRepository;
     private final CommissionStrategy commissionStrategy;
+    private final CommissionMapper commissionMapper;
 
     @Override
-    public CommissionResponseDto calculateCommission(CalcCommissionRequestDto requestDto) {
-        BigDecimal amount = convertAmountToUsd(requestDto);
-        CommissionHandler commissionHandler = commissionStrategy.get(amount);
+    public CalcCommissionResponseDto calculateCommission(CalcCommissionRequestDto requestDto) {
+        BigDecimal walletAmount = convertToUsd(requestDto, CalcCommissionRequestDto::getWalletAmount);
+        BigDecimal loanLimitAmount = convertToUsd(requestDto, CalcCommissionRequestDto::getLoanLimitAmount);
 
-        BigDecimal commission = commissionHandler.getCommission(
-                requestDto.fromWalletCurrency(),
-                requestDto.toWalletCurrency(),
-                requestDto.transactionCurrency(),
-                amount);
+        List<CommissionHandler> commissionHandlers = commissionStrategy.get(walletAmount, requestDto.isLoanLimitUsed());
 
-        BigDecimal originalCurrencyCommission = convertCommissionToOriginalCurrency(requestDto.fromWalletCurrency(), commission);
-        return new CommissionResponseDto(requestDto.transactionId(), originalCurrencyCommission);
+        BigDecimal totalCommissionAmount = commissionHandlers.stream()
+                .map(ch -> calculateCommissionForHandler(ch, requestDto, loanLimitAmount, walletAmount))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal originalCurrencyCommission = convertCommissionToOriginalCurrency(requestDto.getFromWalletCurrency(), totalCommissionAmount);
+
+        return new CalcCommissionResponseDto(totalCommissionAmount, originalCurrencyCommission, requestDto);
     }
 
-    private BigDecimal convertAmountToUsd(CalcCommissionRequestDto requestDto) {
-        BigDecimal amount = requestDto.amount();
+    @Override
+    public SaveCommissionResponseDto saveCommission(SaveCommissionRequestDto requestDto) {
+        Commission commission = commissionMapper.toCommission(requestDto);
+        return commissionMapper.toResponseDto(commissionRepository.save(commission));
+    }
 
-        if (!requestDto.transactionCurrency().equals("USD")) {
-            amount = currencyExchangeFeignClient.convert(new ConvertAmountRequestDto(
-                    requestDto.transactionCurrency(),
+    private BigDecimal convertToUsd(CalcCommissionRequestDto requestDto,
+                                    Function<CalcCommissionRequestDto, BigDecimal> amountResolver) {
+        BigDecimal amount = amountResolver.apply(requestDto);
+
+        if (!requestDto.getFromWalletCurrency().equals("USD")) {
+            return currencyExchangeFeignClient.convert(new ConvertAmountRequestDto(
+                    requestDto.getFromWalletCurrency(),
                     "USD",
-                    requestDto.amount()
-            )).getBody().convertedAmount();
+                    amount)
+            ).getBody().convertedAmount();
         }
-
         return amount;
+    }
+
+    private BigDecimal calculateCommissionForHandler(CommissionHandler handler,
+                                                     CalcCommissionRequestDto requestDto,
+                                                     BigDecimal loanLimitAmount,
+                                                     BigDecimal walletAmount) {
+        return handler.equals(loanCommissionHandler)
+                ? handler.getCommission(requestDto, loanLimitAmount)
+                : handler.getCommission(requestDto, walletAmount);
     }
 
     private BigDecimal convertCommissionToOriginalCurrency(String originalCurrency, BigDecimal commission) {

@@ -19,3 +19,9 @@ eureka:
 application:
   secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
   internal-token: oyuwitystyvstdvsdytvdsyvv7621vgfztrxcnvjzgxvdz
+rabbitmq:
+  exchange: exchange
+  queue:
+    commission-queue: commission-queue
+  routing-key:
+    commission-key: commission-key
