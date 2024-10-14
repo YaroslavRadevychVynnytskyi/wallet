@@ -40,10 +40,8 @@ public class SecurityConfig {
         .formLogin(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(requests -> requests
             .requestMatchers(permittedRoutes).permitAll()
-            .requestMatchers("/loan-limits/**")
-                .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
-            .requestMatchers("/loans/**")
-                .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
+            .requestMatchers("/reserves/**")
+                .access((authentication, authorizationContext) -> hasAdminRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
             .anyRequest().authenticated()
 
         )

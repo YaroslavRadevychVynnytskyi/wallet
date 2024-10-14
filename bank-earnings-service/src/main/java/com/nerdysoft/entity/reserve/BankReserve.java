@@ -1,7 +1,10 @@
-package com.nerdysoft.entity;
+package com.nerdysoft.entity.reserve;
 
+import com.nerdysoft.entity.reserve.enums.ReserveType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,7 +24,8 @@ public class BankReserve {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private ReserveType type;
 
     @Column(nullable = false)
     private BigDecimal totalFunds;
