@@ -106,7 +106,7 @@ public class LoanServiceImpl implements LoanService {
         Loan loan = loanRepository.findByAccountIdAndRepaymentStatus(accountId, RepaymentStatus.PENDING)
                 .orElseThrow(() -> new EntityNotFoundException("Can't find loan with account ID: " + accountId));
 
-        return commitPayment(loan, loan.getWalletId());
+        return commitPayment(loan);
     }
 
     @Transactional
@@ -120,7 +120,7 @@ public class LoanServiceImpl implements LoanService {
                 LocalDate.now()
         );
 
-        loans.forEach(l -> commitPayment(l, l.getWalletId()));
+        loans.forEach(this::commitPayment);
         loanRepository.saveAll(loans);
     }
 
@@ -130,10 +130,10 @@ public class LoanServiceImpl implements LoanService {
         }
     }
 
-    private LoanPayment commitPayment(Loan loan, UUID walletId) {
+    private LoanPayment commitPayment(Loan loan) {
         loan.setUsdRemainingRepaymentAmount(loan.getUsdRemainingRepaymentAmount().subtract(loan.getUsdMonthlyRepaymentAmount()));
 
-        walletFeignClient.withdraw(walletId, new TransactionRequestDto(loan.getWalletCurrencyRepaymentAmount(), loan.getWalletCurrency()));
+        walletFeignClient.withdraw(loan.getWalletId(), new TransactionRequestDto(loan.getWalletCurrencyRepaymentAmount(), loan.getWalletCurrency()));
 
         loan.setTotalPaymentsMade(loan.getTotalPaymentsMade().add(BigDecimal.ONE));
         loan.setNextPayment(loan.getNextPayment().plusMonths(1));
