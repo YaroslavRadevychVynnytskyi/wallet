@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoanLimitCriteria {
+public class BalanceCriteria {
     private BigDecimal maxAmountLowerBound;
     private BigDecimal maxAmountUpperBound;
 

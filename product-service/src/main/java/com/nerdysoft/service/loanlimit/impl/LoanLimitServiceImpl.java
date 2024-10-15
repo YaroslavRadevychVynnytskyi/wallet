@@ -36,7 +36,7 @@ public class LoanLimitServiceImpl implements LoanLimitService {
         Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, currency).getBody();
 
         BigDecimal maxBalanceForLastMonth = walletBalanceAnalyzer.getMaxBalanceForLastMonth(wallet.walletId());
-        BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.walletId());
+        BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.walletId(), wallet.currency());
 
         LoanLimitHandler loanLimitHandler = loanLimitStrategy.get(
                 convertToUsd(currency, maxBalanceForLastMonth),
