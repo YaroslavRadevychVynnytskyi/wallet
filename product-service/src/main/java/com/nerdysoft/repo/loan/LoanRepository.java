@@ -1,4 +1,4 @@
-package com.nerdysoft.repo;
+package com.nerdysoft.repo.loan;
 
 import com.nerdysoft.dto.api.request.loan.enums.PaymentType;
 import com.nerdysoft.entity.loan.Loan;

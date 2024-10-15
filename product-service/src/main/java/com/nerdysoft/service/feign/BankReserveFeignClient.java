@@ -11,4 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface BankReserveFeignClient {
     @PostMapping("/bank-earnings-service/reserves/withdraw")
     ResponseEntity<BankReserveOperationsDto> withdraw(@RequestBody BankReserveOperationsDto requestDto);
+
+    @PostMapping("/bank-earnings-service/reserves/deposit")
+    ResponseEntity<BankReserveOperationsDto> deposit(@RequestBody BankReserveOperationsDto requestDto);
 }

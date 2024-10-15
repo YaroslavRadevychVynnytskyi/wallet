@@ -1,4 +1,4 @@
-package com.nerdysoft.repo;
+package com.nerdysoft.repo.loan;
 
 import com.nerdysoft.entity.loan.LoanPayment;
 import java.time.LocalDateTime;
