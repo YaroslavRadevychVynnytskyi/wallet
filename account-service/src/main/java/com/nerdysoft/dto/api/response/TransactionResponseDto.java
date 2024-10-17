@@ -1,8 +1,8 @@
 package com.nerdysoft.dto.api.response;
 
-import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransactionStatus;
+import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;

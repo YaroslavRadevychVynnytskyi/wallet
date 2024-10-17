@@ -1,6 +1,6 @@
 package com.nerdysoft.walletservice.model;
 
-import com.nerdysoft.walletservice.model.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.walletservice.model.enums.TransactionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

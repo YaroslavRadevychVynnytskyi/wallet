@@ -3,7 +3,7 @@ package com.nerdysoft.feign;
 import com.nerdysoft.config.FeignConfig;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.Wallet;
-import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.cloud.openfeign.FeignClient;

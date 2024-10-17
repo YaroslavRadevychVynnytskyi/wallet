@@ -1,5 +1,6 @@
 package com.nerdysoft.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,9 +17,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.mapstruct.control.DeepClone;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.mapstruct.control.DeepClone;
 
 @Entity
 @Getter
@@ -43,7 +44,7 @@ public class Account implements UserDetails {
 
     private final LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToMany
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
     private final Set<Role> roles = new HashSet<>();
 
     @Override

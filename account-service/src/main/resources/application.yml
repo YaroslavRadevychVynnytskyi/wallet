@@ -32,3 +32,6 @@ application:
   secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
   token-expiration-time: 86_400_000
   internal-token: oyuwitystyvstdvsdytvdsyvv7621vgfztrxcnvjzgxvdz
+axon:
+  serializer:
+    general: jackson

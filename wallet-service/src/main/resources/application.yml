@@ -25,3 +25,10 @@ rabbitmq:
     commission-queue: commission-queue
   routing-key:
     commission-key: commission-key
+axon:
+  serializer:
+    general: jackson
+  eventhandling:
+    processors:
+      my-processor:
+        mode: tracking

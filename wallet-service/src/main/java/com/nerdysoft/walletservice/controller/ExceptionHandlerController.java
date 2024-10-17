@@ -1,7 +1,7 @@
 package com.nerdysoft.walletservice.controller;
 
-import com.nerdysoft.walletservice.exception.UniqueException;
-import com.nerdysoft.walletservice.model.ExceptionHandlerResponse;
+import com.nerdysoft.walletservice.model.exception.UniqueException;
+import com.nerdysoft.walletservice.model.exception.ExceptionHandlerResponse;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;

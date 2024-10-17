@@ -2,10 +2,10 @@ package com.nerdysoft.service.loanlimit.impl;
 
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
-import com.nerdysoft.dto.feign.enums.Currency;
 import com.nerdysoft.entity.loanlimit.LoanLimit;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.repo.loanlimit.LoanLimitRepository;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
 import com.nerdysoft.service.loanlimit.LoanLimitService;

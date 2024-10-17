@@ -10,8 +10,6 @@ import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.dto.event.activity.enums.ActionType;
 import com.nerdysoft.dto.event.activity.enums.EntityType;
-import com.nerdysoft.dto.feign.CreateWalletDto;
-import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransferRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
@@ -23,6 +21,7 @@ import com.nerdysoft.entity.enums.RoleName;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.mapper.TransactionMapper;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.repo.AccountRepository;
 import com.nerdysoft.service.AccountService;
 import com.nerdysoft.service.EventProducer;
@@ -31,7 +30,6 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,20 +42,15 @@ public class AccountServiceImpl implements AccountService {
     private final EventProducer eventProducer;
     private final TransactionMapper transactionMapper;
     private final RoleService roleService;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
     public Account create(CreateAccountRequestDto requestDto) {
         Account account = accountMapper.toModel(requestDto);
-        account.setPassword(passwordEncoder.encode(requestDto.password()));
 
         Role role = roleService.getRoleByName(RoleName.USER);
         account.getRoles().add(role);
         account = accountRepository.save(account);
-
-        CreateWalletDto walletDto = new CreateWalletDto(account.getAccountId(), Currency.USD);
-        walletFeignClient.createWallet(walletDto);
 
         eventProducer.sendEvent(
             account.getAccountId(),

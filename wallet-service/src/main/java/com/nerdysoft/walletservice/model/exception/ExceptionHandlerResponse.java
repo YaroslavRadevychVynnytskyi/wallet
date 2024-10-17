@@ -1,4 +1,4 @@
-package com.nerdysoft.walletservice.model;
+package com.nerdysoft.walletservice.model.exception;
 
 import java.time.LocalDateTime;
 

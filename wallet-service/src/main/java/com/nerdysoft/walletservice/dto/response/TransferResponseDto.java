@@ -1,7 +1,7 @@
 package com.nerdysoft.walletservice.dto.response;
 
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.walletservice.dto.request.TransferTransactionResponseDto;
-import com.nerdysoft.walletservice.model.enums.Currency;
 import com.nerdysoft.walletservice.model.enums.TransactionStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

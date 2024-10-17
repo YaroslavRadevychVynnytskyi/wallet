@@ -1,8 +1,8 @@
 package com.nerdysoft.walletservice.service;
 
-import com.nerdysoft.walletservice.dto.feign.LoanLimit;
 import com.nerdysoft.walletservice.dto.feign.CalcCommissionRequestDto;
 import com.nerdysoft.walletservice.dto.feign.CalcCommissionResponseDto;
+import com.nerdysoft.walletservice.dto.feign.LoanLimit;
 import com.nerdysoft.walletservice.dto.feign.SaveCommissionRequestDto;
 import com.nerdysoft.walletservice.dto.request.ConvertAmountRequestDto;
 import com.nerdysoft.walletservice.dto.request.CreateWalletDto;
@@ -10,21 +10,23 @@ import com.nerdysoft.walletservice.dto.request.TransactionRequestDto;
 import com.nerdysoft.walletservice.dto.request.TransferRequestDto;
 import com.nerdysoft.walletservice.dto.request.TransferTransactionRequestDto;
 import com.nerdysoft.walletservice.dto.request.TransferTransactionResponseDto;
+import com.nerdysoft.walletservice.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
 import com.nerdysoft.walletservice.dto.response.TransferResponseDto;
-import com.nerdysoft.walletservice.exception.UniqueException;
 import com.nerdysoft.walletservice.feign.CommissionFeignClient;
 import com.nerdysoft.walletservice.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.walletservice.feign.LoanLimitFeignClient;
 import com.nerdysoft.walletservice.mapper.TransactionMapper;
 import com.nerdysoft.walletservice.model.Transaction;
 import com.nerdysoft.walletservice.model.Wallet;
-import com.nerdysoft.walletservice.model.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.walletservice.model.enums.TransactionStatus;
+import com.nerdysoft.walletservice.model.exception.UniqueException;
 import com.nerdysoft.walletservice.repository.WalletRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -65,8 +67,16 @@ public class WalletService {
 
   public Wallet updateCurrency(UUID walletId, Currency currency) {
     Wallet wallet = getWallet(walletId);
-    wallet.setCurrency(currency);
-    return walletRepository.save(wallet);
+    Optional<ConvertAmountResponseDto> convertAmountResponseDto = Optional.ofNullable(currencyExchangeFeignClient.convert(
+        new ConvertAmountRequestDto(wallet.getCurrency().getCode(), currency.getCode(), wallet.getBalance())
+    ).getBody());
+    if (convertAmountResponseDto.isPresent()) {
+      wallet.setCurrency(currency);
+      wallet.setBalance(convertAmountResponseDto.get().convertedAmount());
+      return walletRepository.save(wallet);
+    } else {
+      throw new UniqueException("Failed to convert amount", HttpStatus.NOT_ACCEPTABLE);
+    }
   }
 
   public String deleteWallet(UUID walletId) {

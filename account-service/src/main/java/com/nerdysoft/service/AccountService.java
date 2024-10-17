@@ -8,8 +8,8 @@ import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.GenericTransactionResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
-import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.entity.Account;
+import com.nerdysoft.model.enums.Currency;
 import java.util.UUID;
 
 public interface AccountService {

@@ -46,7 +46,6 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(requests -> requests
                     .requestMatchers(permittedRoutes).permitAll()
-                    .requestMatchers(HttpMethod.POST, "/accounts").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/accounts/{accountId}").hasRole("ADMIN")
                     .requestMatchers("/roles/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/accounts/{accountId}").access(

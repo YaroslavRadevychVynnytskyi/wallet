@@ -1,8 +1,8 @@
 package com.nerdysoft.controller.loanlimit;
 
-import com.nerdysoft.dto.feign.enums.Currency;
 import com.nerdysoft.entity.loanlimit.LoanLimit;
 import com.nerdysoft.entity.security.Account;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.service.loanlimit.LoanLimitService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.nerdysoft.dto.api.request;
 
 import com.nerdysoft.dto.api.request.enums.OperationType;
-import com.nerdysoft.dto.feign.Currency;
+import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 
 public record UpdateBalanceRequestDto(

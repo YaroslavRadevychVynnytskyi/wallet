@@ -8,9 +8,9 @@
         <version>3.3.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.application</groupId>
+    <groupId>com.nerdysoft</groupId>
     <artifactId>account-service</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
     <name>account-service</name>
     <description>account-service</description>
     <properties>
@@ -20,6 +20,8 @@
         <mapstruct.version>1.6.0</mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
         <jjwt.version>0.12.5</jjwt.version>
+        <axon.version>4.10.1</axon.version>
+        <wallet-shared.version>1.0.0</wallet-shared.version>
     </properties>
     <dependencies>
         <dependency>
@@ -90,6 +92,16 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-spring-boot-starter</artifactId>
+            <version>${axon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nerdysoft</groupId>
+            <artifactId>wallet-shared</artifactId>
+            <version>${wallet-shared.version}</version>
         </dependency>
     </dependencies>
     <dependencyManagement>

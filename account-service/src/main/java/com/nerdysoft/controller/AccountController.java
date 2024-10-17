@@ -1,6 +1,5 @@
 package com.nerdysoft.controller;
 
-import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
 import com.nerdysoft.dto.api.request.GenericTransactionRequestDto;
 import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
@@ -9,9 +8,9 @@ import com.nerdysoft.dto.api.response.GenericTransactionResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.dto.api.response.UserDetailsDto;
-import com.nerdysoft.dto.feign.Currency;
 import com.nerdysoft.entity.Account;
 import com.nerdysoft.mapper.AccountMapper;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,12 +38,6 @@ public class AccountController {
     private final AccountMapper accountMapper;
 
     private final UserDetailsService userDetailsService;
-
-    @Operation(summary = "Create new account")
-    @PostMapping
-    public ResponseEntity<AccountResponseDto> create(@RequestBody CreateAccountRequestDto requestDto) {
-        return ResponseEntity.ok(accountMapper.toDto(accountService.create(requestDto)));
-    }
 
     @Operation(summary = "Get account data by ID")
     @GetMapping("/{accountId}")
