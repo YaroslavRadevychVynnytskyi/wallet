@@ -1,5 +1,6 @@
 package com.nerdysoft.controller;
 
+import com.nerdysoft.annotation.BasicInfoController;
 import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.CreateTransactionRequestDto;
 import com.nerdysoft.dto.api.request.GenericTransactionRequestDto;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
+@BasicInfoController(basicField = "fullName", databaseType = BasicInfoController.DatabaseType.POSTGRES)
 public class AccountController {
     private final AccountService accountService;
 
