@@ -1,30 +1,39 @@
 package com.nerdysoft.annotation.generator;
 
 import com.nerdysoft.annotation.BasicInfoController;
-import javax.lang.model.element.Modifier;
+import com.nerdysoft.annotation.util.FileUtil;
 import java.util.UUID;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Modifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.javapoet.ClassName;
 import org.springframework.javapoet.ParameterizedTypeName;
 import org.springframework.javapoet.TypeSpec;
 
+@RequiredArgsConstructor
 public class RepositoryGenerator {
+    private static final String REPOSITORY_PACKAGE_NAME = "com.nerdysoft.repo";
 
-    public TypeSpec generateRepository(String entityName, BasicInfoController.DatabaseType databaseType) {
-        return TypeSpec.interfaceBuilder(entityName + "Repository")
+    private final FileUtil fileUtil;
+
+    public void generateRepository(String entityName, BasicInfoController.DatabaseType databaseType, ProcessingEnvironment pe) {
+        TypeSpec repo = TypeSpec.interfaceBuilder(entityName + "BasicInfoRepository")
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface((databaseType.equals(BasicInfoController.DatabaseType.POSTGRES))
-                        ? ParameterizedTypeName.get(
+                                ? ParameterizedTypeName.get(
                                 ClassName.get(JpaRepository.class),
-                                ClassName.bestGuess(entityName),
+                                ClassName.get("com.nerdysoft.entity", entityName),
                                 ClassName.get(UUID.class))
-                        : ParameterizedTypeName.get(
+                                : ParameterizedTypeName.get(
                                 ClassName.get(MongoRepository.class),
-                                ClassName.bestGuess(entityName),
+                                ClassName.get("com.nerdysoft.entity", entityName),
                                 ClassName.get(String.class)
                         )
                 )
                 .build();
+
+        fileUtil.write(pe, repo, REPOSITORY_PACKAGE_NAME);
     }
 }

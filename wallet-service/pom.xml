@@ -104,7 +104,12 @@
             <groupId>org.springframework.amqp</groupId>
             <artifactId>spring-rabbit</artifactId>
         </dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.nerdysoft</groupId>
+            <artifactId>basic-info-processor</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
@@ -144,6 +149,12 @@
 							<artifactId>mapstruct-processor</artifactId>
 							<version>${mapstruct.version}</version>
 						</path>
+						<path>
+							<groupId>com.nerdysoft</groupId>
+							<artifactId>basic-info-processor</artifactId>
+							<version>1.0-SNAPSHOT</version>
+						</path>
+
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>

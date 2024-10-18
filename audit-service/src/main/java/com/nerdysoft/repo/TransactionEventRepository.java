@@ -1,6 +1,6 @@
 package com.nerdysoft.repo;
 
-import com.nerdysoft.model.transaction.TransactionEvent;
+import com.nerdysoft.entity.transaction.TransactionEvent;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

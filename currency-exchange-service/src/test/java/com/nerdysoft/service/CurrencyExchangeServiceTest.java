@@ -16,7 +16,7 @@ import com.nerdysoft.dto.request.ExchangeRateRequestDto;
 import com.nerdysoft.dto.response.AddOrUpdateRateResponseDto;
 import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.dto.response.ExchangeRateResponseDto;
-import com.nerdysoft.model.ExchangeRate;
+import com.nerdysoft.entity.ExchangeRate;
 import com.nerdysoft.repo.ExchangeRateRepository;
 import com.nerdysoft.service.impl.CurrencyExchangeServiceImpl;
 import java.lang.reflect.InvocationTargetException;
