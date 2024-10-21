@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("wallets")
 @RequiredArgsConstructor
-@BasicInfoController(basicField = "balance", basicFieldType = BigDecimal.class, databaseType = BasicInfoController.DatabaseType.POSTGRES)
+@BasicInfoController(basicField = "balance", basicFieldType = "java.math.BigDecimal", pagination = true, databaseType = BasicInfoController.DatabaseType.POSTGRES)
 public class WalletController {
   private final WalletService walletService;
 

@@ -16,7 +16,6 @@ import com.nerdysoft.mapper.AccountMapper;
 import com.nerdysoft.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
-@BasicInfoController(basicField = "createdAt", basicFieldType = LocalDateTime.class, databaseType = BasicInfoController.DatabaseType.POSTGRES)
+@BasicInfoController(basicField = "createdAt", basicFieldType = "java.time.LocalDateTime", databaseType = BasicInfoController.DatabaseType.POSTGRES)
 public class AccountController {
     private final AccountService accountService;
 

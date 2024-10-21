@@ -1,18 +1,13 @@
 package com.nerdysoft.annotation.generator;
 
 import com.nerdysoft.annotation.util.FileUtil;
-import java.io.PrintWriter;
-import java.util.UUID;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.TypeMirror;
-import lombok.Getter;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.javapoet.ClassName;
 import org.springframework.javapoet.FieldSpec;
-import org.springframework.javapoet.JavaFile;
 import org.springframework.javapoet.MethodSpec;
-import org.springframework.javapoet.TypeName;
 import org.springframework.javapoet.TypeSpec;
 
 @RequiredArgsConstructor
@@ -21,14 +16,14 @@ public class DtoGenerator {
 
     private final FileUtil fileUtil;
 
-    public void generateDto(String modelName, String basicField, TypeMirror basicFieldTypeMirror, ProcessingEnvironment pe) {
+    public void generateDto(String modelName, String basicField, String basicFieldType, ProcessingEnvironment pe) {
         FieldSpec idField = FieldSpec.builder(UUID.class, "id", Modifier.PRIVATE, Modifier.FINAL).build();
-        FieldSpec dynamicField = FieldSpec.builder(TypeName.get(basicFieldTypeMirror), basicField, Modifier.PRIVATE, Modifier.FINAL).build();
+        FieldSpec dynamicField = FieldSpec.builder(ClassName.bestGuess(basicFieldType), basicField, Modifier.PRIVATE, Modifier.FINAL).build();
 
         MethodSpec constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(UUID.class, "id")
-                .addParameter(TypeName.get(basicFieldTypeMirror), basicField)
+                .addParameter(ClassName.bestGuess(basicFieldType), basicField)
                 .addStatement("this.id = id")
                 .addStatement("this.$L = $L", basicField, basicField)
                 .build();

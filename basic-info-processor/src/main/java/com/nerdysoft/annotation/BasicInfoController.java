@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface BasicInfoController {
     String basicField();
-    Class<?> basicFieldType();
+    String basicFieldType();
     boolean pagination() default false;
     DatabaseType databaseType();
 
