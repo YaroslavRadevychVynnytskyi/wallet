@@ -1,7 +1,7 @@
 package com.nerdysoft.service.impl;
 
-import com.nerdysoft.entity.Role;
-import com.nerdysoft.entity.enums.RoleName;
+import com.nerdysoft.model.Role;
+import com.nerdysoft.model.enums.RoleName;
 import com.nerdysoft.repo.RoleRepository;
 import com.nerdysoft.service.RoleService;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,13 +14,15 @@ public class RoleServiceImpl implements RoleService {
   private final RoleRepository roleRepository;
 
   @Override
-  public Role getRoleById(Integer id) {
-    return roleRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+  public Role findById(Integer id) {
+    return roleRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException(String.format("Role with id %d was not found", id)));
   }
 
   @Override
-  public Role getRoleByName(RoleName name) {
-    return roleRepository.findByName(name).orElseThrow(EntityNotFoundException::new);
+  public Role findByName(RoleName name) {
+    return roleRepository.findByName(name)
+        .orElseThrow(() -> new EntityNotFoundException(String.format("Role with name %s was not found", name)));
   }
 
   @Override
@@ -29,9 +31,9 @@ public class RoleServiceImpl implements RoleService {
   }
 
   @Override
-  public Role update(RoleName name) {
-    Role role = getRoleByName(name);
-    role.setName(role.getName());
+  public Role update(Integer id, RoleName name) {
+    Role role = findById(id);
+    role.setName(name);
     return roleRepository.save(role);
   }
 

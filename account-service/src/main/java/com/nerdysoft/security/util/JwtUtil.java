@@ -1,6 +1,5 @@
 package com.nerdysoft.security.util;
 
-import com.nerdysoft.entity.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -40,9 +39,9 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(Account account) {
+    public String generateToken(String email) {
         return Jwts.builder()
-            .subject(account.getEmail())
+            .subject(email)
             .expiration(new Date(System.currentTimeMillis() + expiration))
             .signWith(key)
             .compact();
@@ -61,7 +60,7 @@ public class JwtUtil {
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 return true;
-            } catch (UsernameNotFoundException e) {
+            } catch (Exception e) {
                 return false;
             }
         } else {

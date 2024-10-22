@@ -1,7 +1,6 @@
 package com.nerdysoft.feign;
 
 import com.nerdysoft.config.FeignConfig;
-import com.nerdysoft.dto.feign.CreateWalletDto;
 import com.nerdysoft.dto.feign.Transaction;
 import com.nerdysoft.dto.feign.TransferRequestDto;
 import com.nerdysoft.dto.feign.Wallet;
@@ -19,9 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(contextId = "walletFeignClient", value = "api-gateway", configuration = FeignConfig.class)
 public interface WalletFeignClient {
-    @PostMapping("/wallet-service/wallets")
-    ResponseEntity<Wallet> createWallet(@RequestBody CreateWalletDto createWalletDto);
-
     @PostMapping("/wallet-service/wallets/{walletId}/transfer")
     ResponseEntity<Transaction> transfer(@PathVariable UUID walletId,
                                          @RequestBody TransferRequestDto transferRequestDto);

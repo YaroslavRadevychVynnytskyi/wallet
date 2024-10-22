@@ -1,9 +1,15 @@
 package com.nerdysoft.controller;
 
-import com.nerdysoft.entity.Role;
-import com.nerdysoft.entity.enums.RoleName;
-import com.nerdysoft.service.RoleService;
+import com.nerdysoft.axon.command.role.CreateRoleCommand;
+import com.nerdysoft.axon.command.role.DeleteRoleCommand;
+import com.nerdysoft.axon.command.role.UpdateRoleCommand;
+import com.nerdysoft.axon.query.role.FindRoleByIdQuery;
+import com.nerdysoft.axon.query.role.FindRoleByNameQuery;
+import com.nerdysoft.model.Role;
+import com.nerdysoft.model.enums.RoleName;
 import lombok.RequiredArgsConstructor;
+import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,30 +25,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/roles")
 @RequiredArgsConstructor
 public class RoleController {
-  private final RoleService roleService;
+  private final CommandGateway commandGateway;
+
+  private final QueryGateway queryGateway;
 
   @GetMapping("/{id}")
-  public ResponseEntity<Role> getRoleById(@PathVariable Integer id) {
-    return ResponseEntity.ok(roleService.getRoleById(id));
+  public ResponseEntity<Role> findById(@PathVariable Integer id) {
+    return ResponseEntity.ok(queryGateway.query(new FindRoleByIdQuery(id), Role.class).join());
   }
 
   @GetMapping
-  public ResponseEntity<Role> getRoleByName(@RequestParam RoleName name) {
-    return ResponseEntity.ok(roleService.getRoleByName(name));
+  public ResponseEntity<Role> findByName(@RequestParam RoleName name) {
+    return ResponseEntity.ok(queryGateway.query(new FindRoleByNameQuery(name), Role.class).join());
   }
 
   @PostMapping
   public ResponseEntity<Role> create(@RequestParam RoleName name) {
-    return new ResponseEntity<>(roleService.create(name), HttpStatus.CREATED);
+    Integer roleId = commandGateway.sendAndWait(new CreateRoleCommand(name));
+    return new ResponseEntity<>(queryGateway.query(new FindRoleByIdQuery(roleId), Role.class).join(), HttpStatus.CREATED);
   }
 
-  @PutMapping
-  public ResponseEntity<Role> update(@RequestParam RoleName name) {
-    return new ResponseEntity<>(roleService.update(name), HttpStatus.ACCEPTED);
+  @PutMapping("/{id}")
+  public ResponseEntity<Role> update(@PathVariable Integer id, @RequestParam RoleName name) {
+    return new ResponseEntity<>(commandGateway.sendAndWait(new UpdateRoleCommand(id, name)), HttpStatus.ACCEPTED);
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<String> delete(@PathVariable Integer id) {
-    return new ResponseEntity<>(roleService.delete(id), HttpStatus.ACCEPTED);
+    return new ResponseEntity<>(commandGateway.sendAndWait(new DeleteRoleCommand(id)), HttpStatus.ACCEPTED);
   }
 }

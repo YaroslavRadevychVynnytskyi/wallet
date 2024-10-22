@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.command;
+package com.nerdysoft.axon.command.account;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

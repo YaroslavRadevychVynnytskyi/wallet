@@ -1,15 +1,12 @@
-package com.nerdysoft.axon.event;
+package com.nerdysoft.axon.query.account;
 
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class AccountCreatedEvent {
-  private UUID accountId;
-
+@NoArgsConstructor
+public class FindUserDetailsQuery {
   private String email;
 }

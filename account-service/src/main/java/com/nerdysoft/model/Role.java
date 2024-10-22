@@ -1,6 +1,6 @@
-package com.nerdysoft.entity;
+package com.nerdysoft.model;
 
-import com.nerdysoft.entity.enums.RoleName;
+import com.nerdysoft.model.enums.RoleName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

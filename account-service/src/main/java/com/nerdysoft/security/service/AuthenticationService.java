@@ -1,42 +1,38 @@
 package com.nerdysoft.security.service;
 
-import com.nerdysoft.axon.command.CreateAccountCommand;
+import com.nerdysoft.axon.command.account.CreateAccountCommand;
+import com.nerdysoft.axon.query.account.FindAccountByEmailQuery;
+import com.nerdysoft.axon.query.account.FindAccountByIdQuery;
 import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.LoginRequestDto;
-import com.nerdysoft.dto.api.response.AuthResponseDto;
-import com.nerdysoft.entity.Account;
+import com.nerdysoft.model.Account;
 import com.nerdysoft.security.util.JwtUtil;
-import com.nerdysoft.service.AccountService;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
   private final AuthenticationManager authManager;
-  private final AccountService accountService;
   private final JwtUtil jwtUtil;
-  private final PasswordEncoder passwordEncoder;
   private final CommandGateway commandGateway;
+  private final QueryGateway queryGateway;
 
-  public AuthResponseDto register(CreateAccountRequestDto requestDto) {
-    CreateAccountCommand createAccountCommand = new CreateAccountCommand(requestDto.email(),
-        requestDto.fullName(), passwordEncoder.encode(requestDto.password()));
-    commandGateway.sendAndWait(createAccountCommand);
-    Account account = accountService.findByEmail(requestDto.email());
-    return new AuthResponseDto(jwtUtil.generateToken(account));
+  public String register(CreateAccountRequestDto dto) {
+    CreateAccountCommand command = new CreateAccountCommand(dto.email(), dto.fullName(), dto.password());
+    UUID accountId = commandGateway.sendAndWait(command);
+    Account account = queryGateway.query(new FindAccountByIdQuery(accountId), Account.class).join();
+    return jwtUtil.generateToken(account.getEmail());
   }
 
-  public AuthResponseDto login(LoginRequestDto requestDto) {
-    Authentication authenticate = authManager.authenticate(new UsernamePasswordAuthenticationToken(
-            requestDto.email(), requestDto.password()
-    ));
-    Account account = accountService.findByEmail(authenticate.getName());
-    return new AuthResponseDto(jwtUtil.generateToken(account));
+  public String login(LoginRequestDto dto) {
+    authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
+    Account account = queryGateway.query(new FindAccountByEmailQuery(dto.email()), Account.class).join();
+    return jwtUtil.generateToken(account.getEmail());
   }
 }
