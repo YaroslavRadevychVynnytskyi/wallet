@@ -1,8 +1,8 @@
 package com.nerdysoft.controller;
 
 import com.nerdysoft.dto.response.LogResponseDto;
-import com.nerdysoft.model.activity.UserActivityEvent;
-import com.nerdysoft.model.transaction.TransactionEvent;
+import com.nerdysoft.entity.activity.UserActivityEvent;
+import com.nerdysoft.entity.transaction.TransactionEvent;
 import com.nerdysoft.service.AuditService;
 import java.util.List;
 import java.util.UUID;
