@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.event.wallet;
+package com.nerdysoft.walletservice.axon.query.wallet;
 
 import com.nerdysoft.model.enums.Currency;
 import java.util.UUID;
@@ -7,10 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class WalletCreatedEvent {
-  private UUID walletId;
+@NoArgsConstructor
+public class FindWalletByAccountIdAndCurrencyQuery {
+  private UUID accountId;
 
   private Currency currency;
 }

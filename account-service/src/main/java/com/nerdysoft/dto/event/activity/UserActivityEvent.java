@@ -7,8 +7,10 @@ import com.nerdysoft.dto.event.activity.enums.Status;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
 public class UserActivityEvent extends Event implements Serializable {
     private final UUID userId;

@@ -1,4 +1,4 @@
-package com.nerdysoft.walletservice.axon.command;
+package com.nerdysoft.walletservice.axon.command.wallet;
 
 import com.nerdysoft.model.enums.Currency;
 import java.util.UUID;

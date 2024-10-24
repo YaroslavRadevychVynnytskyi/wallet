@@ -1,6 +1,5 @@
 package com.nerdysoft.walletservice.controller;
 
-import com.nerdysoft.walletservice.dto.response.TransactionResponseDto;
 import com.nerdysoft.walletservice.model.Transaction;
 import com.nerdysoft.walletservice.service.TransactionService;
 import java.util.List;
@@ -19,7 +18,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping("/{walletId}")
-    public ResponseEntity<List<Transaction>> getTransactionsByWalletId(@PathVariable UUID walletId) {
-        return ResponseEntity.ok(transactionService.getAllByWalletId(walletId));
+    public ResponseEntity<List<Transaction>> findAllTransactionsByWalletId(@PathVariable UUID walletId) {
+        return ResponseEntity.ok(transactionService.findAllByWalletId(walletId));
     }
 }

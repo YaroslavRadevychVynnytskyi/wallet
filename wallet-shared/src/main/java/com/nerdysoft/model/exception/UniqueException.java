@@ -1,4 +1,4 @@
-package com.nerdysoft.walletservice.model.exception;
+package com.nerdysoft.model.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

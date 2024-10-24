@@ -1,8 +1,8 @@
-package com.nerdysoft.walletservice.axon.handler;
+package com.nerdysoft.walletservice.axon.handler.event;
 
-import com.nerdysoft.axon.event.AccountCreatedEvent;
+import com.nerdysoft.axon.event.account.AccountCreatedEvent;
 import com.nerdysoft.model.enums.Currency;
-import com.nerdysoft.walletservice.axon.command.CreateWalletCommand;
+import com.nerdysoft.walletservice.axon.command.wallet.CreateWalletCommand;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.EventHandler;

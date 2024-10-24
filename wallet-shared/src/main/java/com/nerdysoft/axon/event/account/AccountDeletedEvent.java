@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountCreatedEvent {
+public class AccountDeletedEvent {
   private UUID accountId;
 }

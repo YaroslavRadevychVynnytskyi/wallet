@@ -49,7 +49,6 @@ public class JwtUtil {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 return true;
             } catch (Exception e) {
-                System.out.println(e.getMessage());
                 return false;
             }
         } else {
