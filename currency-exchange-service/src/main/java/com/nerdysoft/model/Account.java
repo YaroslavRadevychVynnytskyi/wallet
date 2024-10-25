@@ -1,10 +1,8 @@
 package com.nerdysoft.model;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public record Account(UUID accountId,
@@ -12,9 +10,9 @@ public record Account(UUID accountId,
                       String email,
                       String password,
                       LocalDateTime createdAt,
-                      Set<Role> roles) implements UserDetails {
+                      List<Role> roles) implements UserDetails {
   @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
+  public List<Role> getAuthorities() {
     return roles();
   }
 

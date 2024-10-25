@@ -4,22 +4,18 @@ import com.nerdysoft.dto.generic.ConversionRatesDto;
 import com.nerdysoft.dto.request.AddOrUpdateRateRequestDto;
 import com.nerdysoft.dto.request.ConvertAmountRequestDto;
 import com.nerdysoft.dto.request.ExchangeRateRequestDto;
-import com.nerdysoft.dto.response.AddOrUpdateRateResponseDto;
 import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.dto.response.ExchangeRateResponseDto;
 import com.nerdysoft.model.ExchangeRate;
-import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.repo.ExchangeRateRepository;
 import com.nerdysoft.service.CurrencyExchangeService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -31,6 +27,12 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
     @Value("${external.api.exchange.url}")
     private String exchangeApiUrl;
+
+    @Override
+    public ExchangeRate findByBaseCode(String baseCode) {
+        return exchangeRateRepository.findByBaseCode(baseCode)
+            .orElseThrow(() -> new NoSuchElementException(String.format("No currency with base code: %s", baseCode)));
+    }
 
     @Override
     public ExchangeRateResponseDto getExchangeRate(ExchangeRateRequestDto requestDto) {
@@ -49,18 +51,16 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     }
 
     @Override
-    public AddOrUpdateRateResponseDto addOrUpdateExchangeRate(AddOrUpdateRateRequestDto requestDto) {
-        ExchangeRate rate = exchangeRateRepository
-                .findByBaseCode(requestDto.fromCurrency())
-                .orElseThrow();
+    public ExchangeRate addExchangeRate(AddOrUpdateRateRequestDto dto) {
+        return exchangeRateRepository.save(new ExchangeRate(dto.baseCode(), dto.conversionRates(), LocalDateTime.now()));
+    }
 
-        LocalDateTime now = LocalDateTime.now();
-
-        rate.getConversionRates().put(requestDto.toCurrency(), requestDto.exchangeRate());
-        rate.setTimestamp(now);
-
-        exchangeRateRepository.save(rate);
-        return new AddOrUpdateRateResponseDto("success", now);
+    @Override
+    public ExchangeRate updateExchangeRate(String baseCode, Map<String, BigDecimal> updatedConversionRates) {
+        ExchangeRate rate = findByBaseCode(baseCode);
+        rate.setConversionRates(updatedConversionRates);
+        rate.setTimestamp(LocalDateTime.now());
+        return exchangeRateRepository.save(rate);
     }
 
     @Override
@@ -73,7 +73,8 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
         return new ConvertAmountResponseDto(requestDto, rateValue, convertedAmount);
     }
 
-    private ExchangeRate fetchExchangeRates(String baseCode) {
+    @Override
+    public ExchangeRate fetchExchangeRates(String baseCode) {
         ConversionRatesDto rates = webClient.get()
                 .uri(exchangeApiUrl + baseCode)
                 .retrieve()
@@ -85,15 +86,6 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
                 .conversionRates(rates.conversionRates())
                 .timestamp(LocalDateTime.now())
                 .build();
-    }
-
-    @Override
-    @Scheduled(cron = "0 0 0 * * *")
-    public void updateExchangeRates() {
-        List<ExchangeRate> actualRates = Arrays.stream(Currency.values())
-                .map(c -> fetchExchangeRates(c.getCode()))
-                .toList();
-        exchangeRateRepository.saveAll(actualRates);
     }
 
     @Override

@@ -3,9 +3,13 @@ package com.nerdysoft.dto.response;
 import com.nerdysoft.model.ExchangeRate;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExchangeRateResponseDto {
     private String fromCurrency;
     private String toCurrency;
