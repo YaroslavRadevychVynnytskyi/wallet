@@ -1,4 +1,4 @@
-package com.nerdysoft.entity.loanlimit;
+package com.nerdysoft.model.loanlimit;
 
 import com.nerdysoft.model.enums.Currency;
 import jakarta.persistence.Column;

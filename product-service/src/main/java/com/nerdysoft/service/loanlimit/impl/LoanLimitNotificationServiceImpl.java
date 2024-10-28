@@ -1,6 +1,6 @@
 package com.nerdysoft.service.loanlimit.impl;
 
-import com.nerdysoft.entity.loanlimit.LoanLimit;
+import com.nerdysoft.model.loanlimit.LoanLimit;
 import com.nerdysoft.repo.loanlimit.LoanLimitRepository;
 import com.nerdysoft.service.email.NotificationService;
 import com.nerdysoft.service.loanlimit.LoanLimitNotificationService;
