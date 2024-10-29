@@ -1,5 +1,6 @@
 package com.nerdysoft.controller;
 
+import com.nerdysoft.annotation.BasicInfoController;
 import com.nerdysoft.axon.command.account.CreateAccountCommand;
 import com.nerdysoft.axon.command.account.DeleteAccountCommand;
 import com.nerdysoft.axon.command.account.UpdateAccountCommand;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
+@BasicInfoController(basicField = "createdAt", basicFieldType = "java.time.LocalDateTime", databaseType = BasicInfoController.DatabaseType.POSTGRES)
 public class AccountController {
     private final CommandGateway commandGateway;
 
@@ -68,14 +70,6 @@ public class AccountController {
         return ResponseEntity.ok(queryGateway.query(new FindUserDetailsQuery(email), Account.class).join());
     }
 
-//    @Operation(summary = "Get account data by email")
-//    @GetMapping("/email/{email}")
-//    public ResponseEntity<UserDetailsDto> getAccountByEmail(@PathVariable String email) {
-//        return ResponseEntity.ok(accountMapper.toUserDetailsDto(
-//            (Account) userDetailsService.loadUserByUsername(email)
-//        ));
-//    }
-//
     @Operation(summary = "Update account data by ID")
     @PutMapping("/{accountId}")
     public ResponseEntity<UpdatedAccountResponseDto> update(

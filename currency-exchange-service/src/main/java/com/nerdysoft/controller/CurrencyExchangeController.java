@@ -10,7 +10,7 @@ import com.nerdysoft.dto.request.ConvertAmountRequestDto;
 import com.nerdysoft.dto.request.ExchangeRateRequestDto;
 import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.dto.response.ExchangeRateResponseDto;
-import com.nerdysoft.model.ExchangeRate;
+import com.nerdysoft.entity.ExchangeRate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

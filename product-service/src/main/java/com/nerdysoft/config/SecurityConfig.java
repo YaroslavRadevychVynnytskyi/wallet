@@ -31,7 +31,7 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
     String[] permittedRoutes = {
-        "/error", "/loan-limits/**"
+        "/error"
     };
 
     return http
@@ -40,13 +40,25 @@ public class SecurityConfig {
         .formLogin(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(requests -> requests
             .requestMatchers(permittedRoutes).permitAll()
-//            .requestMatchers("/loan-limits/**")
-//                .access((authentication, authorizationContext) -> hasAdminRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
+            .requestMatchers("/loan-limits/**")
+                .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
+            .requestMatchers("/loans/**")
+                .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
             .anyRequest().authenticated()
+
         )
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
         .userDetailsService(userDetailsService)
         .build();
+  }
+
+  private AuthorizationDecision hasUserRoleOrInternalToken(HttpServletRequest request,
+                                                           Authentication authentication) {
+    Optional<String> internalToken = Optional.ofNullable(request.getHeader("internal-token"));
+    boolean decision = internalToken.map(token -> this.internalToken.equals(token))
+            .orElseGet(() -> authentication.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER")));
+    return new AuthorizationDecision(decision);
   }
 }
