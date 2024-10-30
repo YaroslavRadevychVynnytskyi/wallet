@@ -1,8 +1,8 @@
 package com.nerdysoft.dto.event.transaction;
 
 import com.nerdysoft.dto.event.Event;
-import com.nerdysoft.dto.event.transaction.enums.TransactionStatus;
 import com.nerdysoft.dto.event.transaction.enums.TransactionType;
+import com.nerdysoft.model.enums.TransactionStatus;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

@@ -5,7 +5,7 @@ import com.nerdysoft.axon.command.UpdateExchangeRateCommand;
 import com.nerdysoft.axon.event.exchangeRate.ExchangeRateCreatedEvent;
 import com.nerdysoft.axon.event.exchangeRate.ExchangeRateUpdatedEvent;
 import com.nerdysoft.dto.request.AddOrUpdateRateRequestDto;
-import com.nerdysoft.model.ExchangeRate;
+import com.nerdysoft.entity.ExchangeRate;
 import com.nerdysoft.service.CurrencyExchangeService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

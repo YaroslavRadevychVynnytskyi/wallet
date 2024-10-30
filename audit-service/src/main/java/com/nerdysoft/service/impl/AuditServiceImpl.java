@@ -1,9 +1,9 @@
 package com.nerdysoft.service.impl;
 
 import com.nerdysoft.dto.response.LogResponseDto;
-import com.nerdysoft.model.activity.UserActivityEvent;
-import com.nerdysoft.model.activity.enums.Status;
-import com.nerdysoft.model.transaction.TransactionEvent;
+import com.nerdysoft.entity.activity.UserActivityEvent;
+import com.nerdysoft.entity.activity.enums.Status;
+import com.nerdysoft.entity.transaction.TransactionEvent;
 import com.nerdysoft.repo.TransactionEventRepository;
 import com.nerdysoft.repo.UserActivityEventRepository;
 import com.nerdysoft.service.AuditService;

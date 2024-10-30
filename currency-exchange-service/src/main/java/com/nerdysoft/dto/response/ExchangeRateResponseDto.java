@@ -1,6 +1,6 @@
 package com.nerdysoft.dto.response;
 
-import com.nerdysoft.model.ExchangeRate;
+import com.nerdysoft.entity.ExchangeRate;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

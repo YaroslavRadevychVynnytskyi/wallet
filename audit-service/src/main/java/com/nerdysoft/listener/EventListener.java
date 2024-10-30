@@ -1,7 +1,7 @@
 package com.nerdysoft.listener;
 
-import com.nerdysoft.model.activity.UserActivityEvent;
-import com.nerdysoft.model.transaction.TransactionEvent;
+import com.nerdysoft.entity.activity.UserActivityEvent;
+import com.nerdysoft.entity.transaction.TransactionEvent;
 import com.nerdysoft.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

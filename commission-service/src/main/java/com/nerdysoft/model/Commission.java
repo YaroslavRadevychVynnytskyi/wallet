@@ -1,4 +1,4 @@
-package com.nerdysoft.entity;
+package com.nerdysoft.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

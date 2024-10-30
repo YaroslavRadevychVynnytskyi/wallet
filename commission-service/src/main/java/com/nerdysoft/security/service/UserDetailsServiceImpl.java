@@ -1,9 +1,8 @@
 package com.nerdysoft.security.service;
 
+import com.nerdysoft.dto.security.Account;
 import com.nerdysoft.feign.AccountFeignClient;
-import com.nerdysoft.mapper.AccountMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -13,12 +12,10 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceImpl implements UserDetailsService {
   private final AccountFeignClient accountFeignClient;
 
-  private final AccountMapper accountMapper;
-
   @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+  public Account loadUserByUsername(String username) throws UsernameNotFoundException {
     try {
-      return accountMapper.toUserDetails(accountFeignClient.getAccountByEmail(username).getBody());
+      return accountFeignClient.getAccountByEmail(username).getBody();
     } catch (Exception e) {
       throw new UsernameNotFoundException(String.format("No user with email: %s", username));
     }

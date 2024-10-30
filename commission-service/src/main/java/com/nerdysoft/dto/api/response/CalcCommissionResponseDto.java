@@ -4,8 +4,10 @@ import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class CalcCommissionResponseDto {
     private BigDecimal usdCommission;
@@ -20,7 +22,6 @@ public class CalcCommissionResponseDto {
     public CalcCommissionResponseDto(BigDecimal usdCommission, BigDecimal originalCurrencyCommission, CalcCommissionRequestDto requestDto) {
         this.usdCommission = usdCommission;
         this.originalCurrencyCommission = originalCurrencyCommission;
-
         this.walletAmount = requestDto.getWalletAmount();
         this.isLoanLimitUsed = requestDto.isLoanLimitUsed();
         this.loanLimitAmount = requestDto.getLoanLimitAmount();

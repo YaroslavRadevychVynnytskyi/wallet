@@ -7,7 +7,7 @@ import com.nerdysoft.dto.request.ConvertAmountRequestDto;
 import com.nerdysoft.dto.request.ExchangeRateRequestDto;
 import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.dto.response.ExchangeRateResponseDto;
-import com.nerdysoft.model.ExchangeRate;
+import com.nerdysoft.entity.ExchangeRate;
 import com.nerdysoft.service.CurrencyExchangeService;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.queryhandling.QueryHandler;
