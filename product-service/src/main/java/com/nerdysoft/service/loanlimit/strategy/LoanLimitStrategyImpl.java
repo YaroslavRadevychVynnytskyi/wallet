@@ -8,17 +8,17 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LoanLimitStrategyImpl implements LoanLimitStrategy {
-    private final Map<LoanLimitCriteria, LoanLimitHandler> loanLimitHandlerMap;
+    private final Map<BalanceCriteria, LoanLimitHandler> loanLimitHandlerMap;
 
     public LoanLimitStrategyImpl(LoanLimitHandler lowLoanLimitHandler,
                                  LoanLimitHandler mediumLoanLimitHandler,
                                  LoanLimitHandler highLoanLimitHandler,
                                  LoanLimitHandler defaultLoanLimitHandler) {
         loanLimitHandlerMap = Map.of(
-                new LoanLimitCriteria(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO), defaultLoanLimitHandler,
-                new LoanLimitCriteria(BigDecimal.valueOf(500), BigDecimal.valueOf(1000), BigDecimal.valueOf(1000), BigDecimal.valueOf(2000)), lowLoanLimitHandler,
-                new LoanLimitCriteria(BigDecimal.valueOf(1000), BigDecimal.valueOf(2000), BigDecimal.valueOf(2000), BigDecimal.valueOf(5000)), mediumLoanLimitHandler,
-                new LoanLimitCriteria(BigDecimal.valueOf(2000), null, BigDecimal.valueOf(5000), null), highLoanLimitHandler);
+                new BalanceCriteria(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO), defaultLoanLimitHandler,
+                new BalanceCriteria(BigDecimal.valueOf(500), BigDecimal.valueOf(1000), BigDecimal.valueOf(1000), BigDecimal.valueOf(2000)), lowLoanLimitHandler,
+                new BalanceCriteria(BigDecimal.valueOf(1000), BigDecimal.valueOf(2000), BigDecimal.valueOf(2000), BigDecimal.valueOf(5000)), mediumLoanLimitHandler,
+                new BalanceCriteria(BigDecimal.valueOf(2000), null, BigDecimal.valueOf(5000), null), highLoanLimitHandler);
     }
 
     @Override
@@ -27,10 +27,10 @@ public class LoanLimitStrategyImpl implements LoanLimitStrategy {
                 .filter(e -> e.getKey().isMatchingCriteria(maxAmountForMonth, turnoverForMonth))
                 .max(Comparator.comparing(e -> calculateMaxValue(e.getKey(), maxAmountForMonth, turnoverForMonth)))
                 .map(Map.Entry::getValue)
-                .orElse(loanLimitHandlerMap.get(new LoanLimitCriteria(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO)));
+                .orElse(loanLimitHandlerMap.get(new BalanceCriteria(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO)));
     }
 
-    private BigDecimal calculateMaxValue(LoanLimitCriteria criteria, BigDecimal maxAmountForMonth, BigDecimal turnoverForMonth) {
+    private BigDecimal calculateMaxValue(BalanceCriteria criteria, BigDecimal maxAmountForMonth, BigDecimal turnoverForMonth) {
         BigDecimal maxForBalance = criteria.isWithinBounds(maxAmountForMonth, criteria.getMaxAmountLowerBound(), criteria.getMaxAmountUpperBound()) ? maxAmountForMonth : BigDecimal.ZERO;
         BigDecimal maxForTurnover = criteria.isWithinBounds(turnoverForMonth, criteria.getTurnoverLowerBound(), criteria.getTurnoverUpperBound()) ? turnoverForMonth : BigDecimal.ZERO;
 

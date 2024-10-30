@@ -1,6 +1,6 @@
 package com.nerdysoft.repo.loanlimit;
 
-import com.nerdysoft.model.loanlimit.LoanLimit;
+import com.nerdysoft.entity.loanlimit.LoanLimit;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

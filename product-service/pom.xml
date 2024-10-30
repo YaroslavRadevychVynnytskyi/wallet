@@ -20,6 +20,7 @@
         <mapstruct.version>1.6.0</mapstruct.version>
         <jjwt.version>0.12.5</jjwt.version>
         <wallet-shared.version>1.0.0</wallet-shared.version>
+        <axon.version>4.10.1</axon.version>
     </properties>
     <dependencies>
         <dependency>
@@ -97,6 +98,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-spring-boot-starter</artifactId>
+            <version>${axon.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nerdysoft</groupId>

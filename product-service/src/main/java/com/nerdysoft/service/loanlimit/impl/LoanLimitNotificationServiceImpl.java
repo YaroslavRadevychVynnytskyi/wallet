@@ -1,6 +1,6 @@
 package com.nerdysoft.service.loanlimit.impl;
 
-import com.nerdysoft.model.loanlimit.LoanLimit;
+import com.nerdysoft.entity.loanlimit.LoanLimit;
 import com.nerdysoft.repo.loanlimit.LoanLimitRepository;
 import com.nerdysoft.service.email.NotificationService;
 import com.nerdysoft.service.loanlimit.LoanLimitNotificationService;
@@ -17,10 +17,10 @@ public class LoanLimitNotificationServiceImpl implements LoanLimitNotificationSe
     private final LoanLimitRepository loanLimitRepository;
     private final NotificationService notificationService;
 
-    @Value("${mail.loan-limit.subject}")
+    @Value("${mail.subject.loan-limit}")
     private String subject;
 
-    @Value("${mail.loan-limit.body}")
+    @Value("${mail.body.loan-limit}")
     private String body;
 
     @Scheduled(cron = "0 0 8 * * ?")

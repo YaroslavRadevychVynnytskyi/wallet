@@ -1,0 +1,8 @@
+/home/user/IdeaProjects/nerdysoft-trainee/wallet/basic-info-processor/src/main/java/com/nerdysoft/annotation/BasicInfoController.java
+/home/user/IdeaProjects/nerdysoft-trainee/wallet/basic-info-processor/src/main/java/com/nerdysoft/annotation/util/FileUtil.java
+/home/user/IdeaProjects/nerdysoft-trainee/wallet/basic-info-processor/src/main/java/com/nerdysoft/annotation/generator/ServiceGenerator.java
+/home/user/IdeaProjects/nerdysoft-trainee/wallet/basic-info-processor/src/main/java/com/nerdysoft/annotation/generator/DtoGenerator.java
+/home/user/IdeaProjects/nerdysoft-trainee/wallet/basic-info-processor/src/main/java/com/nerdysoft/annotation/generator/RepositoryGenerator.java
+/home/user/IdeaProjects/nerdysoft-trainee/wallet/basic-info-processor/src/main/java/com/nerdysoft/annotation/generator/ControllerGenerator.java
+/home/user/IdeaProjects/nerdysoft-trainee/wallet/basic-info-processor/src/main/java/com/nerdysoft/annotation/processor/BasicInfoProcessor.java
+/home/user/IdeaProjects/nerdysoft-trainee/wallet/basic-info-processor/src/main/java/com/nerdysoft/annotation/util/StringUtil.java

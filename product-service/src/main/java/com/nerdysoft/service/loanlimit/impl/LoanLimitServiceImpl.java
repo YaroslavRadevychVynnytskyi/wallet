@@ -1,11 +1,17 @@
 package com.nerdysoft.service.loanlimit.impl;
 
+import com.nerdysoft.dto.feign.BankReserveTypeDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
+import com.nerdysoft.dto.feign.TransactionRequestDto;
+import com.nerdysoft.dto.feign.UpdateBalanceDto;
 import com.nerdysoft.dto.feign.Wallet;
-import com.nerdysoft.model.loanlimit.LoanLimit;
+import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.dto.feign.enums.OperationType;
+import com.nerdysoft.dto.feign.enums.ReserveType;
+import com.nerdysoft.entity.loanlimit.LoanLimit;
+import com.nerdysoft.feign.BankReserveFeignClient;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
-import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.repo.loanlimit.LoanLimitRepository;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
 import com.nerdysoft.service.loanlimit.LoanLimitService;
@@ -24,7 +30,7 @@ public class LoanLimitServiceImpl implements LoanLimitService {
     private final LoanLimitRepository loanLimitRepository;
     private final WalletBalanceAnalyzer walletBalanceAnalyzer;
     private final LoanLimitStrategy loanLimitStrategy;
-
+    private final BankReserveFeignClient bankReserveFeignClient;
     private final WalletFeignClient walletFeignClient;
     private final CurrencyExchangeFeignClient currencyExchangeFeignClient;
 
@@ -36,7 +42,7 @@ public class LoanLimitServiceImpl implements LoanLimitService {
         Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, currency).getBody();
 
         BigDecimal maxBalanceForLastMonth = walletBalanceAnalyzer.getMaxBalanceForLastMonth(wallet.walletId());
-        BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.walletId());
+        BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.walletId(), wallet.currency());
 
         LoanLimitHandler loanLimitHandler = loanLimitStrategy.get(
                 convertToUsd(currency, maxBalanceForLastMonth),
@@ -50,6 +56,9 @@ public class LoanLimitServiceImpl implements LoanLimitService {
                 wallet.currency(),
                 convert(Currency.USD, wallet.currency(), loanLimitHandler.getLoanLimit())
         );
+
+        UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(ReserveType.LOAN_LIMIT)).getBody();
+        bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.LOAN_LIMIT, loanLimitHandler.getLoanLimit(), OperationType.WITHDRAW));
 
         return loanLimitRepository.save(loanLimit);
     }
@@ -73,7 +82,11 @@ public class LoanLimitServiceImpl implements LoanLimitService {
     public LoanLimit repayLoanLimit(UUID accountId) {
         LoanLimit loanLimit = getLoanLimitByAccountId(accountId);
 
-        // TODO: charge (initialAmount - availableAmount) from wallet; send this money to the bank reserves
+        walletFeignClient.withdraw(loanLimit.getWalletId(), new TransactionRequestDto(loanLimit.getInitialAmount(), loanLimit.getCurrency()));
+
+        UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(ReserveType.LOAN_LIMIT)).getBody();
+        bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.LOAN_LIMIT, loanLimit.getInitialAmount(), OperationType.DEPOSIT));
+
         loanLimit.setAvailableAmount(BigDecimal.ZERO);
         loanLimit.setRepaid(true);
 

@@ -1,0 +1,10 @@
+com/nerdysoft/annotation/generator/ServiceGenerator.class
+com/nerdysoft/annotation/util/StringUtil.class
+com/nerdysoft/annotation/util/FileUtil.class
+com/nerdysoft/annotation/BasicInfoController$DatabaseType.class
+com/nerdysoft/annotation/generator/ControllerGenerator.class
+com/nerdysoft/annotation/generator/RepositoryGenerator.class
+com/nerdysoft/annotation/BasicInfoController.class
+com/nerdysoft/annotation/generator/DtoGenerator.class
+META-INF/services/javax.annotation.processing.Processor
+com/nerdysoft/annotation/processor/BasicInfoProcessor.class
