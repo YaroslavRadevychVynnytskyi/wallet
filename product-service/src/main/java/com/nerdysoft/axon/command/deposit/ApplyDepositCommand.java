@@ -1,6 +1,6 @@
 package com.nerdysoft.axon.command.deposit;
 
-import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

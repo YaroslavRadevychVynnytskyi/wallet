@@ -5,13 +5,13 @@ import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.TransactionRequestDto;
 import com.nerdysoft.dto.feign.UpdateBalanceDto;
 import com.nerdysoft.dto.feign.Wallet;
-import com.nerdysoft.dto.feign.enums.Currency;
-import com.nerdysoft.dto.feign.enums.OperationType;
-import com.nerdysoft.dto.feign.enums.ReserveType;
 import com.nerdysoft.entity.loanlimit.LoanLimit;
 import com.nerdysoft.feign.BankReserveFeignClient;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
+import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.OperationType;
+import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.repo.loanlimit.LoanLimitRepository;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
 import com.nerdysoft.service.loanlimit.LoanLimitService;
@@ -57,7 +57,8 @@ public class LoanLimitServiceImpl implements LoanLimitService {
                 convert(Currency.USD, wallet.currency(), loanLimitHandler.getLoanLimit())
         );
 
-        UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(ReserveType.LOAN_LIMIT)).getBody();
+        UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(
+            ReserveType.LOAN_LIMIT)).getBody();
         bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.LOAN_LIMIT, loanLimitHandler.getLoanLimit(), OperationType.WITHDRAW));
 
         return loanLimitRepository.save(loanLimit);

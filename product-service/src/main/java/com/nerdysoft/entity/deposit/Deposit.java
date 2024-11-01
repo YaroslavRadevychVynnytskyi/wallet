@@ -1,6 +1,6 @@
 package com.nerdysoft.entity.deposit;
 
-import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.DepositStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

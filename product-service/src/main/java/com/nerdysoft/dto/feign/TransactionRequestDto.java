@@ -1,6 +1,6 @@
 package com.nerdysoft.dto.feign;
 
-import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 
 public record TransactionRequestDto(

@@ -1,6 +1,6 @@
 package com.nerdysoft.dto.feign;
 
-import com.nerdysoft.dto.feign.enums.ReserveType;
+import com.nerdysoft.model.enums.ReserveType;
 
 public record BankReserveTypeDto(ReserveType reserveType) {
 }

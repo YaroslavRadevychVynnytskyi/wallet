@@ -5,14 +5,14 @@ import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.TransactionRequestDto;
 import com.nerdysoft.dto.feign.UpdateBalanceDto;
 import com.nerdysoft.dto.feign.Wallet;
-import com.nerdysoft.dto.feign.enums.Currency;
-import com.nerdysoft.dto.feign.enums.OperationType;
-import com.nerdysoft.dto.feign.enums.ReserveType;
 import com.nerdysoft.entity.deposit.Deposit;
 import com.nerdysoft.feign.BankReserveFeignClient;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.DepositStatus;
+import com.nerdysoft.model.enums.OperationType;
+import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.repo.deposit.DepositRepository;
 import com.nerdysoft.service.deposit.DepositService;
 import com.nerdysoft.service.email.NotificationService;
@@ -66,7 +66,8 @@ public class DepositServiceImpl implements DepositService {
 
         walletFeignClient.withdraw(wallet.walletId(), new TransactionRequestDto(amount, wallet.currency()));
 
-        UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(ReserveType.DEPOSIT)).getBody();
+        UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(
+            ReserveType.DEPOSIT)).getBody();
         bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.DEPOSIT, convertToUsd(walletCurrency, amount), OperationType.DEPOSIT));
 
         return depositRepository.save(deposit);

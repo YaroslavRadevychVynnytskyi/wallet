@@ -1,6 +1,6 @@
 package com.nerdysoft.dto.api.request.deposit;
 
-import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import lombok.Data;
 

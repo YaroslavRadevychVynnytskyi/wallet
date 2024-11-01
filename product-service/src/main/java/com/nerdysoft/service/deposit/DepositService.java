@@ -1,7 +1,7 @@
 package com.nerdysoft.service.deposit;
 
-import com.nerdysoft.dto.feign.enums.Currency;
 import com.nerdysoft.entity.deposit.Deposit;
+import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import java.util.UUID;
 

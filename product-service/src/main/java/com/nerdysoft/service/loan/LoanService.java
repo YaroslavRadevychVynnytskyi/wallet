@@ -1,8 +1,8 @@
 package com.nerdysoft.service.loan;
 
-import com.nerdysoft.dto.feign.enums.Currency;
 import com.nerdysoft.entity.loan.Loan;
 import com.nerdysoft.entity.loan.LoanPayment;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.PaymentType;
 import java.math.BigDecimal;
 import java.util.UUID;

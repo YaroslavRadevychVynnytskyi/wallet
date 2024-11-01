@@ -1,6 +1,6 @@
 package com.nerdysoft.axon.command.loanlimit;
 
-import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package com.nerdysoft.entity.loan;
 
-import com.nerdysoft.dto.feign.enums.Currency;
 import com.nerdysoft.model.enums.ApprovalStatus;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.PaymentType;
 import com.nerdysoft.model.enums.RepaymentStatus;
 import jakarta.persistence.Column;

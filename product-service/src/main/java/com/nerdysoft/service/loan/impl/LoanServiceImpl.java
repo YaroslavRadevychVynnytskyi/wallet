@@ -5,17 +5,17 @@ import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.TransactionRequestDto;
 import com.nerdysoft.dto.feign.UpdateBalanceDto;
 import com.nerdysoft.dto.feign.Wallet;
-import com.nerdysoft.dto.feign.enums.Currency;
-import com.nerdysoft.dto.feign.enums.OperationType;
-import com.nerdysoft.dto.feign.enums.ReserveType;
 import com.nerdysoft.entity.loan.Loan;
 import com.nerdysoft.entity.loan.LoanPayment;
 import com.nerdysoft.feign.BankReserveFeignClient;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.model.enums.ApprovalStatus;
+import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.PaymentType;
 import com.nerdysoft.model.enums.RepaymentStatus;
+import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.repo.loan.LoanPaymentRepository;
 import com.nerdysoft.repo.loan.LoanRepository;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
@@ -92,7 +92,8 @@ public class LoanServiceImpl implements LoanService {
                 .build();
 
         if (loan.getApprovalStatus().equals(ApprovalStatus.APPROVED)) {
-            UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(ReserveType.LOAN)).getBody();
+            UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(
+                ReserveType.LOAN)).getBody();
             bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.LOAN, usdLoanAmount, OperationType.WITHDRAW));
             walletFeignClient.deposit(wallet.walletId(), new TransactionRequestDto(loan.getWalletCurrencyLoanAmount(), wallet.currency()));
         }
