@@ -15,7 +15,7 @@ public class BankReserveQueryHandler {
     private final BankReserveService bankReserveService;
 
     @QueryHandler
-    public Integer findBankReserveIdByType(FindBankReserveIdByTypeQuery query) {
+    public UUID findBankReserveIdByType(FindBankReserveIdByTypeQuery query) {
         return bankReserveService.getBankReserveIdByType(query.getReserveType());
     }
 

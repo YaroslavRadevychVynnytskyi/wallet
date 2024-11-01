@@ -2,7 +2,7 @@ package com.nerdysoft.axon.handler;
 
 import com.nerdysoft.axon.query.role.FindRoleByIdQuery;
 import com.nerdysoft.axon.query.role.FindRoleByNameQuery;
-import com.nerdysoft.model.Role;
+import com.nerdysoft.entity.Role;
 import com.nerdysoft.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.queryhandling.QueryHandler;

@@ -21,7 +21,7 @@ public class StartupRunner implements CommandLineRunner {
   public void run(String... args) {
     if (!bankReserveService.hasDbData()) {
       Arrays.stream(ReserveType.values())
-          .forEach(type -> commandGateway.sendAndWait(new CreateBalanceCommand(type, BigDecimal.ZERO)));
+          .forEach(type -> commandGateway.send(new CreateBalanceCommand(type, BigDecimal.ZERO)));
     }
   }
 }

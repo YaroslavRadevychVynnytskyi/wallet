@@ -8,6 +8,7 @@ import com.nerdysoft.dto.api.request.BankReserveTypeDto;
 import com.nerdysoft.dto.api.request.CreateBalanceDto;
 import com.nerdysoft.dto.api.request.UpdateBalanceDto;
 import com.nerdysoft.model.reserve.BankReserve;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.queryhandling.QueryGateway;
@@ -30,7 +31,7 @@ public class BankReserveController {
         CreateBalanceCommand createBalanceCommand = new CreateBalanceCommand();
         BeanUtils.copyProperties(requestDto, createBalanceCommand);
 
-        Integer id = commandGateway.sendAndWait(createBalanceCommand);
+        UUID id = commandGateway.sendAndWait(createBalanceCommand);
         BankReserve bankReserve = queryGateway.query(new FindBankReserveByIdQuery(id), BankReserve.class).join();
         return ResponseEntity.ok(bankReserve);
     }
@@ -44,9 +45,9 @@ public class BankReserveController {
     }
 
     @PostMapping("/by-type")
-    public ResponseEntity<Integer> getReserveIdByType(@RequestBody BankReserveTypeDto reserveTypeDto) {
+    public ResponseEntity<UUID> getReserveIdByType(@RequestBody BankReserveTypeDto reserveTypeDto) {
         FindBankReserveIdByTypeQuery findBankReserveIdByTypeQuery = new FindBankReserveIdByTypeQuery(reserveTypeDto.reserveType());
 
-        return ResponseEntity.ok(queryGateway.query(findBankReserveIdByTypeQuery, Integer.class).join());
+        return ResponseEntity.ok(queryGateway.query(findBankReserveIdByTypeQuery, UUID.class).join());
     }
 }

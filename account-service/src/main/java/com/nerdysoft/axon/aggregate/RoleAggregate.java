@@ -6,7 +6,7 @@ import com.nerdysoft.axon.command.role.UpdateRoleCommand;
 import com.nerdysoft.axon.event.role.RoleCreatedEvent;
 import com.nerdysoft.axon.event.role.RoleDeletedEvent;
 import com.nerdysoft.axon.event.role.RoleUpdatedEvent;
-import com.nerdysoft.model.Role;
+import com.nerdysoft.entity.Role;
 import com.nerdysoft.model.enums.RoleName;
 import com.nerdysoft.service.RoleService;
 import lombok.NoArgsConstructor;

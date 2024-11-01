@@ -1,6 +1,6 @@
 package com.nerdysoft.service.impl;
 
-import com.nerdysoft.model.Role;
+import com.nerdysoft.entity.Role;
 import com.nerdysoft.model.enums.RoleName;
 import com.nerdysoft.repo.RoleRepository;
 import com.nerdysoft.service.RoleService;

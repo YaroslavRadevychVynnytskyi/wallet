@@ -1,7 +1,7 @@
 package com.nerdysoft.service;
 
 import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
-import com.nerdysoft.model.Account;
+import com.nerdysoft.entity.Account;
 import java.util.UUID;
 
 public interface AccountService {

@@ -5,7 +5,7 @@ import com.nerdysoft.axon.command.role.DeleteRoleCommand;
 import com.nerdysoft.axon.command.role.UpdateRoleCommand;
 import com.nerdysoft.axon.query.role.FindRoleByIdQuery;
 import com.nerdysoft.axon.query.role.FindRoleByNameQuery;
-import com.nerdysoft.model.Role;
+import com.nerdysoft.entity.Role;
 import com.nerdysoft.model.enums.RoleName;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;

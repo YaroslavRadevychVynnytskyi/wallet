@@ -15,7 +15,7 @@ import com.nerdysoft.dto.api.response.GenericTransactionResponseDto;
 import com.nerdysoft.dto.api.response.TransactionResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
 import com.nerdysoft.mapper.AccountMapper;
-import com.nerdysoft.model.Account;
+import com.nerdysoft.entity.Account;
 import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
-@BasicInfoController(basicField = "createdAt", basicFieldType = "java.time.LocalDateTime", databaseType = BasicInfoController.DatabaseType.POSTGRES)
+@BasicInfoController(basicField = "email", basicFieldType = "java.lang.String", databaseType = BasicInfoController.DatabaseType.POSTGRES)
 public class AccountController {
     private final CommandGateway commandGateway;
 

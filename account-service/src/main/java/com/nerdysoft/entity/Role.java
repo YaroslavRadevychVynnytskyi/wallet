@@ -1,4 +1,4 @@
-package com.nerdysoft.model;
+package com.nerdysoft.entity;
 
 import com.nerdysoft.model.enums.RoleName;
 import jakarta.persistence.Column;

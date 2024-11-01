@@ -4,7 +4,7 @@ import com.nerdysoft.config.MapperConfig;
 import com.nerdysoft.dto.api.request.UpdateAccountRequestDto;
 import com.nerdysoft.dto.api.response.AccountResponseDto;
 import com.nerdysoft.dto.api.response.UpdatedAccountResponseDto;
-import com.nerdysoft.model.Account;
+import com.nerdysoft.entity.Account;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

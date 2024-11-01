@@ -9,6 +9,7 @@ import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.model.reserve.BankReserve;
 import com.nerdysoft.service.BankReserveService;
 import java.math.BigDecimal;
+import java.util.UUID;
 import lombok.NoArgsConstructor;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -21,7 +22,7 @@ import org.springframework.beans.BeanUtils;
 @NoArgsConstructor
 public class BankReserveAggregate {
     @AggregateIdentifier
-    private Integer id;
+    private UUID id;
     private ReserveType reserveType;
     private BigDecimal totalFunds;
 

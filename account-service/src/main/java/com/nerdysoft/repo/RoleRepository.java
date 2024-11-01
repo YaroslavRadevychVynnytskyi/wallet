@@ -1,6 +1,6 @@
 package com.nerdysoft.repo;
 
-import com.nerdysoft.model.Role;
+import com.nerdysoft.entity.Role;
 import com.nerdysoft.model.enums.RoleName;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

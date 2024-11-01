@@ -20,7 +20,7 @@ public class StartupRunner implements CommandLineRunner {
   public void run(String... args) {
     if (!roleService.hasDbData()) {
       Arrays.stream(RoleName.values())
-          .forEach(name -> commandGateway.sendAndWait(new CreateRoleCommand(name)));
+          .forEach(name -> commandGateway.send(new CreateRoleCommand(name)));
     }
   }
 }

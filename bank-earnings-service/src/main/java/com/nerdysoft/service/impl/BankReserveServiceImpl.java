@@ -10,6 +10,7 @@ import com.nerdysoft.repo.BankReserveRepository;
 import com.nerdysoft.service.BankReserveService;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -59,12 +60,12 @@ public class BankReserveServiceImpl implements BankReserveService {
     }
 
     @Override
-    public BankReserve findById(Integer id) {
+    public BankReserve findById(UUID id) {
         return bankReserveRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("No bank reserve with this id"));
     }
 
     @Override
-    public Integer getBankReserveIdByType(ReserveType type) {
+    public UUID getBankReserveIdByType(ReserveType type) {
         return bankReserveRepository.findByType(type).orElseThrow(() -> new EntityNotFoundException("Can't find bank reserve with this name")).getId();
     }
 

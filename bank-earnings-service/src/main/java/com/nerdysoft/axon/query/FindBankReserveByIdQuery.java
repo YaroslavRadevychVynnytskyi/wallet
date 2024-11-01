@@ -1,5 +1,6 @@
 package com.nerdysoft.axon.query;
 
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FindBankReserveByIdQuery {
-  private Integer id;
+  private UUID id;
 }

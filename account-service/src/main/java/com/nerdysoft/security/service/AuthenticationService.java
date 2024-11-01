@@ -5,7 +5,7 @@ import com.nerdysoft.axon.query.account.FindAccountByEmailQuery;
 import com.nerdysoft.axon.query.account.FindAccountByIdQuery;
 import com.nerdysoft.dto.api.request.CreateAccountRequestDto;
 import com.nerdysoft.dto.api.request.LoginRequestDto;
-import com.nerdysoft.model.Account;
+import com.nerdysoft.entity.Account;
 import com.nerdysoft.security.util.JwtUtil;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
