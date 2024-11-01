@@ -1,5 +1,7 @@
 package com.nerdysoft.service;
 
+import com.nerdysoft.axon.command.transaction.CreateTransactionCommand;
+import com.nerdysoft.axon.query.transaction.FindTransactionByIdQuery;
 import com.nerdysoft.dto.feign.CalcCommissionRequestDto;
 import com.nerdysoft.dto.feign.CalcCommissionResponseDto;
 import com.nerdysoft.dto.feign.LoanLimit;
@@ -31,6 +33,8 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class WalletService {
   private final WalletRepository walletRepository;
 
-  private final TransactionService transactionService;
-
   private final TransactionMapper transactionMapper;
 
   private final CurrencyExchangeFeignClient currencyExchangeFeignClient;
@@ -49,6 +51,10 @@ public class WalletService {
   private final LoanLimitFeignClient loanLimitFeignClient;
 
   private final CommissionFeignClient commissionFeignClient;
+
+  private final CommandGateway commandGateway;
+
+  private final QueryGateway queryGateway;
 
   public Wallet createWallet(CreateWalletDto dto) {
     if (walletRepository.hasAccountWalletOnThisCurrency(dto.accountId(),
@@ -244,12 +250,12 @@ public class WalletService {
       TransactionStatus status,
       BigDecimal balance,
       Function<Transaction, T> mapper) {
-    Transaction transaction = transactionService.saveTransaction(
-        wallet.getWalletId(),
-        requestDto,
-        status,
-        balance
-    );
+    CreateTransactionCommand command = new CreateTransactionCommand(wallet.getWalletId(),
+        requestDto.getToWalletId(), requestDto.getAmount(), requestDto.getCurrency(),
+        status, balance
+        );
+    UUID transactionId = commandGateway.sendAndWait(command);
+    Transaction transaction = queryGateway.query(new FindTransactionByIdQuery(transactionId), Transaction.class).join();
 
     return mapper.apply(transaction);
   }
