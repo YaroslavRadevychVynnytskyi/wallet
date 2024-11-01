@@ -1,4 +1,4 @@
-package com.nerdysoft.dto.feign.enums;
+package com.nerdysoft.model.reserve.enums;
 
 public enum ReserveType {
     LOAN_LIMIT,
