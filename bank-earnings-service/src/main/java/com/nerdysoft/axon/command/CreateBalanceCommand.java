@@ -1,15 +1,15 @@
 package com.nerdysoft.axon.command;
 
-import com.nerdysoft.entity.reserve.enums.ReserveType;
+import com.nerdysoft.model.enums.ReserveType;
 import java.math.BigDecimal;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateBalanceCommand {
-    @TargetAggregateIdentifier
-    private UUID id;
     private ReserveType reserveType;
     private BigDecimal amount;
 }

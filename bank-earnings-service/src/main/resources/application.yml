@@ -12,9 +12,6 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
-application:
-  secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
-  internal-token: oyuwitystyvstdvsdytvdsyvv7621vgfztrxcnvjzgxvdz
 eureka:
   client:
     service-url:
@@ -22,3 +19,6 @@ eureka:
 application:
   secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
   internal-token: oyuwitystyvstdvsdytvdsyvv7621vgfztrxcnvjzgxvdz
+axon:
+  serializer:
+    general: jackson

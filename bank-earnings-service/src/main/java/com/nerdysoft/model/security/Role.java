@@ -1,4 +1,4 @@
-package com.nerdysoft.entity.security;
+package com.nerdysoft.model.security;
 
 import org.springframework.security.core.GrantedAuthority;
 

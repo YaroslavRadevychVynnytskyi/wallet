@@ -1,8 +1,7 @@
 package com.nerdysoft.feign;
 
 import com.nerdysoft.config.FeignConfig;
-import com.nerdysoft.dto.api.response.UserDetailsResponseDto;
-import com.nerdysoft.entity.security.Account;
+import com.nerdysoft.model.security.Account;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

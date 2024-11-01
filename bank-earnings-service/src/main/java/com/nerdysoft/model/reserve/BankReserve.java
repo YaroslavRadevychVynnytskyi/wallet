@@ -1,6 +1,6 @@
-package com.nerdysoft.entity.reserve;
+package com.nerdysoft.model.reserve;
 
-import com.nerdysoft.entity.reserve.enums.ReserveType;
+import com.nerdysoft.model.enums.ReserveType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,8 +19,8 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "id")
 public class BankReserve {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)

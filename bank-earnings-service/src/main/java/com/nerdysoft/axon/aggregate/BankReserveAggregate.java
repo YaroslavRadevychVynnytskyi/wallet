@@ -2,14 +2,14 @@ package com.nerdysoft.axon.aggregate;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
 import com.nerdysoft.axon.command.UpdateBalanceCommand;
-import com.nerdysoft.axon.event.CreateBalanceEvent;
-import com.nerdysoft.axon.event.UpdateBalanceEvent;
-import com.nerdysoft.entity.reserve.BankReserve;
-import com.nerdysoft.entity.reserve.enums.ReserveType;
+import com.nerdysoft.axon.event.bankreserve.BalanceCreatedEvent;
+import com.nerdysoft.axon.event.bankreserve.BalanceUpdatedEvent;
+import com.nerdysoft.dto.api.request.UpdateBalanceDto;
 import com.nerdysoft.model.enums.OperationType;
+import com.nerdysoft.model.enums.ReserveType;
+import com.nerdysoft.model.reserve.BankReserve;
 import com.nerdysoft.service.BankReserveService;
 import java.math.BigDecimal;
-import java.util.UUID;
 import lombok.NoArgsConstructor;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -22,7 +22,7 @@ import org.springframework.beans.BeanUtils;
 @NoArgsConstructor
 public class BankReserveAggregate {
     @AggregateIdentifier
-    private UUID id;
+    private Integer id;
     private ReserveType reserveType;
     private BigDecimal totalFunds;
 
@@ -30,35 +30,39 @@ public class BankReserveAggregate {
     public BankReserveAggregate(CreateBalanceCommand createBalanceCommand, BankReserveService bankReserveService) {
         BankReserve bankReserve = bankReserveService.create(createBalanceCommand);
 
-        CreateBalanceEvent createBalanceEvent = new CreateBalanceEvent();
-        BeanUtils.copyProperties(bankReserve, createBalanceEvent);
+        BalanceCreatedEvent balanceCreatedEvent = new BalanceCreatedEvent();
+        BeanUtils.copyProperties(bankReserve, balanceCreatedEvent);
 
-        AggregateLifecycle.apply(createBalanceEvent);
+        AggregateLifecycle.apply(balanceCreatedEvent);
     }
 
     @EventSourcingHandler
-    public void on(CreateBalanceEvent createBalanceEvent) {
-        id = createBalanceEvent.getId();
-        reserveType = createBalanceEvent.getType();
-        totalFunds = createBalanceEvent.getTotalFunds();
+    public void on(BalanceCreatedEvent balanceCreatedEvent) {
+        id = balanceCreatedEvent.getId();
+        reserveType = balanceCreatedEvent.getType();
+        totalFunds = balanceCreatedEvent.getTotalFunds();
     }
 
     @CommandHandler
-    public void handle(UpdateBalanceCommand updateBalanceCommand) {
-        UpdateBalanceEvent updateBalanceEvent = new UpdateBalanceEvent();
-        BeanUtils.copyProperties(updateBalanceCommand, updateBalanceEvent);
+    public UpdateBalanceDto handle(UpdateBalanceCommand updateBalanceCommand, BankReserveService bankReserveService) {
+        UpdateBalanceDto updateBalanceDto = updateBalanceCommand.getOperationType().equals(OperationType.DEPOSIT)
+            ? bankReserveService.updateBalance(updateBalanceCommand, BigDecimal::add)
+            : bankReserveService.updateBalance(updateBalanceCommand, BigDecimal::subtract);
+        BalanceUpdatedEvent balanceUpdatedEvent = new BalanceUpdatedEvent();
+        BeanUtils.copyProperties(updateBalanceDto, balanceUpdatedEvent);
 
-        AggregateLifecycle.apply(updateBalanceEvent);
+        AggregateLifecycle.apply(balanceUpdatedEvent);
+        return updateBalanceDto;
     }
 
     @EventSourcingHandler
-    public void on(UpdateBalanceEvent updateBalanceEvent) {
-        reserveType = updateBalanceEvent.getReserveType();
+    public void on(BalanceUpdatedEvent balanceUpdatedEvent) {
+        reserveType = balanceUpdatedEvent.getReserveType();
 
-        if (updateBalanceEvent.getOperationType().equals(OperationType.WITHDRAW)) {
-            totalFunds = totalFunds.subtract(updateBalanceEvent.getAmount());
-        } else if (updateBalanceEvent.getOperationType().equals(OperationType.DEPOSIT)) {
-            totalFunds = totalFunds.add(updateBalanceEvent.getAmount());
+        if (balanceUpdatedEvent.getOperationType().equals(OperationType.WITHDRAW)) {
+            totalFunds = totalFunds.subtract(balanceUpdatedEvent.getAmount());
+        } else if (balanceUpdatedEvent.getOperationType().equals(OperationType.DEPOSIT)) {
+            totalFunds = totalFunds.add(balanceUpdatedEvent.getAmount());
         }
     }
 }
