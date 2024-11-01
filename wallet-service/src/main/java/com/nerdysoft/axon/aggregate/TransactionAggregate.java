@@ -4,7 +4,7 @@ import com.nerdysoft.axon.command.transaction.CreateTransactionCommand;
 import com.nerdysoft.axon.event.transaction.TransactionCreatedEvent;
 import com.nerdysoft.dto.request.TransactionRequestDto;
 import com.nerdysoft.dto.request.TransferRequestDto;
-import com.nerdysoft.model.Transaction;
+import com.nerdysoft.entity.Transaction;
 import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.TransactionStatus;
 import com.nerdysoft.service.TransactionService;

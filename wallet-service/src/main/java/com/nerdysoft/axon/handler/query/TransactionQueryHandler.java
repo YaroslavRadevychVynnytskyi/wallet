@@ -1,7 +1,7 @@
 package com.nerdysoft.axon.handler.query;
 
 import com.nerdysoft.axon.query.transaction.FindAllTransactionsByWalletIdQuery;
-import com.nerdysoft.model.Transaction;
+import com.nerdysoft.entity.Transaction;
 import com.nerdysoft.service.TransactionService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
