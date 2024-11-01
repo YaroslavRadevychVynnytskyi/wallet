@@ -2,8 +2,8 @@ package com.nerdysoft.axon.aggregate;
 
 import com.nerdysoft.axon.command.CreateExchangeRateCommand;
 import com.nerdysoft.axon.command.UpdateExchangeRateCommand;
-import com.nerdysoft.axon.event.exchangeRate.ExchangeRateCreatedEvent;
-import com.nerdysoft.axon.event.exchangeRate.ExchangeRateUpdatedEvent;
+import com.nerdysoft.axon.event.exchangerate.ExchangeRateCreatedEvent;
+import com.nerdysoft.axon.event.exchangerate.ExchangeRateUpdatedEvent;
 import com.nerdysoft.dto.request.AddOrUpdateRateRequestDto;
 import com.nerdysoft.entity.ExchangeRate;
 import com.nerdysoft.service.CurrencyExchangeService;

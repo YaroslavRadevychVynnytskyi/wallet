@@ -21,7 +21,7 @@ public class StartupRunner implements CommandLineRunner {
     if (!currencyExchangeService.hasDbData()) {
       Arrays.stream(Currency.values())
           .map(c -> currencyExchangeService.fetchExchangeRates(c.getCode()))
-          .forEach(c -> commandGateway.send(new CreateExchangeRateCommand(c.getBaseCode(), c.getConversionRates())));
+          .forEach(c -> commandGateway.sendAndWait(new CreateExchangeRateCommand(c.getBaseCode(), c.getConversionRates())));
     }
   }
 }
