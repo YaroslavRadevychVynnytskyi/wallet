@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.event.exchangeRate;
+package com.nerdysoft.axon.event.exchangerate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
