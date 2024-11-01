@@ -1,7 +1,7 @@
-package com.nerdysoft.model;
+package com.nerdysoft.entity;
 
 import com.nerdysoft.model.enums.Currency;
-import com.nerdysoft.model.enums.TransactionStatus;
+import com.nerdysoft.dto.request.CreateWalletDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,37 +12,33 @@ import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class Transaction {
+public class Wallet {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID transactionId;
-
-  @Column(nullable = false)
   private UUID walletId;
 
-  private UUID toWalletId;
+  @Column(nullable = false)
+  private UUID accountId;
 
   @Column(nullable = false)
-  private BigDecimal walletBalance;
-
-  @Column(nullable = false)
-  private BigDecimal amount;
+  private BigDecimal balance;
 
   @Enumerated(EnumType.STRING)
   private Currency currency;
 
-  @Enumerated(EnumType.STRING)
-  private TransactionStatus status;
-
   private final LocalDateTime createdAt = LocalDateTime.now();
+
+  public Wallet(CreateWalletDto createWalletDto) {
+    this.accountId = createWalletDto.accountId();
+    this.balance = BigDecimal.valueOf(0.0);
+    this.currency = createWalletDto.currency();
+  }
 }

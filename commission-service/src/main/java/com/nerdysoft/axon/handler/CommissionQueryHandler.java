@@ -4,7 +4,7 @@ import com.nerdysoft.axon.query.CalculateCommissionQuery;
 import com.nerdysoft.axon.query.FindCommissionByIdQuery;
 import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
 import com.nerdysoft.dto.api.response.CalcCommissionResponseDto;
-import com.nerdysoft.model.Commission;
+import com.nerdysoft.entity.Commission;
 import com.nerdysoft.service.CommissionService;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.queryhandling.QueryHandler;

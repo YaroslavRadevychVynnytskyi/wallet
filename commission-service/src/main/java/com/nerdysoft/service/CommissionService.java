@@ -3,7 +3,7 @@ package com.nerdysoft.service;
 import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
 import com.nerdysoft.dto.api.request.SaveCommissionRequestDto;
 import com.nerdysoft.dto.api.response.CalcCommissionResponseDto;
-import com.nerdysoft.model.Commission;
+import com.nerdysoft.entity.Commission;
 import java.util.UUID;
 
 public interface CommissionService {

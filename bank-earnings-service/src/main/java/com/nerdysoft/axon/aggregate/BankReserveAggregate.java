@@ -4,7 +4,6 @@ import com.nerdysoft.axon.command.CreateBalanceCommand;
 import com.nerdysoft.axon.command.UpdateBalanceCommand;
 import com.nerdysoft.axon.event.bankreserve.BalanceCreatedEvent;
 import com.nerdysoft.axon.event.bankreserve.BalanceUpdatedEvent;
-import com.nerdysoft.dto.api.request.UpdateBalanceDto;
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.model.reserve.BankReserve;
@@ -30,10 +29,10 @@ public class BankReserveAggregate {
     public BankReserveAggregate(CreateBalanceCommand createBalanceCommand, BankReserveService bankReserveService) {
         BankReserve bankReserve = bankReserveService.create(createBalanceCommand);
 
-        BalanceCreatedEvent balanceCreatedEvent = new BalanceCreatedEvent();
-        BeanUtils.copyProperties(bankReserve, balanceCreatedEvent);
+        BalanceCreatedEvent createBalanceEvent = new BalanceCreatedEvent();
+        BeanUtils.copyProperties(bankReserve, createBalanceEvent);
 
-        AggregateLifecycle.apply(balanceCreatedEvent);
+        AggregateLifecycle.apply(createBalanceEvent);
     }
 
     @EventSourcingHandler
@@ -44,25 +43,21 @@ public class BankReserveAggregate {
     }
 
     @CommandHandler
-    public UpdateBalanceDto handle(UpdateBalanceCommand updateBalanceCommand, BankReserveService bankReserveService) {
-        UpdateBalanceDto updateBalanceDto = updateBalanceCommand.getOperationType().equals(OperationType.DEPOSIT)
-            ? bankReserveService.updateBalance(updateBalanceCommand, BigDecimal::add)
-            : bankReserveService.updateBalance(updateBalanceCommand, BigDecimal::subtract);
-        BalanceUpdatedEvent balanceUpdatedEvent = new BalanceUpdatedEvent();
-        BeanUtils.copyProperties(updateBalanceDto, balanceUpdatedEvent);
+    public void handle(UpdateBalanceCommand updateBalanceCommand) {
+        BalanceUpdatedEvent updateBalanceEvent = new BalanceUpdatedEvent();
+        BeanUtils.copyProperties(updateBalanceCommand, updateBalanceEvent);
 
-        AggregateLifecycle.apply(balanceUpdatedEvent);
-        return updateBalanceDto;
+        AggregateLifecycle.apply(updateBalanceEvent);
     }
 
     @EventSourcingHandler
-    public void on(BalanceUpdatedEvent balanceUpdatedEvent) {
-        reserveType = balanceUpdatedEvent.getReserveType();
+    public void on(BalanceUpdatedEvent updateBalanceEvent) {
+        reserveType = updateBalanceEvent.getReserveType();
 
-        if (balanceUpdatedEvent.getOperationType().equals(OperationType.WITHDRAW)) {
-            totalFunds = totalFunds.subtract(balanceUpdatedEvent.getAmount());
-        } else if (balanceUpdatedEvent.getOperationType().equals(OperationType.DEPOSIT)) {
-            totalFunds = totalFunds.add(balanceUpdatedEvent.getAmount());
+        if (updateBalanceEvent.getOperationType().equals(OperationType.WITHDRAW)) {
+            totalFunds = totalFunds.subtract(updateBalanceEvent.getAmount());
+        } else if (updateBalanceEvent.getOperationType().equals(OperationType.DEPOSIT)) {
+            totalFunds = totalFunds.add(updateBalanceEvent.getAmount());
         }
     }
 }

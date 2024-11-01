@@ -3,7 +3,7 @@ package com.nerdysoft.mapper;
 import com.nerdysoft.dto.response.TransactionResponseDto;
 import com.nerdysoft.dto.response.TransferResponseDto;
 import com.nerdysoft.config.MapperConfig;
-import com.nerdysoft.model.Transaction;
+import com.nerdysoft.entity.Transaction;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

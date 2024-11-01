@@ -19,7 +19,7 @@ import com.nerdysoft.dto.request.TransactionRequestDto;
 import com.nerdysoft.dto.request.TransferRequestDto;
 import com.nerdysoft.dto.response.TransactionResponseDto;
 import com.nerdysoft.dto.response.TransferResponseDto;
-import com.nerdysoft.model.Wallet;
+import com.nerdysoft.entity.Wallet;
 import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.TransactionStatus;
 import com.nerdysoft.service.WalletService;

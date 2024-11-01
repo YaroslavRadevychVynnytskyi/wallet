@@ -8,7 +8,7 @@ import com.nerdysoft.dto.api.request.SaveCommissionRequestDto;
 import com.nerdysoft.dto.api.response.CalcCommissionResponseDto;
 import com.nerdysoft.dto.api.response.SaveCommissionResponseDto;
 import com.nerdysoft.mapper.CommissionMapper;
-import com.nerdysoft.model.Commission;
+import com.nerdysoft.entity.Commission;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;

@@ -3,7 +3,7 @@ package com.nerdysoft.axon.aggregate;
 import com.nerdysoft.axon.command.SaveCommissionCommand;
 import com.nerdysoft.axon.event.commission.CommissionSavedEvent;
 import com.nerdysoft.dto.api.request.SaveCommissionRequestDto;
-import com.nerdysoft.model.Commission;
+import com.nerdysoft.entity.Commission;
 import com.nerdysoft.service.CommissionService;
 import java.math.BigDecimal;
 import java.util.UUID;

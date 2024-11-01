@@ -6,7 +6,7 @@ import com.nerdysoft.dto.api.response.CalcCommissionResponseDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.mapper.CommissionMapper;
-import com.nerdysoft.model.Commission;
+import com.nerdysoft.entity.Commission;
 import com.nerdysoft.repo.CommissionRepository;
 import com.nerdysoft.service.CommissionService;
 import com.nerdysoft.service.strategy.CommissionStrategy;

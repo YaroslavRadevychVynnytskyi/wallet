@@ -1,6 +1,6 @@
 package com.nerdysoft.repository;
 
-import com.nerdysoft.model.Transaction;
+import com.nerdysoft.entity.Transaction;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

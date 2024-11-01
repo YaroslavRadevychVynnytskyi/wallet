@@ -1,7 +1,7 @@
 package com.nerdysoft.service;
 
 import com.nerdysoft.dto.request.WalletOperationRequestDto;
-import com.nerdysoft.model.Transaction;
+import com.nerdysoft.entity.Transaction;
 import com.nerdysoft.model.enums.TransactionStatus;
 import com.nerdysoft.repository.TransactionRepository;
 import java.math.BigDecimal;

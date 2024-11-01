@@ -1,7 +1,7 @@
 package com.nerdysoft.security.service;
 
 import com.nerdysoft.feign.AccountFeignClient;
-import com.nerdysoft.model.Account;
+import com.nerdysoft.entity.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

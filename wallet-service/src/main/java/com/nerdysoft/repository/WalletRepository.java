@@ -1,7 +1,7 @@
 package com.nerdysoft.repository;
 
 import com.nerdysoft.model.enums.Currency;
-import com.nerdysoft.model.Wallet;
+import com.nerdysoft.entity.Wallet;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

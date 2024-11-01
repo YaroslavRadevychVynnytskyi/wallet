@@ -3,7 +3,7 @@ package com.nerdysoft.mapper;
 import com.nerdysoft.config.MapperConfig;
 import com.nerdysoft.dto.api.request.SaveCommissionRequestDto;
 import com.nerdysoft.dto.api.response.SaveCommissionResponseDto;
-import com.nerdysoft.model.Commission;
+import com.nerdysoft.entity.Commission;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

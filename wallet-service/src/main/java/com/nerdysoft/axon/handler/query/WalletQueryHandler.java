@@ -2,7 +2,7 @@ package com.nerdysoft.axon.handler.query;
 
 import com.nerdysoft.axon.query.wallet.FindWalletByAccountIdAndCurrencyQuery;
 import com.nerdysoft.axon.query.wallet.FindWalletByIdQuery;
-import com.nerdysoft.model.Wallet;
+import com.nerdysoft.entity.Wallet;
 import com.nerdysoft.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.queryhandling.QueryHandler;

@@ -1,4 +1,4 @@
-package com.nerdysoft.model;
+package com.nerdysoft.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
