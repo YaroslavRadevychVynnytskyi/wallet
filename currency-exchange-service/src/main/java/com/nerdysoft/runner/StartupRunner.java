@@ -1,11 +1,10 @@
 package com.nerdysoft.runner;
 
-import com.nerdysoft.axon.command.CreateExchangeRateCommand;
+import com.nerdysoft.dto.request.AddOrUpdateRateRequestDto;
 import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.service.CurrencyExchangeService;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
-import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -14,14 +13,13 @@ import org.springframework.stereotype.Component;
 public class StartupRunner implements CommandLineRunner {
   private final CurrencyExchangeService currencyExchangeService;
 
-  private final CommandGateway commandGateway;
-
   @Override
   public void run(String... args) {
-    if (!currencyExchangeService.hasDbData()) {
+    if (!currencyExchangeService.allCurrenciesStored()) {
       Arrays.stream(Currency.values())
+          .filter(c -> currencyExchangeService.findByBaseCode(c.getCode()).isEmpty())
           .map(c -> currencyExchangeService.fetchExchangeRates(c.getCode()))
-          .forEach(c -> commandGateway.sendAndWait(new CreateExchangeRateCommand(c.getBaseCode(), c.getConversionRates())));
+          .forEach(c -> currencyExchangeService.addExchangeRate(new AddOrUpdateRateRequestDto(c.getBaseCode(), c.getConversionRates())));
     }
   }
 }

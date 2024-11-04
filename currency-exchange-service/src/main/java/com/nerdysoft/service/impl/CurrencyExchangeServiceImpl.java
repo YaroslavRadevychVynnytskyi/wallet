@@ -7,13 +7,14 @@ import com.nerdysoft.dto.request.ExchangeRateRequestDto;
 import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.dto.response.ExchangeRateResponseDto;
 import com.nerdysoft.entity.ExchangeRate;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.repo.ExchangeRateRepository;
 import com.nerdysoft.service.CurrencyExchangeService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,6 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
     @Value("${external.api.exchange.url}")
     private String exchangeApiUrl;
-
-    @Override
-    public ExchangeRate findByBaseCode(String baseCode) {
-        return exchangeRateRepository.findByBaseCode(baseCode)
-            .orElseThrow(() -> new NoSuchElementException(String.format("No currency with base code: %s", baseCode)));
-    }
 
     @Override
     public ExchangeRateResponseDto getExchangeRate(ExchangeRateRequestDto requestDto) {
@@ -56,11 +51,15 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     }
 
     @Override
-    public ExchangeRate updateExchangeRate(String baseCode, Map<String, BigDecimal> updatedConversionRates) {
-        ExchangeRate rate = findByBaseCode(baseCode);
-        rate.setConversionRates(updatedConversionRates);
-        rate.setTimestamp(LocalDateTime.now());
-        return exchangeRateRepository.save(rate);
+    public ExchangeRate updateExchangeRate(AddOrUpdateRateRequestDto dto) {
+        Optional<ExchangeRate> rate = exchangeRateRepository.findByBaseCode(dto.baseCode());
+        if (rate.isPresent()) {
+            rate.get().setConversionRates(dto.conversionRates());
+            rate.get().setTimestamp(LocalDateTime.now());
+            return exchangeRateRepository.save(rate.get());
+        } else {
+            return addExchangeRate(dto);
+        }
     }
 
     @Override
@@ -89,7 +88,12 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     }
 
     @Override
-    public boolean hasDbData() {
-        return exchangeRateRepository.count() > 0;
+    public Optional<ExchangeRate> findByBaseCode(String baseCode) {
+        return exchangeRateRepository.findByBaseCode(baseCode);
+    }
+
+    @Override
+    public boolean allCurrenciesStored() {
+        return exchangeRateRepository.count() == Currency.values().length;
     }
 }
