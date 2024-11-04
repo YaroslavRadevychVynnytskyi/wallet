@@ -52,7 +52,7 @@ public class WalletAggregate {
 
   @EventSourcingHandler
   public void on(WalletCreatedEvent event) {
-    walletId = event.getWalletId();
+    this.walletId = event.getWalletId();
     balance = BigDecimal.ZERO;
     currency = event.getCurrency();
   }

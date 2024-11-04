@@ -21,7 +21,7 @@ public class ServiceGenerator {
     private static final String SERVICE_PACKAGE_NAME = "com.nerdysoft.service";
     private static final String REPO_PACKAGE_NAME = "com.nerdysoft.repo";
     private static final String DTO_PACKAGE_NAME = "com.nerdysoft.dto";
-    private static final String ENTITY_PACKAGE_NAME = "com.nerdysoft.model";
+    private static final String ENTITY_PACKAGE_NAME = "com.nerdysoft.entity";
 
     private final FileUtil fileUtil;
 

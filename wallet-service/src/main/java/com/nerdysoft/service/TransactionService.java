@@ -16,7 +16,7 @@ public class TransactionService {
   private final TransactionRepository transactionRepository;
 
   public Transaction saveTransaction(UUID walletId, WalletOperationRequestDto requestDto,
-      TransactionStatus status, BigDecimal walletBalance) {
+                                     TransactionStatus status, BigDecimal walletBalance) {
     Transaction transaction = Transaction.builder()
         .walletId(walletId)
         .amount(requestDto.getAmount())

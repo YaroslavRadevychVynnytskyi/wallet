@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class TransactionServiceImpl implements TransactionService {
   private final TransactionMapper transactionMapper;
   private final EventProducer eventProducer;
 
+  @Transactional
   @Override
   public TransactionResponseDto createTransaction(UUID accountId,
       CreateTransactionRequestDto dto,
@@ -66,6 +68,7 @@ public class TransactionServiceImpl implements TransactionService {
     return new TransactionResponseDto(transaction, accountId, dto.toAccountId());
   }
 
+  @Transactional
   @Override
   public GenericTransactionResponseDto updateBalance(UUID accountId, GenericTransactionRequestDto dto) {
     Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, dto.walletCurrency()).getBody();
