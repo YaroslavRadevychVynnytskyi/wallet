@@ -43,9 +43,4 @@ public class RoleServiceImpl implements RoleService {
     roleRepository.deleteById(id);
     return String.format("Role with id %d was deleted", id);
   }
-
-  @Override
-  public boolean hasDbData() {
-    return roleRepository.count() > 0;
-  }
 }

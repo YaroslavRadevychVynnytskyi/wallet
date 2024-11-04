@@ -13,6 +13,4 @@ public interface RoleService {
   Role update(Integer id, RoleName name);
 
   String delete(Integer id);
-
-  boolean hasDbData();
 }
