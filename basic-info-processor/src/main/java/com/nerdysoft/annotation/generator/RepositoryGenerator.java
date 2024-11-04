@@ -15,7 +15,7 @@ import org.springframework.javapoet.TypeSpec;
 @RequiredArgsConstructor
 public class RepositoryGenerator {
     private static final String REPOSITORY_PACKAGE_NAME = "com.nerdysoft.repo";
-    private static final String ENTITY_PACKAGE_NAME = "com.nerdysoft.model";
+    private static final String ENTITY_PACKAGE_NAME = "com.nerdysoft.entity";
 
     private final FileUtil fileUtil;
 
