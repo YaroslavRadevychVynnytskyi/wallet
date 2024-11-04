@@ -19,8 +19,9 @@ public class StartupRunner implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    if (!bankReserveService.hasDbData()) {
+    if (!bankReserveService.hasAllReserveTypesStored()) {
       Arrays.stream(ReserveType.values())
+          .filter(type -> bankReserveService.getByName(type).isEmpty())
           .forEach(type -> commandGateway.send(new CreateBalanceCommand(type, BigDecimal.ZERO)));
     }
   }

@@ -2,7 +2,7 @@ package com.nerdysoft.service.impl;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
 import com.nerdysoft.axon.command.UpdateBalanceCommand;
-import com.nerdysoft.dto.api.request.UpdateBalanceDto;
+import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
 import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.model.exception.UniqueException;
 import com.nerdysoft.model.reserve.BankReserve;
@@ -10,6 +10,7 @@ import com.nerdysoft.repo.BankReserveRepository;
 import com.nerdysoft.service.BankReserveService;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,9 @@ public class BankReserveServiceImpl implements BankReserveService {
     }
 
     @Override
-    public UpdateBalanceDto updateBalance(UpdateBalanceCommand command, BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
-        BankReserve bankReserve = getByName(command.getReserveType());
+    public UpdateBalanceResponseDto updateBalance(UpdateBalanceCommand command, BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
+        BankReserve bankReserve = getByName(command.getReserveType()).orElseThrow(() ->
+            new EntityNotFoundException("Can't find bank reserve with name: " + command.getReserveType().name()));
 
         BigDecimal amount = command.getAmount();
         BigDecimal availableFunds = bankReserve.getTotalFunds();
@@ -48,15 +50,17 @@ public class BankReserveServiceImpl implements BankReserveService {
         bankReserve.setTotalFunds(newBalance);
         bankReserveRepository.save(bankReserve);
 
-        UpdateBalanceDto responseDto = new UpdateBalanceDto();
+        UpdateBalanceResponseDto responseDto = new UpdateBalanceResponseDto();
         BeanUtils.copyProperties(command, responseDto);
+
+        responseDto.setBalance(newBalance);
 
         return responseDto;
     }
 
-    private BankReserve getByName(ReserveType reserveType) {
-        return bankReserveRepository.findByType(reserveType).orElseThrow(() ->
-                new EntityNotFoundException("Can't find bank reserve with name: " + reserveType.name()));
+    @Override
+    public Optional<BankReserve> getByName(ReserveType reserveType) {
+        return bankReserveRepository.findByType(reserveType);
     }
 
     @Override
@@ -70,7 +74,7 @@ public class BankReserveServiceImpl implements BankReserveService {
     }
 
     @Override
-    public boolean hasDbData() {
-        return bankReserveRepository.count() > 0;
+    public boolean hasAllReserveTypesStored() {
+        return bankReserveRepository.count() == ReserveType.values().length;
     }
 }

@@ -10,6 +10,7 @@ import lombok.Data;
 public class BalanceUpdatedEvent {
     private UUID id;
     private ReserveType reserveType;
+    private BigDecimal balance;
     private BigDecimal amount;
     private OperationType operationType;
 }

@@ -6,7 +6,8 @@ import com.nerdysoft.axon.query.FindBankReserveByIdQuery;
 import com.nerdysoft.axon.query.FindBankReserveIdByTypeQuery;
 import com.nerdysoft.dto.api.request.BankReserveTypeDto;
 import com.nerdysoft.dto.api.request.CreateBalanceDto;
-import com.nerdysoft.dto.api.request.UpdateBalanceDto;
+import com.nerdysoft.dto.api.request.UpdateBalanceRequestDto;
+import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
 import com.nerdysoft.model.reserve.BankReserve;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class BankReserveController {
     }
 
     @PostMapping("/update-balance")
-    public ResponseEntity<UpdateBalanceDto> updateBalance(@RequestBody UpdateBalanceDto requestDto) {
+    public ResponseEntity<UpdateBalanceResponseDto> updateBalance(@RequestBody UpdateBalanceRequestDto requestDto) {
         UpdateBalanceCommand updateBalanceCommand = new UpdateBalanceCommand();
         BeanUtils.copyProperties(requestDto, updateBalanceCommand);
 

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateBalanceDto {
+public class UpdateBalanceRequestDto {
     private UUID id;
     private ReserveType reserveType;
     private BigDecimal amount;

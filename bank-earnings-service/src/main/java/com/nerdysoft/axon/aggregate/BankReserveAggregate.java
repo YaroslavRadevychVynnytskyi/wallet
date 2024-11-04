@@ -4,8 +4,10 @@ import com.nerdysoft.axon.command.CreateBalanceCommand;
 import com.nerdysoft.axon.command.UpdateBalanceCommand;
 import com.nerdysoft.axon.event.bankreserve.BalanceCreatedEvent;
 import com.nerdysoft.axon.event.bankreserve.BalanceUpdatedEvent;
+import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;
+import com.nerdysoft.model.exception.UniqueException;
 import com.nerdysoft.model.reserve.BankReserve;
 import com.nerdysoft.service.BankReserveService;
 import java.math.BigDecimal;
@@ -17,6 +19,7 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 
 @Aggregate
 @NoArgsConstructor
@@ -44,21 +47,30 @@ public class BankReserveAggregate {
     }
 
     @CommandHandler
-    public void handle(UpdateBalanceCommand updateBalanceCommand) {
-        BalanceUpdatedEvent updateBalanceEvent = new BalanceUpdatedEvent();
-        BeanUtils.copyProperties(updateBalanceCommand, updateBalanceEvent);
+    public UpdateBalanceResponseDto handle(UpdateBalanceCommand updateBalanceCommand, BankReserveService bankReserveService) {
+        if (updateBalanceCommand.getReserveType().equals(reserveType)) {
+            UpdateBalanceResponseDto updateBalanceResponseDto;
 
-        AggregateLifecycle.apply(updateBalanceEvent);
+            if (updateBalanceCommand.getOperationType().equals(OperationType.DEPOSIT)) {
+                updateBalanceResponseDto = bankReserveService.updateBalance(updateBalanceCommand, BigDecimal::add);
+            } else {
+                updateBalanceResponseDto = bankReserveService.updateBalance(updateBalanceCommand, BigDecimal::subtract);
+            }
+
+            BalanceUpdatedEvent updateBalanceEvent = new BalanceUpdatedEvent();
+            BeanUtils.copyProperties(updateBalanceResponseDto, updateBalanceEvent);
+
+            AggregateLifecycle.apply(updateBalanceEvent);
+            return updateBalanceResponseDto;
+        } else {
+            throw new UniqueException(
+                String.format("No %s reserves exists with id '%s'", updateBalanceCommand.getReserveType(), updateBalanceCommand.getId()),
+                HttpStatus.NOT_ACCEPTABLE);
+        }
     }
 
     @EventSourcingHandler
     public void on(BalanceUpdatedEvent updateBalanceEvent) {
-        reserveType = updateBalanceEvent.getReserveType();
-
-        if (updateBalanceEvent.getOperationType().equals(OperationType.WITHDRAW)) {
-            totalFunds = totalFunds.subtract(updateBalanceEvent.getAmount());
-        } else if (updateBalanceEvent.getOperationType().equals(OperationType.DEPOSIT)) {
-            totalFunds = totalFunds.add(updateBalanceEvent.getAmount());
-        }
+        totalFunds = updateBalanceEvent.getBalance();
     }
 }
