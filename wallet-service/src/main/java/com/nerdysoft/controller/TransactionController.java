@@ -18,7 +18,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping("/{walletId}")
-    public ResponseEntity<List<Transaction>> getTransactionsByWalletId(@PathVariable UUID walletId) {
-        return ResponseEntity.ok(transactionService.getAllByWalletId(walletId));
+    public ResponseEntity<List<Transaction>> findAllTransactionsByWalletId(@PathVariable UUID walletId) {
+        return ResponseEntity.ok(transactionService.findAllByWalletId(walletId));
     }
 }

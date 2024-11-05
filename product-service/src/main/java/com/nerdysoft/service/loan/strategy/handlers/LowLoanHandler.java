@@ -1,6 +1,6 @@
 package com.nerdysoft.service.loan.strategy.handlers;
 
-import com.nerdysoft.entity.loan.enums.ApprovalStatus;
+import com.nerdysoft.model.enums.ApprovalStatus;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 

@@ -1,30 +1,32 @@
 package com.nerdysoft.service;
 
+import com.nerdysoft.dto.feign.CalcCommissionRequestDto;
+import com.nerdysoft.dto.feign.CalcCommissionResponseDto;
+import com.nerdysoft.dto.feign.LoanLimit;
+import com.nerdysoft.dto.feign.SaveCommissionRequestDto;
 import com.nerdysoft.dto.request.ConvertAmountRequestDto;
+import com.nerdysoft.dto.request.CreateWalletDto;
 import com.nerdysoft.dto.request.TransactionRequestDto;
 import com.nerdysoft.dto.request.TransferRequestDto;
-import com.nerdysoft.dto.request.TransferTransactionRequestDto;
-import com.nerdysoft.dto.request.TransferTransactionResponseDto;
+import com.nerdysoft.dto.request.WalletOperationRequestDto;
+import com.nerdysoft.dto.request.WalletOperationResponseDto;
+import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.dto.response.TransactionResponseDto;
 import com.nerdysoft.dto.response.TransferResponseDto;
-import com.nerdysoft.exception.UniqueException;
 import com.nerdysoft.feign.CommissionFeignClient;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.LoanLimitFeignClient;
-import com.nerdysoft.repository.WalletRepository;
-import com.nerdysoft.dto.feign.LoanLimit;
-import com.nerdysoft.dto.feign.CalcCommissionRequestDto;
-import com.nerdysoft.dto.feign.CalcCommissionResponseDto;
-import com.nerdysoft.dto.feign.SaveCommissionRequestDto;
-import com.nerdysoft.dto.request.CreateWalletDto;
 import com.nerdysoft.mapper.TransactionMapper;
 import com.nerdysoft.entity.Transaction;
 import com.nerdysoft.entity.Wallet;
-import com.nerdysoft.entity.enums.Currency;
-import com.nerdysoft.entity.enums.TransactionStatus;
+import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.TransactionStatus;
+import com.nerdysoft.model.exception.UniqueException;
+import com.nerdysoft.repository.WalletRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -38,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class WalletService {
   private final WalletRepository walletRepository;
 
-  private final TransactionService transactionService;
+  private  final TransactionService transactionService;
 
   private final TransactionMapper transactionMapper;
 
@@ -48,49 +50,62 @@ public class WalletService {
 
   private final CommissionFeignClient commissionFeignClient;
 
-  public Wallet createWallet(CreateWalletDto createWalletDto) {
-    if (walletRepository.hasAccountWalletOnThisCurrency(createWalletDto.accountId(),
-        createWalletDto.currency())) {
+  public Wallet createWallet(CreateWalletDto dto) {
+    if (walletRepository.hasAccountWalletOnThisCurrency(dto.accountId(),
+        dto.currency())) {
       throw new UniqueException(String.format("This account has already wallet on %s currency",
-          createWalletDto.currency()), HttpStatus.NOT_ACCEPTABLE);
+          dto.currency()), HttpStatus.NOT_ACCEPTABLE);
     } else {
-      Wallet wallet = new Wallet(createWalletDto);
-      return walletRepository.save(wallet);
+      return walletRepository.save(new Wallet(dto));
     }
   }
 
-  public Wallet getWallet(UUID walletId) {
-    return walletRepository.findById(walletId).orElseThrow(EntityNotFoundException::new);
+  public Wallet findById(UUID walletId) {
+    return walletRepository.findById(walletId).orElseThrow(
+        () -> new EntityNotFoundException(String.format("No wallets with id: %s", walletId)));
   }
 
   public Wallet updateCurrency(UUID walletId, Currency currency) {
-    Wallet wallet = getWallet(walletId);
-    wallet.setCurrency(currency);
-    return walletRepository.save(wallet);
+    Wallet wallet = findById(walletId);
+    Optional<ConvertAmountResponseDto> convertDto = Optional.ofNullable(
+        currencyExchangeFeignClient.convert(
+            new ConvertAmountRequestDto(wallet.getCurrency().getCode(), currency.getCode(),
+                wallet.getBalance())
+        ).getBody());
+    if (convertDto.isPresent()) {
+      wallet.setCurrency(currency);
+      wallet.setBalance(convertDto.get().convertedAmount());
+      return walletRepository.save(wallet);
+    } else {
+      throw new UniqueException("Failed to convert amount", HttpStatus.NOT_ACCEPTABLE);
+    }
   }
 
-  public String deleteWallet(UUID walletId) {
-    getWallet(walletId);
+  public String deleteById(UUID walletId) {
+    findById(walletId);
     walletRepository.deleteById(walletId);
     return String.format("Wallet with id %s was deleted", walletId);
   }
 
-  public Wallet getWalletByAccountIdAndCurrency(UUID accountId, Currency currency) {
+  public Wallet findWalletByAccountIdAndCurrency(UUID accountId, Currency currency) {
     return walletRepository.findByAccountIdAndCurrency(accountId, currency)
-            .orElseThrow(EntityNotFoundException::new);
+        .orElseThrow(() -> new EntityNotFoundException(
+            String.format("No wallets for account: %s and with currency: %s", accountId,
+                currency)));
   }
 
   @Transactional
   public TransactionResponseDto transaction(UUID walletId,
-                                            TransactionRequestDto transactionRequestDto,
-                                            BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
-    Wallet wallet = getWalletById(walletId);
+      TransactionRequestDto transactionRequestDto,
+      BiFunction<BigDecimal, BigDecimal, BigDecimal> operation) {
+    Wallet wallet = findById(walletId);
 
     BigDecimal transactionAmount = validateAndConvertCurrency(wallet, transactionRequestDto);
     BigDecimal walletBalance = wallet.getBalance();
 
     BigDecimal resultBalance = operation.apply(walletBalance, transactionAmount);
-    if (resultBalance.compareTo(walletBalance) < 0 && walletBalance.compareTo(transactionAmount) < 0) {
+    if (resultBalance.compareTo(walletBalance) < 0
+        && walletBalance.compareTo(transactionAmount) < 0) {
       BigDecimal loanLimitAmount = applyLoanLimitIfNeeded(wallet, transactionAmount);
       walletBalance = walletBalance.add(loanLimitAmount);
     }
@@ -99,21 +114,21 @@ public class WalletService {
 
     if (resultBalance.compareTo(BigDecimal.ZERO) < 0) {
       return saveTransaction(wallet, transactionRequestDto, TransactionStatus.FAILURE,
-              wallet.getBalance(), transactionMapper::transactionToTransactionResponseDto);
+          wallet.getBalance(), transactionMapper::transactionToTransactionResponseDto);
     }
 
     wallet.setBalance(resultBalance);
     walletRepository.save(wallet);
 
     return saveTransaction(wallet, transactionRequestDto, TransactionStatus.SUCCESS,
-            resultBalance, transactionMapper::transactionToTransactionResponseDto);
+        resultBalance, transactionMapper::transactionToTransactionResponseDto);
   }
 
   @Transactional
   public TransferResponseDto transferToAnotherWallet(UUID walletId,
-                                                     TransferRequestDto transferRequestDto) {
-    Wallet senderWallet = getWalletById(walletId);
-    Wallet receiverWallet = getWalletById(transferRequestDto.toWalletId());
+      TransferRequestDto transferRequestDto) {
+    Wallet senderWallet = findById(walletId);
+    Wallet receiverWallet = findById(transferRequestDto.toWalletId());
 
     BigDecimal transferAmount = validateAndConvertCurrency(senderWallet, transferRequestDto);
     BigDecimal senderBalance = senderWallet.getBalance();
@@ -128,10 +143,11 @@ public class WalletService {
 
     if (senderBalance.compareTo(transferAmount) < 0) {
       return saveTransaction(senderWallet, transferRequestDto, TransactionStatus.FAILURE,
-              senderWallet.getBalance(), transactionMapper::transactionToTransferResponseDto);
+          senderWallet.getBalance(), transactionMapper::transactionToTransferResponseDto);
     }
 
-    CalcCommissionResponseDto commission = commissionFeignClient.calculateCommission(CalcCommissionRequestDto.builder()
+    CalcCommissionResponseDto commission = commissionFeignClient.calculateCommission(
+        CalcCommissionRequestDto.builder()
             .walletAmount(transferAmount.subtract(loanLimitAmount))
             .isLoanLimitUsed(isBalanceInsufficient)
             .loanLimitAmount(loanLimitAmount)
@@ -141,26 +157,25 @@ public class WalletService {
             .build()
     ).getBody();
 
-    updateWalletBalances(senderWallet, receiverWallet, transferAmount, senderBalance, commission.getOriginalCurrencyCommission());
-    TransferResponseDto transferResponseDto = saveTransaction(senderWallet, transferRequestDto, TransactionStatus.SUCCESS,
-            senderBalance, transactionMapper::transactionToTransferResponseDto);
+    updateWalletBalances(senderWallet, receiverWallet, transferAmount, senderBalance,
+        commission.getOriginalCurrencyCommission());
+    TransferResponseDto transferResponseDto = saveTransaction(senderWallet, transferRequestDto,
+        TransactionStatus.SUCCESS,
+        senderBalance, transactionMapper::transactionToTransferResponseDto);
 
-    commissionFeignClient.saveCommission(new SaveCommissionRequestDto(transferResponseDto.transactionId(), commission));
+    commissionFeignClient.saveCommission(
+        new SaveCommissionRequestDto(transferResponseDto.transactionId(), commission));
 
     return transferResponseDto;
   }
 
-  private Wallet getWalletById(UUID walletId) {
-    return walletRepository.findById(walletId).orElseThrow(() ->
-            new EntityNotFoundException("Can't find wallet with ID: " + walletId));
-  }
-
-  private BigDecimal validateAndConvertCurrency(Wallet senderWallet, TransferTransactionRequestDto requestDto) {
+  private BigDecimal validateAndConvertCurrency(Wallet senderWallet,
+      WalletOperationRequestDto requestDto) {
     if (!senderWallet.getCurrency().equals(requestDto.getCurrency())) {
       return currencyExchangeFeignClient.convert(new ConvertAmountRequestDto(
-              requestDto.getCurrency().getCode(),
-              senderWallet.getCurrency().getCode(),
-              requestDto.getAmount()
+          requestDto.getCurrency().getCode(),
+          senderWallet.getCurrency().getCode(),
+          requestDto.getAmount()
       )).getBody().convertedAmount();
     }
 
@@ -168,7 +183,8 @@ public class WalletService {
   }
 
   private BigDecimal applyLoanLimitIfNeeded(Wallet wallet, BigDecimal transferAmount) {
-    LoanLimit loanLimit = loanLimitFeignClient.getLoanLimitByWalletId(wallet.getWalletId()).getBody();
+    LoanLimit loanLimit = loanLimitFeignClient.getLoanLimitByWalletId(wallet.getWalletId())
+        .getBody();
     BigDecimal availableFunds = wallet.getBalance().add(loanLimit.getAvailableAmount());
 
     if (availableFunds.compareTo(transferAmount) >= 0) {
@@ -182,18 +198,20 @@ public class WalletService {
     return BigDecimal.ZERO;
   }
 
-  private void updateWalletBalances(Wallet senderWallet, Wallet receiverWallet, BigDecimal transferAmount, BigDecimal senderBalance, BigDecimal commission) {
+  private void updateWalletBalances(Wallet senderWallet, Wallet receiverWallet,
+      BigDecimal transferAmount, BigDecimal senderBalance, BigDecimal commission) {
     BigDecimal senderNewBalance = senderBalance.subtract(transferAmount).subtract(commission);
 
-    senderNewBalance = checkIfBalanceEnoughForCommission(senderWallet, senderNewBalance, commission);
+    senderNewBalance = checkIfBalanceEnoughForCommission(senderWallet, senderNewBalance,
+        commission);
     senderWallet.setBalance(senderNewBalance);
 
     BigDecimal receiverTransferAmount;
     if (!senderWallet.getCurrency().equals(receiverWallet.getCurrency())) {
       receiverTransferAmount = currencyExchangeFeignClient.convert(new ConvertAmountRequestDto(
-              senderWallet.getCurrency().getCode(),
-              receiverWallet.getCurrency().getCode(),
-              transferAmount
+          senderWallet.getCurrency().getCode(),
+          receiverWallet.getCurrency().getCode(),
+          transferAmount
       )).getBody().convertedAmount();
     } else {
       receiverTransferAmount = transferAmount;
@@ -205,7 +223,8 @@ public class WalletService {
     walletRepository.saveAll(List.of(senderWallet, receiverWallet));
   }
 
-  private BigDecimal checkIfBalanceEnoughForCommission(Wallet senderWallet, BigDecimal senderNewBalance, BigDecimal commission) {
+  private BigDecimal checkIfBalanceEnoughForCommission(Wallet senderWallet,
+      BigDecimal senderNewBalance, BigDecimal commission) {
     if (senderNewBalance.compareTo(BigDecimal.ZERO) < 0) {
       senderWallet.setBalance(BigDecimal.ZERO);
 
@@ -220,17 +239,12 @@ public class WalletService {
     return senderNewBalance;
   }
 
-  private <T extends TransferTransactionResponseDto> T saveTransaction(Wallet wallet,
-                                                                       TransferTransactionRequestDto requestDto,
-                                                                       TransactionStatus status,
-                                                                       BigDecimal balance,
-                                                                       Function<Transaction, T> mapper) {
-    Transaction transaction = transactionService.saveTransaction(
-            wallet.getWalletId(),
-            requestDto,
-            status,
-            balance
-    );
+  private <T extends WalletOperationResponseDto> T saveTransaction(Wallet wallet,
+      WalletOperationRequestDto requestDto,
+      TransactionStatus status,
+      BigDecimal balance,
+      Function<Transaction, T> mapper) {
+    Transaction transaction = transactionService.saveTransaction(wallet.getWalletId(), requestDto, status, balance);
 
     return mapper.apply(transaction);
   }

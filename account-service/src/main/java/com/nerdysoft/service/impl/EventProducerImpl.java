@@ -52,16 +52,8 @@ public class EventProducerImpl implements EventProducer {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Can't write value as a string", e);
         }
-        UserActivityEvent event = UserActivityEvent.builder()
-                .userId(accountID)
-                .actionType(actionType)
-                .entityType(entityType)
-                .entityId(entityId)
-                .timestamp(LocalDateTime.now())
-                .oldData(oldDataJson)
-                .newData(newDataJson)
-                .status(Status.SUCCESS)
-                .build();
+        UserActivityEvent event = new UserActivityEvent(accountID, actionType, entityType, entityId,
+            LocalDateTime.now(), oldDataJson, newDataJson, Status.SUCCESS);
 
         rabbitTemplate.convertAndSend(exchange, activityKey, event);
     }

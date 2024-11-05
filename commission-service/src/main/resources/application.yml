@@ -25,3 +25,6 @@ rabbitmq:
 application:
   secret-key: agsnrigabeorignaiogrngisrbnjvkdxfbnjksznfoseringsioerngioserngklzfndbsblzhnfkvanfglkaern
   internal-token: oyuwitystyvstdvsdytvdsyvv7621vgfztrxcnvjzgxvdz
+axon:
+  serializer:
+    general: jackson

@@ -1,9 +1,9 @@
 package com.nerdysoft.repo.loan;
 
-import com.nerdysoft.dto.api.request.loan.enums.PaymentType;
 import com.nerdysoft.entity.loan.Loan;
-import com.nerdysoft.entity.loan.enums.ApprovalStatus;
-import com.nerdysoft.entity.loan.enums.RepaymentStatus;
+import com.nerdysoft.model.enums.ApprovalStatus;
+import com.nerdysoft.model.enums.PaymentType;
+import com.nerdysoft.model.enums.RepaymentStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

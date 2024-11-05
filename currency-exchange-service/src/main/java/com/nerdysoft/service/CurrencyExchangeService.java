@@ -3,18 +3,23 @@ package com.nerdysoft.service;
 import com.nerdysoft.dto.request.AddOrUpdateRateRequestDto;
 import com.nerdysoft.dto.request.ConvertAmountRequestDto;
 import com.nerdysoft.dto.request.ExchangeRateRequestDto;
-import com.nerdysoft.dto.response.AddOrUpdateRateResponseDto;
 import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.dto.response.ExchangeRateResponseDto;
+import com.nerdysoft.entity.ExchangeRate;
+import java.util.Optional;
 
 public interface CurrencyExchangeService {
     ExchangeRateResponseDto getExchangeRate(ExchangeRateRequestDto requestDto);
 
-    AddOrUpdateRateResponseDto addOrUpdateExchangeRate(AddOrUpdateRateRequestDto requestDto);
+    ExchangeRate addExchangeRate(AddOrUpdateRateRequestDto dto);
+
+    ExchangeRate updateExchangeRate(AddOrUpdateRateRequestDto dto);
 
     ConvertAmountResponseDto convert(ConvertAmountRequestDto requestDto);
 
-    void updateExchangeRates();
+    ExchangeRate fetchExchangeRates(String baseCode);
 
-    boolean hasDbData();
+    Optional<ExchangeRate> findByBaseCode(String baseCode);
+
+    boolean allCurrenciesStored();
 }

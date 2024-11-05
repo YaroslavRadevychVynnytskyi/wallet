@@ -1,7 +1,7 @@
 package com.nerdysoft.entity;
 
-import com.nerdysoft.entity.enums.Currency;
-import com.nerdysoft.entity.enums.TransactionStatus;
+import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.TransactionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,17 +45,4 @@ public class Transaction {
   private TransactionStatus status;
 
   private final LocalDateTime createdAt = LocalDateTime.now();
-
-  public Transaction(UUID transactionId, BigDecimal amount, Currency currency, TransactionStatus status, BigDecimal walletBalance) {
-    this.transactionId = transactionId;
-    this.amount = amount;
-    this.currency = currency;
-    this.status = status;
-    this.walletBalance = walletBalance;
-  }
-
-  public Transaction(UUID transactionId, BigDecimal amount, Currency currency, TransactionStatus status, UUID walletId, BigDecimal walletBalance) {
-    this(transactionId, amount, currency, status, walletBalance);
-    this.walletId = walletId;
-  }
 }

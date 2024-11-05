@@ -3,18 +3,19 @@ package com.nerdysoft.service.impl;
 import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
 import com.nerdysoft.dto.api.request.SaveCommissionRequestDto;
 import com.nerdysoft.dto.api.response.CalcCommissionResponseDto;
-import com.nerdysoft.dto.api.response.SaveCommissionResponseDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
-import com.nerdysoft.entity.Commission;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.mapper.CommissionMapper;
+import com.nerdysoft.entity.Commission;
 import com.nerdysoft.repo.CommissionRepository;
 import com.nerdysoft.service.CommissionService;
 import com.nerdysoft.service.strategy.CommissionStrategy;
 import com.nerdysoft.service.strategy.handler.CommissionHandler;
 import com.nerdysoft.service.strategy.handler.LoanCommissionHandler;
+import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,9 +46,14 @@ public class CommissionServiceImpl implements CommissionService {
     }
 
     @Override
-    public SaveCommissionResponseDto saveCommission(SaveCommissionRequestDto requestDto) {
+    public Commission saveCommission(SaveCommissionRequestDto requestDto) {
         Commission commission = commissionMapper.toCommission(requestDto);
-        return commissionMapper.toResponseDto(commissionRepository.save(commission));
+        return commissionRepository.save(commission);
+    }
+
+    @Override
+    public Commission findById(UUID id) {
+        return commissionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Commission not found"));
     }
 
     private BigDecimal convertToUsd(CalcCommissionRequestDto requestDto,

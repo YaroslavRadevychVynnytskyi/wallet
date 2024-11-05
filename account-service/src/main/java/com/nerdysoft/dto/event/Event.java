@@ -1,4 +1,3 @@
 package com.nerdysoft.dto.event;
 
-public interface Event {
-}
+public abstract class Event {}

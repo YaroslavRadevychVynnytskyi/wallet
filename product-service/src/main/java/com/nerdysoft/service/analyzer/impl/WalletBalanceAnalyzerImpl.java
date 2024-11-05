@@ -2,10 +2,10 @@ package com.nerdysoft.service.analyzer.impl;
 
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.Transaction;
-import com.nerdysoft.dto.feign.enums.Currency;
-import com.nerdysoft.dto.feign.enums.TransactionStatus;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
+import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.TransactionStatus;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

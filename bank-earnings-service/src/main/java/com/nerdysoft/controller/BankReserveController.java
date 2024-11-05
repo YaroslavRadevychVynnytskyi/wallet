@@ -1,9 +1,19 @@
 package com.nerdysoft.controller;
 
-import com.nerdysoft.dto.api.request.BankReserveOperationsDto;
-import com.nerdysoft.entity.reserve.BankReserve;
-import com.nerdysoft.service.BankReserveService;
+import com.nerdysoft.axon.command.CreateBalanceCommand;
+import com.nerdysoft.axon.command.UpdateBalanceCommand;
+import com.nerdysoft.axon.query.FindBankReserveByIdQuery;
+import com.nerdysoft.axon.query.FindBankReserveIdByTypeQuery;
+import com.nerdysoft.dto.api.request.BankReserveTypeDto;
+import com.nerdysoft.dto.api.request.CreateBalanceDto;
+import com.nerdysoft.dto.api.request.UpdateBalanceRequestDto;
+import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
+import com.nerdysoft.model.reserve.BankReserve;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.queryhandling.QueryGateway;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,15 +24,31 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/reserves")
 @RequiredArgsConstructor
 public class BankReserveController {
-    private final BankReserveService bankReserveService;
+    private final CommandGateway commandGateway;
+    private final QueryGateway queryGateway;
 
     @PostMapping("/create")
-    public ResponseEntity<BankReserve> create(@RequestBody BankReserveOperationsDto requestDto) {
-        return ResponseEntity.ok(bankReserveService.create(requestDto));
+    public ResponseEntity<BankReserve> create(@RequestBody CreateBalanceDto requestDto) {
+        CreateBalanceCommand createBalanceCommand = new CreateBalanceCommand();
+        BeanUtils.copyProperties(requestDto, createBalanceCommand);
+
+        UUID id = commandGateway.sendAndWait(createBalanceCommand);
+        BankReserve bankReserve = queryGateway.query(new FindBankReserveByIdQuery(id), BankReserve.class).join();
+        return ResponseEntity.ok(bankReserve);
     }
 
-    @PostMapping("/withdraw")
-    public ResponseEntity<BankReserveOperationsDto> withdraw(@RequestBody BankReserveOperationsDto requestDto) {
-        return ResponseEntity.ok(bankReserveService.withdraw(requestDto));
+    @PostMapping("/update-balance")
+    public ResponseEntity<UpdateBalanceResponseDto> updateBalance(@RequestBody UpdateBalanceRequestDto requestDto) {
+        UpdateBalanceCommand updateBalanceCommand = new UpdateBalanceCommand();
+        BeanUtils.copyProperties(requestDto, updateBalanceCommand);
+
+        return ResponseEntity.ok(commandGateway.sendAndWait(updateBalanceCommand));
+    }
+
+    @PostMapping("/by-type")
+    public ResponseEntity<UUID> getReserveIdByType(@RequestBody BankReserveTypeDto reserveTypeDto) {
+        FindBankReserveIdByTypeQuery findBankReserveIdByTypeQuery = new FindBankReserveIdByTypeQuery(reserveTypeDto.reserveType());
+
+        return ResponseEntity.ok(queryGateway.query(findBankReserveIdByTypeQuery, UUID.class).join());
     }
 }

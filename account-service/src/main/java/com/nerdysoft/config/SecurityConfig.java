@@ -41,27 +41,29 @@ public class SecurityConfig {
     };
 
     return http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(requests -> requests
-                    .requestMatchers(permittedRoutes).permitAll()
-                    .requestMatchers(HttpMethod.POST, "/accounts").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/accounts/{accountId}").hasRole("ADMIN")
-                    .requestMatchers("/roles/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/accounts/{accountId}").access(
-                        (authentication, authorizationContext) ->
-                            hasUserOrAdminRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
-                    .requestMatchers(HttpMethod.PUT, "/accounts/{accountId}").hasAnyRole("ADMIN", "USER")
-                    .requestMatchers("/accounts/{accountId}/transactions").hasRole("USER")
-                    .requestMatchers("/accounts/email/**").access((authentication, authorizationContext) ->
-                            hasAdminRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
-                    .anyRequest().authenticated()
-            )
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-            .userDetailsService(userDetailsService)
-            .build();
+        .csrf(AbstractHttpConfigurer::disable)
+        .cors(AbstractHttpConfigurer::disable)
+        .formLogin(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(requests -> requests
+            .requestMatchers(permittedRoutes).permitAll()
+            .requestMatchers(HttpMethod.POST, "/accounts").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/accounts/{accountId}").hasRole("ADMIN")
+            .requestMatchers("/roles/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.GET, "/accounts/{accountId}").access(
+                (authentication, authorizationContext) ->
+                    hasUserOrAdminRoleOrInternalToken(authorizationContext.getRequest(),
+                        authentication.get()))
+            .requestMatchers(HttpMethod.PUT, "/accounts/{accountId}").hasAnyRole("ADMIN", "USER")
+            .requestMatchers("/accounts/{accountId}/transactions").hasRole("USER")
+            .requestMatchers("/accounts/email/**").access((authentication, authorizationContext) ->
+                hasAdminRoleOrInternalToken(authorizationContext.getRequest(),
+                    authentication.get()))
+            .anyRequest().authenticated()
+        )
+        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+        .userDetailsService(userDetailsService)
+        .build();
   }
 
   @Bean
@@ -70,7 +72,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
+      throws Exception {
     return authConfig.getAuthenticationManager();
   }
 

@@ -1,7 +1,7 @@
 package com.nerdysoft.dto.api.request.loan;
 
-import com.nerdysoft.dto.api.request.loan.enums.PaymentType;
-import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.PaymentType;
 import java.math.BigDecimal;
 
 public record LoanRequestDto(

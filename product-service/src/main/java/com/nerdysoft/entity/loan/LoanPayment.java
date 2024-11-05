@@ -1,6 +1,6 @@
 package com.nerdysoft.entity.loan;
 
-import com.nerdysoft.dto.feign.enums.Currency;
+import com.nerdysoft.model.enums.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -1,23 +1,24 @@
 package com.nerdysoft.service.loan.impl;
 
-import com.nerdysoft.dto.api.request.loan.LoanRequestDto;
-import com.nerdysoft.dto.api.request.loan.enums.PaymentType;
-import com.nerdysoft.dto.feign.BankReserveOperationsDto;
+import com.nerdysoft.dto.feign.BankReserveTypeDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.TransactionRequestDto;
+import com.nerdysoft.dto.feign.UpdateBalanceDto;
 import com.nerdysoft.dto.feign.Wallet;
-import com.nerdysoft.dto.feign.enums.Currency;
-import com.nerdysoft.dto.feign.enums.ReserveType;
 import com.nerdysoft.entity.loan.Loan;
 import com.nerdysoft.entity.loan.LoanPayment;
-import com.nerdysoft.entity.loan.enums.ApprovalStatus;
-import com.nerdysoft.entity.loan.enums.RepaymentStatus;
+import com.nerdysoft.feign.BankReserveFeignClient;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
+import com.nerdysoft.model.enums.ApprovalStatus;
+import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.OperationType;
+import com.nerdysoft.model.enums.PaymentType;
+import com.nerdysoft.model.enums.RepaymentStatus;
+import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.repo.loan.LoanPaymentRepository;
 import com.nerdysoft.repo.loan.LoanRepository;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
-import com.nerdysoft.service.feign.BankReserveFeignClient;
 import com.nerdysoft.service.loan.LoanService;
 import com.nerdysoft.service.loan.strategy.LoanStrategy;
 import com.nerdysoft.service.loan.strategy.handlers.LoanDetails;
@@ -48,10 +49,10 @@ public class LoanServiceImpl implements LoanService {
 
     @Transactional
     @Override
-    public Loan applyForLoan(UUID accountId, String email, LoanRequestDto requestDto) {
+    public Loan applyForLoan(UUID accountId, String email, BigDecimal requestedAmount, Currency currency, PaymentType paymentType) {
         hasExistingLoan(accountId);
 
-        Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, requestDto.currency()).getBody();
+        Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, currency).getBody();
 
         BigDecimal maxBalanceForLastMonth = walletBalanceAnalyzer.getMaxBalanceForLastMonth(wallet.walletId());
         BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.walletId(), wallet.currency());
@@ -61,7 +62,7 @@ public class LoanServiceImpl implements LoanService {
                 convertToUsd(wallet.currency(), turnoverForLastMonth)
         );
 
-        BigDecimal usdLoanAmount = convertToUsd(requestDto);
+        BigDecimal usdLoanAmount = convertToUsd(requestedAmount, currency);
         LoanDetails loanDetails = loanHandler.getLoan(usdLoanAmount);
 
         BigDecimal walletCurrencyRepaymentAmount = convert(Currency.USD, wallet.currency(), loanDetails.getRepaymentAmount());
@@ -72,8 +73,8 @@ public class LoanServiceImpl implements LoanService {
                 .walletId(wallet.walletId())
                 .walletCurrency(wallet.currency())
                 .approvalStatus(loanDetails.getApprovalStatus())
-                .paymentType(requestDto.paymentType())
-                .walletCurrencyLoanAmount(requestDto.requestedAmount())
+                .paymentType(paymentType)
+                .walletCurrencyLoanAmount(requestedAmount)
                 .usdLoanAmount(usdLoanAmount)
                 .interestRate(loanDetails.getInterestRate().multiply(BigDecimal.valueOf(100)))
                 .usdRepaymentAmount(loanDetails.getRepaymentAmount())
@@ -91,7 +92,9 @@ public class LoanServiceImpl implements LoanService {
                 .build();
 
         if (loan.getApprovalStatus().equals(ApprovalStatus.APPROVED)) {
-            bankReserveFeignClient.withdraw(new BankReserveOperationsDto(ReserveType.LOAN, loan.getUsdLoanAmount()));
+            UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(
+                ReserveType.LOAN)).getBody();
+            bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.LOAN, usdLoanAmount, OperationType.WITHDRAW));
             walletFeignClient.deposit(wallet.walletId(), new TransactionRequestDto(loan.getWalletCurrencyLoanAmount(), wallet.currency()));
         }
 
@@ -154,9 +157,9 @@ public class LoanServiceImpl implements LoanService {
         }
     }
 
-    private BigDecimal convertToUsd(LoanRequestDto loanRequestDto) {
-        return (loanRequestDto.currency().equals(Currency.USD)) ? loanRequestDto.requestedAmount() : currencyExchangeFeignClient
-                .convert(new ConvertAmountRequestDto(loanRequestDto.currency().getCode(), Currency.USD.getCode(), loanRequestDto.requestedAmount()))
+    private BigDecimal convertToUsd(BigDecimal requestedAmount, Currency currency) {
+        return (currency.equals(Currency.USD)) ? requestedAmount : currencyExchangeFeignClient
+                .convert(new ConvertAmountRequestDto(currency.getCode(), Currency.USD.getCode(), requestedAmount))
                 .getBody()
                 .convertedAmount();
     }

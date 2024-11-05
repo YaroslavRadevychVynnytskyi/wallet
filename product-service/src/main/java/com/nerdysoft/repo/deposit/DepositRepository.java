@@ -1,7 +1,7 @@
 package com.nerdysoft.repo.deposit;
 
 import com.nerdysoft.entity.deposit.Deposit;
-import com.nerdysoft.entity.deposit.enums.DepositStatus;
+import com.nerdysoft.model.enums.DepositStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

@@ -7,18 +7,18 @@ import com.nerdysoft.dto.event.activity.enums.Status;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
-@Builder
-public class UserActivityEvent implements Event, Serializable {
-    private UUID userId;
-    private ActionType actionType;
-    private EntityType entityType;
-    private UUID entityId;
-    private LocalDateTime timestamp;
-    private String oldData;
-    private String newData;
-    private Status status;
+@Getter
+@RequiredArgsConstructor
+public class UserActivityEvent extends Event implements Serializable {
+    private final UUID userId;
+    private final ActionType actionType;
+    private final EntityType entityType;
+    private final UUID entityId;
+    private final LocalDateTime timestamp;
+    private final String oldData;
+    private final String newData;
+    private final Status status;
 }

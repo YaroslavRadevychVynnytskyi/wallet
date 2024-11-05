@@ -1,6 +1,9 @@
 package com.nerdysoft.runner;
 
+import com.nerdysoft.dto.request.AddOrUpdateRateRequestDto;
+import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.service.CurrencyExchangeService;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -12,8 +15,11 @@ public class StartupRunner implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    if (!currencyExchangeService.hasDbData()) {
-      currencyExchangeService.updateExchangeRates();
+    if (!currencyExchangeService.allCurrenciesStored()) {
+      Arrays.stream(Currency.values())
+          .filter(c -> currencyExchangeService.findByBaseCode(c.getCode()).isEmpty())
+          .map(c -> currencyExchangeService.fetchExchangeRates(c.getCode()))
+          .forEach(c -> currencyExchangeService.addExchangeRate(new AddOrUpdateRateRequestDto(c.getBaseCode(), c.getConversionRates())));
     }
   }
 }

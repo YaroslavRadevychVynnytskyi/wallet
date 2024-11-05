@@ -43,21 +43,11 @@ public class SecurityConfig {
             .requestMatchers("/reserves/**")
                 .access((authentication, authorizationContext) -> hasAdminRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
             .anyRequest().authenticated()
-
         )
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
         .userDetailsService(userDetailsService)
         .build();
-  }
-
-  private AuthorizationDecision hasUserRoleOrInternalToken(HttpServletRequest request,
-                                                           Authentication authentication) {
-    Optional<String> internalToken = Optional.ofNullable(request.getHeader("internal-token"));
-    boolean decision = internalToken.map(token -> this.internalToken.equals(token))
-            .orElseGet(() -> authentication.getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER")));
-    return new AuthorizationDecision(decision);
   }
 
   private AuthorizationDecision hasAdminRoleOrInternalToken(HttpServletRequest request,

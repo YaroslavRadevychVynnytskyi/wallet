@@ -1,9 +1,9 @@
 package com.nerdysoft.service;
 
-import com.nerdysoft.dto.request.TransferTransactionRequestDto;
-import com.nerdysoft.repository.TransactionRepository;
+import com.nerdysoft.dto.request.WalletOperationRequestDto;
 import com.nerdysoft.entity.Transaction;
-import com.nerdysoft.entity.enums.TransactionStatus;
+import com.nerdysoft.model.enums.TransactionStatus;
+import com.nerdysoft.repository.TransactionRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 public class TransactionService {
   private final TransactionRepository transactionRepository;
 
-  public Transaction saveTransaction(UUID walletId, TransferTransactionRequestDto requestDto,
-      TransactionStatus status, BigDecimal walletBalance) {
+  public Transaction saveTransaction(UUID walletId, WalletOperationRequestDto requestDto,
+                                     TransactionStatus status, BigDecimal walletBalance) {
     Transaction transaction = Transaction.builder()
         .walletId(walletId)
         .amount(requestDto.getAmount())
@@ -28,7 +28,7 @@ public class TransactionService {
     return transactionRepository.save(transaction);
   }
 
-  public List<Transaction> getAllByWalletId(UUID walletId) {
+  public List<Transaction> findAllByWalletId(UUID walletId) {
     return transactionRepository.findAllByWalletId(walletId);
   }
 }

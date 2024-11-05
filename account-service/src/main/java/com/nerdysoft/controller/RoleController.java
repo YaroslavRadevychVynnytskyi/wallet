@@ -1,7 +1,7 @@
 package com.nerdysoft.controller;
 
 import com.nerdysoft.entity.Role;
-import com.nerdysoft.entity.enums.RoleName;
+import com.nerdysoft.model.enums.RoleName;
 import com.nerdysoft.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,13 +22,13 @@ public class RoleController {
   private final RoleService roleService;
 
   @GetMapping("/{id}")
-  public ResponseEntity<Role> getRoleById(@PathVariable Integer id) {
-    return ResponseEntity.ok(roleService.getRoleById(id));
+  public ResponseEntity<Role> findById(@PathVariable Integer id) {
+    return ResponseEntity.ok(roleService.findById(id));
   }
 
   @GetMapping
-  public ResponseEntity<Role> getRoleByName(@RequestParam RoleName name) {
-    return ResponseEntity.ok(roleService.getRoleByName(name));
+  public ResponseEntity<Role> findByName(@RequestParam RoleName name) {
+    return ResponseEntity.ok(roleService.findByName(name));
   }
 
   @PostMapping
@@ -36,9 +36,9 @@ public class RoleController {
     return new ResponseEntity<>(roleService.create(name), HttpStatus.CREATED);
   }
 
-  @PutMapping
-  public ResponseEntity<Role> update(@RequestParam RoleName name) {
-    return new ResponseEntity<>(roleService.update(name), HttpStatus.ACCEPTED);
+  @PutMapping("/{id}")
+  public ResponseEntity<Role> update(@PathVariable Integer id, @RequestParam RoleName name) {
+    return new ResponseEntity<>(roleService.update(id, name), HttpStatus.ACCEPTED);
   }
 
   @DeleteMapping("/{id}")

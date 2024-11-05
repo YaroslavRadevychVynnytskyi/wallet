@@ -1,6 +1,6 @@
 package com.nerdysoft.security.util;
 
-import com.nerdysoft.entity.security.Account;
+import com.nerdysoft.model.security.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

@@ -44,6 +44,8 @@ public class SecurityConfig {
                 .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
             .requestMatchers("/loans/**")
                 .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
+//            .requestMatchers("/deposits/**")
+//                .access((authentication, authorizationContext) -> hasUserRoleOrInternalToken(authorizationContext.getRequest(), authentication.get()))
             .anyRequest().authenticated()
 
         )
