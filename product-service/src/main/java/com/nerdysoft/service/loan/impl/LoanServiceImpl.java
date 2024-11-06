@@ -106,7 +106,7 @@ public class LoanServiceImpl implements LoanService {
     public LoanPayment manualLoanRepay(UUID accountId) {
         isCurrentMonthPaymentCommitted(accountId);
 
-        Loan loan = loanRepository.findByAccountIdAndRepaymentStatus(accountId, RepaymentStatus.PENDING)
+        Loan loan = loanRepository.findByAccountIdAndApprovalStatusAndRepaymentStatus(accountId, ApprovalStatus.APPROVED, RepaymentStatus.PENDING)
                 .orElseThrow(() -> new EntityNotFoundException("Can't find loan with account ID: " + accountId));
 
         return commitPayment(loan);

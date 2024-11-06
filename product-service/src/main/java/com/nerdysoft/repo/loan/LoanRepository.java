@@ -15,5 +15,5 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
 
     List<Loan> findAllByApprovalStatusAndPaymentTypeAndRepaymentStatusAndNextPayment(ApprovalStatus approvalStatus, PaymentType paymentType, RepaymentStatus repaymentStatus, LocalDate date);
 
-    Optional<Loan> findByAccountIdAndRepaymentStatus(UUID accountId, RepaymentStatus status);
+    Optional<Loan> findByAccountIdAndApprovalStatusAndRepaymentStatus(UUID accountId, ApprovalStatus approvalStatus, RepaymentStatus repaymentStatus);
 }
