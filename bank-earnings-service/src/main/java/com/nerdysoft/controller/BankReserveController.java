@@ -1,13 +1,14 @@
 package com.nerdysoft.controller;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
-import com.nerdysoft.axon.command.UpdateBalanceCommand;
-import com.nerdysoft.axon.query.FindBankReserveByIdQuery;
+import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
+import com.nerdysoft.axon.query.FindBankReserveByTypeQuery;
 import com.nerdysoft.axon.query.FindBankReserveIdByTypeQuery;
 import com.nerdysoft.dto.api.request.BankReserveTypeDto;
 import com.nerdysoft.dto.api.request.CreateBalanceDto;
 import com.nerdysoft.dto.api.request.UpdateBalanceRequestDto;
 import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
+import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.model.reserve.BankReserve;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,8 @@ public class BankReserveController {
         CreateBalanceCommand createBalanceCommand = new CreateBalanceCommand();
         BeanUtils.copyProperties(requestDto, createBalanceCommand);
 
-        UUID id = commandGateway.sendAndWait(createBalanceCommand);
-        BankReserve bankReserve = queryGateway.query(new FindBankReserveByIdQuery(id), BankReserve.class).join();
+        ReserveType reserveType = commandGateway.sendAndWait(createBalanceCommand);
+        BankReserve bankReserve = queryGateway.query(new FindBankReserveByTypeQuery(reserveType), BankReserve.class).join();
         return ResponseEntity.ok(bankReserve);
     }
 

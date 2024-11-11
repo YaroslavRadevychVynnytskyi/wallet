@@ -1,6 +1,7 @@
 package com.nerdysoft.axon.handler;
 
 import com.nerdysoft.axon.query.FindBankReserveByIdQuery;
+import com.nerdysoft.axon.query.FindBankReserveByTypeQuery;
 import com.nerdysoft.axon.query.FindBankReserveIdByTypeQuery;
 import com.nerdysoft.model.reserve.BankReserve;
 import com.nerdysoft.service.BankReserveService;
@@ -22,5 +23,10 @@ public class BankReserveQueryHandler {
     @QueryHandler
     public BankReserve handle(FindBankReserveByIdQuery query) {
         return bankReserveService.findById(query.getId());
+    }
+
+    @QueryHandler
+    public BankReserve handle(FindBankReserveByTypeQuery query) {
+        return bankReserveService.findByReserveType(query.getReserveType());
     }
 }

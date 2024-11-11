@@ -25,6 +25,12 @@
       <version>${spring-web.version}</version>
       <scope>compile</scope>
     </dependency>
+      <dependency>
+          <groupId>org.axonframework</groupId>
+          <artifactId>axon-modelling</artifactId>
+          <version>4.10.1</version>
+          <scope>compile</scope>
+      </dependency>
   </dependencies>
   <build>
     <plugins>

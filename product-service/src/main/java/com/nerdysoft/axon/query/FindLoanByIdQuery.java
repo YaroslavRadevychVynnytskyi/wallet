@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-@NoAgrsConstructor
+@NoArgsConstructor
 public class FindLoanByIdQuery {
     private UUID loanId;
 }
