@@ -1,7 +1,7 @@
 package com.nerdysoft.service.impl;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
-import com.nerdysoft.axon.command.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
 import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
 import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.model.exception.UniqueException;
@@ -76,5 +76,11 @@ public class BankReserveServiceImpl implements BankReserveService {
     @Override
     public boolean hasAllReserveTypesStored() {
         return bankReserveRepository.count() == ReserveType.values().length;
+    }
+
+    @Override
+    public BankReserve findByReserveType(ReserveType reserveType) {
+        return bankReserveRepository.findByType(reserveType).orElseThrow(() ->
+                new EntityNotFoundException("Can't find bank reserve of type" + reserveType.name()));
     }
 }

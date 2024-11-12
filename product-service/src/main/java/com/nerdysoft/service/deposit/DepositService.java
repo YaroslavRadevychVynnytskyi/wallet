@@ -9,4 +9,6 @@ public interface DepositService {
     Deposit applyDeposit(UUID accountId, String accountEmail, BigDecimal amount, Currency walletCurrency);
 
     Deposit withdrawDeposit(UUID accountId);
+
+    void deleteById(UUID depositId);
 }

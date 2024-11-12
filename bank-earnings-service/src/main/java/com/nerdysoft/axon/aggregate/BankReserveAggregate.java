@@ -1,7 +1,7 @@
 package com.nerdysoft.axon.aggregate;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
-import com.nerdysoft.axon.command.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
 import com.nerdysoft.axon.event.bankreserve.BalanceCreatedEvent;
 import com.nerdysoft.axon.event.bankreserve.BalanceUpdatedEvent;
 import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
@@ -24,8 +24,8 @@ import org.springframework.http.HttpStatus;
 @Aggregate
 @NoArgsConstructor
 public class BankReserveAggregate {
-    @AggregateIdentifier
     private UUID id;
+    @AggregateIdentifier
     private ReserveType reserveType;
     private BigDecimal totalFunds;
 
@@ -64,7 +64,7 @@ public class BankReserveAggregate {
             return updateBalanceResponseDto;
         } else {
             throw new UniqueException(
-                String.format("No %s reserves exists with id '%s'", updateBalanceCommand.getReserveType(), updateBalanceCommand.getId()),
+                String.format("No %s reserves exists", updateBalanceCommand.getReserveType()),
                 HttpStatus.NOT_ACCEPTABLE);
         }
     }

@@ -8,7 +8,7 @@ spring:
     username: postgres
     password: postgres
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: update
   mail:
@@ -39,3 +39,6 @@ mail:
 axon:
   serializer:
     general: jackson
+  eventhandling:
+    processors:
+      product-group.mode: subscribing

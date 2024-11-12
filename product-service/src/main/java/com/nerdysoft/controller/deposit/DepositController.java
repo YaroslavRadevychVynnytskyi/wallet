@@ -33,7 +33,7 @@ public class DepositController {
                 .accountId(account.accountId())
                 .accountEmail(account.email())
                 .amount(requestDto.getAmount())
-                .walletCurrency(requestDto.getWalletCurrency())
+                .currency(requestDto.getWalletCurrency())
                 .build();
 
         UUID depositId = commandGateway.sendAndWait(applyDepositCommand);

@@ -64,12 +64,6 @@ public class DepositServiceImpl implements DepositService {
                 .depositStatus(DepositStatus.FROZEN)
                 .build();
 
-        walletFeignClient.withdraw(wallet.walletId(), new TransactionRequestDto(amount, wallet.currency()));
-
-        UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(
-            ReserveType.DEPOSIT)).getBody();
-        bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.DEPOSIT, convertToUsd(walletCurrency, amount), OperationType.DEPOSIT));
-
         return depositRepository.save(deposit);
     }
 
@@ -91,6 +85,11 @@ public class DepositServiceImpl implements DepositService {
         deposit.setDepositStatus(DepositStatus.INACTIVE);
 
         return depositRepository.save(deposit);
+    }
+
+    @Override
+    public void deleteById(UUID depositId) {
+        depositRepository.deleteById(depositId);
     }
 
     @Transactional
