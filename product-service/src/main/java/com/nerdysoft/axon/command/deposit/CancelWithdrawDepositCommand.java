@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.event.deposit;
+package com.nerdysoft.axon.command.deposit;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class WithdrawDepositEvent {
+public class CancelWithdrawDepositCommand {
     private UUID id;
-    private UUID accountId;
 }

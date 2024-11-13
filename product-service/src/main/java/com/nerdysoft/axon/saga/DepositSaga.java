@@ -8,7 +8,7 @@ import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
 import com.nerdysoft.axon.event.deposit.ApplyDepositEvent;
 import com.nerdysoft.axon.event.deposit.CancelWithdrawForDepositEvent;
 import com.nerdysoft.axon.event.deposit.DepositDeletedEvent;
-import com.nerdysoft.axon.event.deposit.WithdrawForDepositEvent;
+import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceEvent;
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;
 import lombok.extern.log4j.Log4j2;
@@ -61,16 +61,16 @@ public class DepositSaga {
      * If the update fails, initiates a compensating transaction by issuing a {@link CancelWithdrawForDepositCommand}
      * to reverse the wallet withdrawal and a {@link DeleteDepositCommand} to delete the deposit entry.
      *
-     * @param withdrawForDepositEvent the {@link WithdrawForDepositEvent} confirming the successful withdrawal.
+     * @param updateWalletBalanceEvent the {@link UpdateWalletBalanceEvent} confirming the successful withdrawal.
      */
     @SagaEventHandler(associationProperty = "id")
-    public void handle(WithdrawForDepositEvent withdrawForDepositEvent) {
+    public void handle(UpdateWalletBalanceEvent updateWalletBalanceEvent) {
         log.info("Withdraw for deposit executed. Proceeding with bank reserve update...");
 
         UpdateBankReserveCommand updateBankReserveCommand = UpdateBankReserveCommand.builder()
-                .id(withdrawForDepositEvent.getId())
+                .id(updateWalletBalanceEvent.getId())
                 .reserveType(ReserveType.DEPOSIT)
-                .amount(withdrawForDepositEvent.getAmount())
+                .amount(updateWalletBalanceEvent.getAmount())
                 .operationType(OperationType.DEPOSIT)
                 .build();
 
@@ -79,14 +79,14 @@ public class DepositSaga {
                 log.error("Bank reserve update failed. Compensating by returning money to wallet and deleting deposit...");
 
                 CancelWithdrawForDepositCommand cancelWithdrawForDepositCommand = CancelWithdrawForDepositCommand.builder()
-                        .id(withdrawForDepositEvent.getId())
-                        .walletId(withdrawForDepositEvent.getWalletId())
-                        .amount(withdrawForDepositEvent.getAmount())
-                        .currency(withdrawForDepositEvent.getCurrency())
+                        .id(updateWalletBalanceEvent.getId())
+                        .walletId(updateWalletBalanceEvent.getWalletId())
+                        .amount(updateWalletBalanceEvent.getAmount())
+                        .currency(updateWalletBalanceEvent.getCurrency())
                         .build();
                 commandGateway.send(cancelWithdrawForDepositCommand);
 
-                DeleteDepositCommand deleteDepositCommand = new DeleteDepositCommand(withdrawForDepositEvent.getId());
+                DeleteDepositCommand deleteDepositCommand = new DeleteDepositCommand(updateWalletBalanceEvent.getId());
                 commandGateway.send(deleteDepositCommand);
             }
         });
