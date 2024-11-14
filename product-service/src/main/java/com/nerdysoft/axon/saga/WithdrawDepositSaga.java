@@ -9,10 +9,11 @@ import com.nerdysoft.axon.event.deposit.CancelWithdrawDepositEvent;
 import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceCommand;
 import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceEvent;
 import com.nerdysoft.axon.event.deposit.WithdrawDepositEvent;
-import com.nerdysoft.axon.query.FindDepositByIdQuery;
+import com.nerdysoft.axon.query.FindAvailableForWithdrawalDepositByAccountIdQuery;
 import com.nerdysoft.entity.deposit.Deposit;
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;
+import lombok.extern.log4j.Log4j2;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.modelling.saga.EndSaga;
 import org.axonframework.modelling.saga.SagaEventHandler;
@@ -22,6 +23,7 @@ import org.axonframework.spring.stereotype.Saga;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Saga
+@Log4j2
 public class WithdrawDepositSaga {
     @Autowired
     private transient CommandGateway commandGateway;
@@ -29,18 +31,29 @@ public class WithdrawDepositSaga {
     @Autowired
     private transient QueryGateway queryGateway;
 
-    /*
-    Загальний алгоритм саги:
-        1. Закинути гроші чувакові на гаманець
-        2. Зняти відповідні гроші з банківського резерву
+    /**
+     * Handles a {@link WithdrawDepositEvent} to process a withdrawal and update the wallet balance.
+     * If the deposit retrieval or wallet update fails, a compensating {@link CancelWithdrawDepositCommand}
+     * is sent to revert the operation.
+     *
+     *
+     * @param withdrawDepositEvent the event representing the deposit withdrawal request
      */
-
     @StartSaga
     @SagaEventHandler(associationProperty = "id")
     public void handle(WithdrawDepositEvent withdrawDepositEvent) {
-        System.err.println("Starting withdraw deposit saga for deposit with ID" + withdrawDepositEvent.getId());
+        log.info("Starting withdraw deposit saga for deposit with ID: {}", withdrawDepositEvent.getId());
 
-        Deposit deposit = queryGateway.query(new FindDepositByIdQuery(withdrawDepositEvent.getId()), Deposit.class).join();
+        Deposit deposit = queryGateway.query(new FindAvailableForWithdrawalDepositByAccountIdQuery(withdrawDepositEvent.getAccountId()), Deposit.class)
+                .exceptionally(throwable -> {
+                    log.error("Failed to retrieve deposit: {}", throwable.getMessage());
+
+                    CancelWithdrawDepositCommand cancelWithdrawDepositCommand = new CancelWithdrawDepositCommand(withdrawDepositEvent.getId());
+                    commandGateway.send(cancelWithdrawDepositCommand);
+
+                    return null;
+                })
+                .join();
 
         UpdateWalletBalanceCommand updateWalletBalanceCommand = UpdateWalletBalanceCommand.builder()
                 .id(withdrawDepositEvent.getId())
@@ -52,7 +65,7 @@ public class WithdrawDepositSaga {
 
         commandGateway.send(updateWalletBalanceCommand, (commandMessage, commandResultMessage) -> {
             if (commandResultMessage.isExceptional()) {
-                System.err.println("Compensating transaction for failed deposit to wallet");
+                log.error("Compensating transaction for failed deposit to wallet");
 
                 CancelWithdrawDepositCommand cancelWithdrawDepositCommand = new CancelWithdrawDepositCommand(withdrawDepositEvent.getId());
                 commandGateway.send(cancelWithdrawDepositCommand);
@@ -60,9 +73,16 @@ public class WithdrawDepositSaga {
         });
     }
 
+    /**
+     * Handles an {@link UpdateWalletBalanceEvent} to update the bank reserve.
+     * If the reserve update fails, compensating {@link CancelUpdateWalletBalanceCommand}
+     * and {@link CancelWithdrawDepositCommand} are sent to revert the changes.
+     *
+     * @param updateWalletBalanceEvent the event containing the wallet balance update details
+     */
     @SagaEventHandler(associationProperty = "id")
     public void handle(UpdateWalletBalanceEvent updateWalletBalanceEvent) {
-        System.err.println("Wallet Balance Update successfully executed. Proceeding with bank reserve update...");
+        log.info("Wallet Balance Update successfully executed. Proceeding with bank reserve update...");
 
         UpdateBankReserveCommand updateBankReserveCommand = UpdateBankReserveCommand.builder()
                 .id(updateWalletBalanceEvent.getId())
@@ -73,7 +93,7 @@ public class WithdrawDepositSaga {
 
         commandGateway.send(updateBankReserveCommand, (commandMessage, commandResultMessage) -> {
             if (commandResultMessage.isExceptional()) {
-                System.err.println("Bank reserve update failed. Starting compensating transaction...");
+                log.error("Bank reserve update failed. Starting compensating transaction...");
 
                 CancelUpdateWalletBalanceCommand cancelUpdateWalletBalanceCommand = CancelUpdateWalletBalanceCommand.builder()
                         .id(updateWalletBalanceEvent.getId())
@@ -93,19 +113,19 @@ public class WithdrawDepositSaga {
     @EndSaga
     @SagaEventHandler(associationProperty = "id")
     public void handle(BankReserveUpdatedEvent bankReserveUpdatedEvent) {
-        System.err.println("Bank Reserve balance updated successfully. Ending saga");
+        log.info("Bank Reserve balance updated successfully. Ending saga");
     }
 
     @EndSaga
     @SagaEventHandler(associationProperty = "id")
     public void handle(CancelWithdrawDepositEvent cancelWithdrawDepositEvent) {
-        System.err.println("Cancelled deposit withdraw as a compensating transaction. "
+        log.info("Cancelled deposit withdraw as a compensating transaction. "
                 + "Deposit returned to the state at the beginning of the operation");
     }
 
     @EndSaga
     @SagaEventHandler(associationProperty = "id")
     public void handle(CancelUpdateWalletBalanceEvent cancelUpdateWalletBalanceEvent) {
-        System.err.println("Cancelled wallet update operation as a compensating transaction");
+        log.info("Cancelled wallet update operation as a compensating transaction");
     }
 }

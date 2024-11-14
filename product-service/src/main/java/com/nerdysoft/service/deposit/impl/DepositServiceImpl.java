@@ -73,16 +73,6 @@ public class DepositServiceImpl implements DepositService {
         Deposit deposit = depositRepository.findByAccountIdAndDepositStatus(accountId, DepositStatus.AVAILABLE_FOR_WITHDRAWAL)
                 .orElseThrow(() -> new EntityNotFoundException("There are no available for withdraw deposits for account with ID: " + accountId));
 
-        //TODO: carry this logic out to the WithdrawDepositSaga
-        /*
-        BigDecimal amount = deposit.getAmount();
-        walletFeignClient.deposit(deposit.getWalletId(), new TransactionRequestDto(amount, deposit.getCurrency()));
-
-        UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(ReserveType.DEPOSIT)).getBody();
-        bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.DEPOSIT, convertToUsd(deposit.getCurrency(), amount), OperationType.WITHDRAW));
-
-         */
-
         deposit.setAmount(BigDecimal.ZERO);
         deposit.setMaturityDate(null);
         deposit.setNotificationDate(null);

@@ -8,6 +8,7 @@ import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
 import com.nerdysoft.axon.event.deposit.ApplyDepositEvent;
 import com.nerdysoft.axon.event.deposit.CancelWithdrawForDepositEvent;
 import com.nerdysoft.axon.event.deposit.DepositDeletedEvent;
+import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceCommand;
 import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceEvent;
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;
@@ -21,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Saga
 @Log4j2
-public class DepositSaga {
+public class ApplyDepositSaga {
     @Autowired
     private transient CommandGateway commandGateway;
 
@@ -38,14 +39,15 @@ public class DepositSaga {
     public void handle(ApplyDepositEvent event) {
         log.info("Starting saga for deposit with ID: {}", event.getId());
 
-        WithdrawForDepositCommand withdrawForDepositCommand = WithdrawForDepositCommand.builder()
+        UpdateWalletBalanceCommand updateWalletBalanceCommand = UpdateWalletBalanceCommand.builder()
                 .id(event.getId())
                 .walletId(event.getWalletId())
                 .amount(event.getAmount())
                 .currency(event.getCurrency())
+                .operationType(OperationType.WITHDRAW)
                 .build();
 
-        commandGateway.send(withdrawForDepositCommand, (commandMessage, commandResultMessage) -> {
+        commandGateway.send(updateWalletBalanceCommand, (commandMessage, commandResultMessage) -> {
             if (commandResultMessage.isExceptional()) {
                 log.error("Compensating transaction for failed withdrawal. Deleting deposit with ID: {}", event.getId());
 

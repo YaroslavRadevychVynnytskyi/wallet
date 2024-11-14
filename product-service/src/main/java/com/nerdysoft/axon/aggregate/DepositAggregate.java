@@ -9,7 +9,6 @@ import com.nerdysoft.axon.command.deposit.CancelWithdrawForDepositCommand;
 import com.nerdysoft.axon.command.deposit.DeleteDepositCommand;
 import com.nerdysoft.axon.command.deposit.UpdateBankReserveCommand;
 import com.nerdysoft.axon.command.deposit.WithdrawDepositCommand;
-import com.nerdysoft.axon.command.deposit.WithdrawForDepositCommand;
 import com.nerdysoft.axon.command.wallet.DepositToWalletCommand;
 import com.nerdysoft.axon.command.wallet.WithdrawFromWalletCommand;
 import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
@@ -19,8 +18,8 @@ import com.nerdysoft.axon.event.deposit.CancelWithdrawDepositEvent;
 import com.nerdysoft.axon.event.deposit.CancelWithdrawForDepositEvent;
 import com.nerdysoft.axon.event.deposit.DepositDeletedEvent;
 import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceCommand;
-import com.nerdysoft.axon.event.deposit.WithdrawDepositEvent;
 import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceEvent;
+import com.nerdysoft.axon.event.deposit.WithdrawDepositEvent;
 import com.nerdysoft.entity.deposit.Deposit;
 import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.DepositStatus;
@@ -31,6 +30,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -90,7 +90,7 @@ public class DepositAggregate {
 
     @CommandHandler
     public void handle(WithdrawDepositCommand withdrawDepositCommand) {
-        WithdrawDepositEvent withdrawDepositEvent = new WithdrawDepositEvent(withdrawDepositCommand.getId(), withdrawDepositCommand.getAccountId());
+        WithdrawDepositEvent withdrawDepositEvent = new WithdrawDepositEvent(id, withdrawDepositCommand.getAccountId());
 
         AggregateLifecycle.apply(withdrawDepositEvent);
     }
@@ -110,26 +110,42 @@ public class DepositAggregate {
         depositStatus = DepositStatus.INACTIVE;
     }
 
-//    @CommandHandler
-//    public void handle(WithdrawForDepositCommand withdrawForDepositCommand, CommandGateway commandGateway) {
-//        WithdrawFromWalletCommand withdrawFromWalletCommand = new WithdrawFromWalletCommand(
-//                withdrawForDepositCommand.getWalletId(),
-//                withdrawForDepositCommand.getAmount(),
-//                withdrawForDepositCommand.getCurrency()
-//        );
-//
-//        CompletableFuture<Object> future = commandGateway.send(withdrawFromWalletCommand);
-//        try {
-//            future.get();
-//        } catch (Exception e) {
-//            throw new RuntimeException("Can't withdraw for deposit " + e.getMessage());
-//        }
-//
-//        UpdateWalletBalanceEvent updateWalletBalanceEvent = new UpdateWalletBalanceEvent();
-//        BeanUtils.copyProperties(withdrawForDepositCommand, updateWalletBalanceEvent);
-//
-//        AggregateLifecycle.apply(updateWalletBalanceEvent);
-//    }
+    @CommandHandler
+    public void handle(UpdateWalletBalanceCommand updateWalletBalanceCommand, CommandGateway commandGateway) {
+        if (updateWalletBalanceCommand.getOperationType().equals(OperationType.WITHDRAW)) {
+            WithdrawFromWalletCommand withdrawFromWalletCommand = new WithdrawFromWalletCommand(
+                    updateWalletBalanceCommand.getWalletId(),
+                    updateWalletBalanceCommand.getAmount(),
+                    updateWalletBalanceCommand.getCurrency()
+            );
+
+            CompletableFuture<Object> future = commandGateway.send(withdrawFromWalletCommand);
+            try {
+                future.get();
+            } catch (Exception e) {
+                throw new RuntimeException("Can't withdraw for deposit " + e.getMessage());
+            }
+
+        } else if (updateWalletBalanceCommand.getOperationType().equals(OperationType.DEPOSIT)) {
+            DepositToWalletCommand depositToWalletCommand = new DepositToWalletCommand(
+                    updateWalletBalanceCommand.getWalletId(),
+                    updateWalletBalanceCommand.getAmount(),
+                    updateWalletBalanceCommand.getCurrency()
+            );
+
+            CompletableFuture<Object> future = commandGateway.send(depositToWalletCommand);
+            try {
+                future.get();
+            } catch (Exception e) {
+                throw new RuntimeException("Can't execute deposit to wallet" + e.getMessage());
+            }
+        }
+
+        UpdateWalletBalanceEvent updateWalletBalanceEvent = new UpdateWalletBalanceEvent();
+        BeanUtils.copyProperties(updateWalletBalanceCommand, updateWalletBalanceEvent);
+
+        AggregateLifecycle.apply(updateWalletBalanceEvent);
+    }
 
     @CommandHandler
     public void handle(UpdateBankReserveCommand updateBankReserveCommand, CommandGateway commandGateway) {
@@ -171,45 +187,6 @@ public class DepositAggregate {
 
         AggregateLifecycle.apply(cancelWithdrawForDepositEvent);
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    @CommandHandler
-    public void handle(UpdateWalletBalanceCommand updateWalletBalanceCommand, CommandGateway commandGateway) {
-        if (updateWalletBalanceCommand.getOperationType().equals(OperationType.WITHDRAW)) {
-            WithdrawFromWalletCommand withdrawFromWalletCommand = new WithdrawFromWalletCommand(
-                    updateWalletBalanceCommand.getWalletId(),
-                    updateWalletBalanceCommand.getAmount(),
-                    updateWalletBalanceCommand.getCurrency()
-            );
-
-            CompletableFuture<Object> future = commandGateway.send(withdrawFromWalletCommand);
-            try {
-                future.get();
-            } catch (Exception e) {
-                throw new RuntimeException("Can't withdraw for deposit " + e.getMessage());
-            }
-
-        } else {
-            DepositToWalletCommand depositToWalletCommand = new DepositToWalletCommand(
-                    updateWalletBalanceCommand.getWalletId(),
-                    updateWalletBalanceCommand.getAmount(),
-                    updateWalletBalanceCommand.getCurrency()
-            );
-
-            CompletableFuture<Object> future = commandGateway.send(depositToWalletCommand);
-            try {
-                future.get();
-            } catch (Exception e) {
-                throw new RuntimeException("Can't execute deposit to wallet" + e.getMessage());
-            }
-        }
-
-        UpdateWalletBalanceEvent updateWalletBalanceEvent = new UpdateWalletBalanceEvent();
-        BeanUtils.copyProperties(updateWalletBalanceCommand, updateWalletBalanceEvent);
-
-        AggregateLifecycle.apply(updateWalletBalanceEvent);
-    }
-
 
     @CommandHandler
     public void handle(CancelWithdrawDepositCommand cancelWithdrawDepositCommand) {
