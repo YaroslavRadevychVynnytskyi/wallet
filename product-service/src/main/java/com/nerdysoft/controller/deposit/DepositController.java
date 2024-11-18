@@ -2,6 +2,7 @@ package com.nerdysoft.controller.deposit;
 
 import com.nerdysoft.axon.command.deposit.ApplyDepositCommand;
 import com.nerdysoft.axon.command.deposit.WithdrawDepositCommand;
+import com.nerdysoft.axon.query.FindAvailableForWithdrawalDepositByAccountIdQuery;
 import com.nerdysoft.axon.query.FindDepositByIdQuery;
 import com.nerdysoft.dto.api.request.deposit.DepositRequestDto;
 import com.nerdysoft.entity.deposit.Deposit;
@@ -12,7 +13,6 @@ import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,13 +42,14 @@ public class DepositController {
         return ResponseEntity.ok(deposit);
     }
 
-    @PostMapping("/withdraw/{depositId}")
-    public ResponseEntity<Deposit> withdrawDeposit(Authentication authentication, @PathVariable UUID depositId) {
+    @PostMapping("/withdraw")
+    public ResponseEntity<Deposit> withdrawDeposit(Authentication authentication) {
         Account account = (Account) authentication.getPrincipal();
 
-        WithdrawDepositCommand withdrawDepositCommand = new WithdrawDepositCommand(depositId, account.accountId());
+        Deposit deposit = queryGateway.query(new FindAvailableForWithdrawalDepositByAccountIdQuery(account.accountId()), Deposit.class).join();
+
+        WithdrawDepositCommand withdrawDepositCommand = new WithdrawDepositCommand(deposit.getId(), account.accountId());
         commandGateway.sendAndWait(withdrawDepositCommand);
-        Deposit deposit = queryGateway.query(new FindDepositByIdQuery(depositId), Deposit.class).join();
 
         return ResponseEntity.ok(deposit);
     }

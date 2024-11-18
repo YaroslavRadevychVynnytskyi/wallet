@@ -9,8 +9,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WithdrawDepositCommand {
+public class CancelWithdrawDepositCommand {
     @TargetAggregateIdentifier
     private UUID id;
-    private UUID accountId;
 }
