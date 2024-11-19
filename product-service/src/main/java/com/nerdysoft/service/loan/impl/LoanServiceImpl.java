@@ -1,21 +1,16 @@
 package com.nerdysoft.service.loan.impl;
 
-import com.nerdysoft.dto.feign.BankReserveTypeDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.TransactionRequestDto;
-import com.nerdysoft.dto.feign.UpdateBalanceDto;
 import com.nerdysoft.dto.feign.Wallet;
 import com.nerdysoft.entity.loan.Loan;
 import com.nerdysoft.entity.loan.LoanPayment;
-import com.nerdysoft.feign.BankReserveFeignClient;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.model.enums.ApprovalStatus;
 import com.nerdysoft.model.enums.Currency;
-import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.PaymentType;
 import com.nerdysoft.model.enums.RepaymentStatus;
-import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.repo.loan.LoanPaymentRepository;
 import com.nerdysoft.repo.loan.LoanRepository;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
@@ -40,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LoanServiceImpl implements LoanService {
     private final CurrencyExchangeFeignClient currencyExchangeFeignClient;
-    private final BankReserveFeignClient bankReserveFeignClient;
     private final WalletBalanceAnalyzer walletBalanceAnalyzer;
     private final WalletFeignClient walletFeignClient;
     private final LoanStrategy loanStrategy;
@@ -91,13 +85,6 @@ public class LoanServiceImpl implements LoanService {
                 .dueDate((loanDetails.getApprovalStatus().equals(ApprovalStatus.REJECTED)) ? null : LocalDateTime.now().plusMonths(loanDetails.getRepaymentTermInMonths().intValue()))
                 .build();
 
-        if (loan.getApprovalStatus().equals(ApprovalStatus.APPROVED)) {
-            UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(
-                ReserveType.LOAN)).getBody();
-            bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.LOAN, usdLoanAmount, OperationType.WITHDRAW));
-            walletFeignClient.deposit(wallet.walletId(), new TransactionRequestDto(loan.getWalletCurrencyLoanAmount(), wallet.currency()));
-        }
-
         return loanRepository.save(loan);
     }
 
@@ -125,6 +112,11 @@ public class LoanServiceImpl implements LoanService {
 
         loans.forEach(this::commitPayment);
         loanRepository.saveAll(loans);
+    }
+
+    @Override
+    public void deleteById(UUID loanId) {
+        loanRepository.deleteById(loanId);
     }
 
     private void hasExistingLoan(UUID accountId) {

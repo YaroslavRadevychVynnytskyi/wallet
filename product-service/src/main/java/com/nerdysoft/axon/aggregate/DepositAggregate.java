@@ -1,38 +1,25 @@
 package com.nerdysoft.axon.aggregate;
 
 import com.nerdysoft.axon.aggregate.snapshot.DepositSnapshot;
-import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
 import com.nerdysoft.axon.command.deposit.ApplyDepositCommand;
-import com.nerdysoft.axon.command.deposit.CancelUpdateWalletBalanceCommand;
 import com.nerdysoft.axon.command.deposit.CancelWithdrawDepositCommand;
 import com.nerdysoft.axon.command.deposit.CancelWithdrawForDepositCommand;
 import com.nerdysoft.axon.command.deposit.DeleteDepositCommand;
-import com.nerdysoft.axon.command.deposit.UpdateBankReserveCommand;
 import com.nerdysoft.axon.command.deposit.WithdrawDepositCommand;
-import com.nerdysoft.axon.command.wallet.DepositToWalletCommand;
-import com.nerdysoft.axon.command.wallet.WithdrawFromWalletCommand;
-import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
 import com.nerdysoft.axon.event.deposit.ApplyDepositEvent;
-import com.nerdysoft.axon.event.deposit.CancelUpdateWalletBalanceEvent;
 import com.nerdysoft.axon.event.deposit.CancelWithdrawDepositEvent;
 import com.nerdysoft.axon.event.deposit.CancelWithdrawForDepositEvent;
 import com.nerdysoft.axon.event.deposit.DepositDeletedEvent;
-import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceCommand;
-import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceEvent;
 import com.nerdysoft.axon.event.deposit.WithdrawDepositEvent;
 import com.nerdysoft.entity.deposit.Deposit;
 import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.DepositStatus;
-import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.service.deposit.DepositService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
@@ -111,64 +98,6 @@ public class DepositAggregate {
     }
 
     @CommandHandler
-    public void handle(UpdateWalletBalanceCommand updateWalletBalanceCommand, CommandGateway commandGateway) {
-        if (updateWalletBalanceCommand.getOperationType().equals(OperationType.WITHDRAW)) {
-            WithdrawFromWalletCommand withdrawFromWalletCommand = new WithdrawFromWalletCommand(
-                    updateWalletBalanceCommand.getWalletId(),
-                    updateWalletBalanceCommand.getAmount(),
-                    updateWalletBalanceCommand.getCurrency()
-            );
-
-            CompletableFuture<Object> future = commandGateway.send(withdrawFromWalletCommand);
-            try {
-                future.get();
-            } catch (Exception e) {
-                throw new RuntimeException("Can't withdraw for deposit " + e.getMessage());
-            }
-
-        } else if (updateWalletBalanceCommand.getOperationType().equals(OperationType.DEPOSIT)) {
-            DepositToWalletCommand depositToWalletCommand = new DepositToWalletCommand(
-                    updateWalletBalanceCommand.getWalletId(),
-                    updateWalletBalanceCommand.getAmount(),
-                    updateWalletBalanceCommand.getCurrency()
-            );
-
-            CompletableFuture<Object> future = commandGateway.send(depositToWalletCommand);
-            try {
-                future.get();
-            } catch (Exception e) {
-                throw new RuntimeException("Can't execute deposit to wallet" + e.getMessage());
-            }
-        }
-
-        UpdateWalletBalanceEvent updateWalletBalanceEvent = new UpdateWalletBalanceEvent();
-        BeanUtils.copyProperties(updateWalletBalanceCommand, updateWalletBalanceEvent);
-
-        AggregateLifecycle.apply(updateWalletBalanceEvent);
-    }
-
-    @CommandHandler
-    public void handle(UpdateBankReserveCommand updateBankReserveCommand, CommandGateway commandGateway) {
-        UpdateBalanceCommand updateBalanceCommand = UpdateBalanceCommand.builder()
-                .reserveType(updateBankReserveCommand.getReserveType())
-                .amount(updateBankReserveCommand.getAmount())
-                .operationType(updateBankReserveCommand.getOperationType())
-                .build();
-
-        CompletableFuture<Object> future = commandGateway.send(updateBalanceCommand);
-        try {
-            future.get();
-        } catch (Exception e) {
-            throw new RuntimeException("Can't update bank reserve balance " + e.getMessage());
-        }
-
-        BankReserveUpdatedEvent bankReserveUpdatedEvent = new BankReserveUpdatedEvent();
-        BeanUtils.copyProperties(updateBankReserveCommand, bankReserveUpdatedEvent);
-
-        AggregateLifecycle.apply(bankReserveUpdatedEvent);
-    }
-
-    @CommandHandler
     public void handle(DeleteDepositCommand deleteDepositCommand) {
         DepositDeletedEvent depositDeletedEvent = new DepositDeletedEvent(deleteDepositCommand.getId());
 
@@ -207,13 +136,5 @@ public class DepositAggregate {
         maturityDate = cancelWithdrawDepositEvent.getMaturityDate();
         notificationDate = cancelWithdrawDepositEvent.getNotificationDate();
         depositStatus = cancelWithdrawDepositEvent.getDepositStatus();
-    }
-
-    @CommandHandler
-    public void handle(CancelUpdateWalletBalanceCommand cancelUpdateWalletBalanceCommand) {
-        CancelUpdateWalletBalanceEvent cancelUpdateWalletBalanceEvent = new CancelUpdateWalletBalanceEvent();
-        BeanUtils.copyProperties(cancelUpdateWalletBalanceCommand, cancelUpdateWalletBalanceEvent);
-
-        AggregateLifecycle.apply(cancelUpdateWalletBalanceEvent);
     }
 }

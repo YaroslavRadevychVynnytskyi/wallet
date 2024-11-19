@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.event.deposit;
+package com.nerdysoft.axon.event.wallet;
 
 import com.nerdysoft.model.enums.Currency;
 import com.nerdysoft.model.enums.OperationType;
@@ -8,14 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateWalletBalanceCommand {
-    @TargetAggregateIdentifier
+@Builder
+public class CancelUpdateWalletBalanceEvent {
     private UUID id;
     private UUID walletId;
     private BigDecimal amount;
