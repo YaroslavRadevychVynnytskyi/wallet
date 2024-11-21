@@ -1,7 +1,7 @@
 package com.nerdysoft.feign;
 
 import com.nerdysoft.config.FeignConfig;
-import com.nerdysoft.dto.request.ConvertAmountRequestDto;
+import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;

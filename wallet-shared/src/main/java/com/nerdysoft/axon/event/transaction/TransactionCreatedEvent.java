@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.query;
+package com.nerdysoft.axon.event.transaction;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-public class FindBankReserveByIdQuery {
-  private UUID id;
+@AllArgsConstructor
+public class TransactionCreatedEvent {
+  private UUID transactionId;
 }

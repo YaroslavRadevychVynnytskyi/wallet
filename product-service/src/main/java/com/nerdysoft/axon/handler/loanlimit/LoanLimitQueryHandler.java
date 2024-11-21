@@ -1,28 +1,32 @@
 package com.nerdysoft.axon.handler.loanlimit;
 
 import com.nerdysoft.axon.query.FindLoanLimitByIdQuery;
-import com.nerdysoft.axon.query.FindLoanLimitByWalletIdQuery;
+import com.nerdysoft.axon.query.loanlimit.FindLoanLimitByWalletIdQuery;
+import com.nerdysoft.dto.loanlimit.LoanLimitDto;
 import com.nerdysoft.entity.loanlimit.LoanLimit;
-import com.nerdysoft.repo.loanlimit.LoanLimitRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.nerdysoft.service.loanlimit.LoanLimitService;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.queryhandling.QueryHandler;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class LoanLimitQueryHandler {
-    private final LoanLimitRepository loanLimitRepository;
+    private final LoanLimitService loanLimitService;
 
     @QueryHandler
     public LoanLimit findLoanLimitById(FindLoanLimitByIdQuery query) {
-        return loanLimitRepository.findById(query.getId()).orElseThrow(() ->
-                new EntityNotFoundException("Can't find loan limit with ID: " + query.getId()));
+        return loanLimitService.findById(query.getId());
     }
 
     @QueryHandler
-    public LoanLimit findLoanLimitByWalletId(FindLoanLimitByWalletIdQuery query) {
-        return loanLimitRepository.findByWalletIdAndIsRepaidFalse(query.getWalletId()).orElseThrow(() ->
-                new EntityNotFoundException("Can't find loan limit with wallet ID: " + query.getWalletId()));
+    public LoanLimitDto findLoanLimitByWalletId(FindLoanLimitByWalletIdQuery query) {
+        LoanLimit loanLimit = loanLimitService.getLoanLimitByWalletId(query.getWalletId());
+        LoanLimitDto dto = new LoanLimitDto();
+
+        BeanUtils.copyProperties(loanLimit, dto);
+
+        return dto;
     }
 }

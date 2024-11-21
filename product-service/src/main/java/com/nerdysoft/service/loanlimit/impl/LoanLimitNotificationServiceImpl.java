@@ -26,7 +26,7 @@ public class LoanLimitNotificationServiceImpl implements LoanLimitNotificationSe
     @Scheduled(cron = "0 0 8 * * ?")
     @Override
     public void sendOverdueLoanLimitNotification() {
-        List<LoanLimit> overdueLoans = loanLimitRepository.findOverdueLoans(LocalDateTime.now());
+        List<LoanLimit> overdueLoans = loanLimitRepository.findAllNotRepaidLoanLimitsByDueDate(LocalDateTime.now());
 
         overdueLoans.stream()
                 .map(LoanLimit::getAccountEmail)

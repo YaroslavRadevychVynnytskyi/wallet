@@ -10,14 +10,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionSuccessEvent {
-  private UUID walletId;
+public class WithdrawFromWalletFailureEvent {
+  private UUID transactionId;
 
-  private BigDecimal balance;
+  private UUID walletId;
 
   private BigDecimal amount;
 
-  private Currency currency;
+  private BigDecimal balance;
 
-  private UUID transactionId;
+  private boolean usedLoanLimit;
+
+  private BigDecimal usedLoanLimitAmount;
+
+  private Currency operationCurrency;
 }

@@ -44,15 +44,14 @@ public class LoanLimit {
     private BigDecimal initialAmount;
 
     @Column(nullable = false)
-    private boolean isRepaid;
+    private boolean repaid;
 
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @Column(nullable = false)
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    private LocalDateTime dueDate = LocalDateTime.now().plusMonths(1).withDayOfMonth(25);
+    private final LocalDateTime dueDate = LocalDateTime.now().plusMonths(1).withDayOfMonth(25);
 
     public LoanLimit(UUID accountId, String accountEmail, UUID walletId, Currency currency, BigDecimal initialAmount) {
         this.accountId = accountId;

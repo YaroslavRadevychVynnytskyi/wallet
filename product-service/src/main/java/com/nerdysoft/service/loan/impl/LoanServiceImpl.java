@@ -54,24 +54,24 @@ public class LoanServiceImpl implements LoanService {
 
         Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, currency).getBody();
 
-        BigDecimal maxBalanceForLastMonth = walletBalanceAnalyzer.getMaxBalanceForLastMonth(wallet.walletId());
-        BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.walletId(), wallet.currency());
+        BigDecimal maxBalanceForLastMonth = walletBalanceAnalyzer.getMaxBalanceForLastMonth(wallet.getWalletId());
+        BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.getWalletId(), wallet.getCurrency());
 
         LoanHandler loanHandler = loanStrategy.get(
-                convertToUsd(wallet.currency(), maxBalanceForLastMonth),
-                convertToUsd(wallet.currency(), turnoverForLastMonth)
+                convertToUsd(wallet.getCurrency(), maxBalanceForLastMonth),
+                convertToUsd(wallet.getCurrency(), turnoverForLastMonth)
         );
 
         BigDecimal usdLoanAmount = convertToUsd(requestedAmount, currency);
         LoanDetails loanDetails = loanHandler.getLoan(usdLoanAmount);
 
-        BigDecimal walletCurrencyRepaymentAmount = convert(Currency.USD, wallet.currency(), loanDetails.getRepaymentAmount());
+        BigDecimal walletCurrencyRepaymentAmount = convert(Currency.USD, wallet.getCurrency(), loanDetails.getRepaymentAmount());
 
         Loan loan = Loan.builder()
                 .accountId(accountId)
                 .accountEmail(email)
-                .walletId(wallet.walletId())
-                .walletCurrency(wallet.currency())
+                .walletId(wallet.getWalletId())
+                .walletCurrency(wallet.getCurrency())
                 .approvalStatus(loanDetails.getApprovalStatus())
                 .paymentType(paymentType)
                 .walletCurrencyLoanAmount(requestedAmount)
@@ -95,7 +95,7 @@ public class LoanServiceImpl implements LoanService {
             UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(
                 ReserveType.LOAN)).getBody();
             bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.LOAN, usdLoanAmount, OperationType.WITHDRAW));
-            walletFeignClient.deposit(wallet.walletId(), new TransactionRequestDto(loan.getWalletCurrencyLoanAmount(), wallet.currency()));
+            walletFeignClient.deposit(wallet.getWalletId(), new TransactionRequestDto(loan.getWalletCurrencyLoanAmount(), wallet.getCurrency()));
         }
 
         return loanRepository.save(loan);

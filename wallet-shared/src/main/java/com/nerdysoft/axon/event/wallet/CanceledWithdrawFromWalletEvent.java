@@ -1,6 +1,5 @@
 package com.nerdysoft.axon.event.wallet;
 
-import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -10,12 +9,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionFailureEvent {
+public class CanceledWithdrawFromWalletEvent {
   private UUID walletId;
 
-  private BigDecimal amount;
-
-  private Currency currency;
-
   private UUID transactionId;
+
+  private BigDecimal balance;
 }

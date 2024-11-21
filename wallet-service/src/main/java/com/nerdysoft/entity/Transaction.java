@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -38,9 +39,18 @@ public class Transaction {
   @Column(nullable = false)
   private BigDecimal amount;
 
-  @Enumerated(EnumType.STRING)
-  private Currency currency;
+  @Column(nullable = false)
+  private boolean usedLoanLimit;
 
+  private BigDecimal usedLoanLimitAmount;
+
+  @Enumerated(EnumType.STRING)
+  private Currency operationCurrency;
+
+  @Enumerated(EnumType.STRING)
+  private Currency walletCurrency;
+
+  @Setter
   @Enumerated(EnumType.STRING)
   private TransactionStatus status;
 
