@@ -23,7 +23,6 @@ import org.springframework.beans.BeanUtils;
 public class BankReserveAggregate {
   @AggregateIdentifier
   private ReserveType reserveType;
-  private BigDecimal totalFunds;
 
   @CommandHandler
   public BankReserveAggregate(CreateBalanceCommand createBalanceCommand,
@@ -39,7 +38,6 @@ public class BankReserveAggregate {
   @EventSourcingHandler
   public void on(BalanceCreatedEvent balanceCreatedEvent) {
     reserveType = balanceCreatedEvent.getType();
-    totalFunds = balanceCreatedEvent.getTotalFunds();
   }
 
   @CommandHandler
@@ -60,10 +58,5 @@ public class BankReserveAggregate {
 
     AggregateLifecycle.apply(updateBalanceEvent);
     return updateBalanceResponseDto;
-  }
-
-  @EventSourcingHandler
-  public void on(BalanceUpdatedEvent updateBalanceEvent) {
-    totalFunds = updateBalanceEvent.getBalance();
   }
 }
