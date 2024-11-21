@@ -8,6 +8,7 @@ import com.nerdysoft.dto.response.ConvertAmountResponseDto;
 import com.nerdysoft.dto.response.ExchangeRateResponseDto;
 import com.nerdysoft.entity.ExchangeRate;
 import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.exception.UniqueException;
 import com.nerdysoft.repo.ExchangeRateRepository;
 import com.nerdysoft.service.CurrencyExchangeService;
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -74,17 +76,21 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
     @Override
     public ExchangeRate fetchExchangeRates(String baseCode) {
-        ConversionRatesDto rates = webClient.get()
+        Optional<ConversionRatesDto> rates = Optional.ofNullable(webClient.get()
                 .uri(exchangeApiUrl + baseCode)
                 .retrieve()
                 .bodyToMono(ConversionRatesDto.class)
-                .block();
+                .block());
 
-        return ExchangeRate.builder()
+        if (rates.isPresent()) {
+            return ExchangeRate.builder()
                 .baseCode(baseCode)
-                .conversionRates(rates.conversionRates())
+                .conversionRates(rates.get().conversionRates())
                 .timestamp(LocalDateTime.now())
                 .build();
+        } else {
+            throw new UniqueException(String.format("%s not found", baseCode), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Override
