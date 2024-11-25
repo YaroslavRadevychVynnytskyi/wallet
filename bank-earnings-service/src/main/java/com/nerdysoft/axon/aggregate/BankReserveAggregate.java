@@ -2,8 +2,10 @@ package com.nerdysoft.axon.aggregate;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
 import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankearnings.UpdateBankReserveCommand;
 import com.nerdysoft.axon.event.bankreserve.BalanceCreatedEvent;
 import com.nerdysoft.axon.event.bankreserve.BalanceUpdatedEvent;
+import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
 import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;
@@ -72,5 +74,13 @@ public class BankReserveAggregate {
     @EventSourcingHandler
     public void on(BalanceUpdatedEvent updateBalanceEvent) {
         totalFunds = updateBalanceEvent.getBalance();
+    }
+
+    @CommandHandler
+    public void handle(UpdateBankReserveCommand updateBankReserveCommand) {
+        BankReserveUpdatedEvent bankReserveUpdatedEvent = new BankReserveUpdatedEvent();
+        BeanUtils.copyProperties(updateBankReserveCommand, bankReserveUpdatedEvent);
+
+        AggregateLifecycle.apply(bankReserveUpdatedEvent);
     }
 }

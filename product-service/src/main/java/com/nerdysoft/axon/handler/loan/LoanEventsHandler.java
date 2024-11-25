@@ -1,5 +1,6 @@
 package com.nerdysoft.axon.handler.loan;
 
+import com.nerdysoft.axon.event.loan.DeleteLoanEvent;
 import com.nerdysoft.axon.event.loan.RepayLoanEvent;
 import com.nerdysoft.service.loan.LoanService;
 import lombok.RequiredArgsConstructor;
@@ -14,5 +15,10 @@ public class LoanEventsHandler {
     @EventHandler
     public void on(RepayLoanEvent event) {
         loanService.manualLoanRepay(event.getAccountId());
+    }
+
+    @EventHandler
+    public void on(DeleteLoanEvent event) {
+        loanService.deleteById(event.getId());
     }
 }

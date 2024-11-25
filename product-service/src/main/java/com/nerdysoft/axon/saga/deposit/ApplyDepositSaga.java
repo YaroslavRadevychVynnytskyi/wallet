@@ -1,15 +1,15 @@
-package com.nerdysoft.axon.saga;
+package com.nerdysoft.axon.saga.deposit;
 
+import com.nerdysoft.axon.command.bankearnings.UpdateBankReserveCommand;
 import com.nerdysoft.axon.command.deposit.CancelWithdrawForDepositCommand;
 import com.nerdysoft.axon.command.deposit.DeleteDepositCommand;
-import com.nerdysoft.axon.command.deposit.UpdateBankReserveCommand;
 import com.nerdysoft.axon.command.deposit.WithdrawForDepositCommand;
 import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
 import com.nerdysoft.axon.event.deposit.ApplyDepositEvent;
 import com.nerdysoft.axon.event.deposit.CancelWithdrawForDepositEvent;
 import com.nerdysoft.axon.event.deposit.DepositDeletedEvent;
-import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceCommand;
-import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceEvent;
+import com.nerdysoft.axon.event.wallet.UpdateWalletBalanceCommand;
+import com.nerdysoft.axon.event.wallet.UpdateWalletBalanceEvent;
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;
 import lombok.extern.log4j.Log4j2;

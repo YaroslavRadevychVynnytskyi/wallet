@@ -13,4 +13,6 @@ public interface LoanService {
     LoanPayment manualLoanRepay(UUID accountId);
 
     void autoLoanRepay();
+
+    void deleteById(UUID loanId);
 }

@@ -1,13 +1,13 @@
-package com.nerdysoft.axon.saga;
+package com.nerdysoft.axon.saga.deposit;
 
-import com.nerdysoft.axon.command.deposit.CancelUpdateWalletBalanceCommand;
+import com.nerdysoft.axon.command.bankearnings.UpdateBankReserveCommand;
 import com.nerdysoft.axon.command.deposit.CancelWithdrawDepositCommand;
-import com.nerdysoft.axon.command.deposit.UpdateBankReserveCommand;
+import com.nerdysoft.axon.command.wallet.CancelUpdateWalletBalanceCommand;
 import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
-import com.nerdysoft.axon.event.deposit.CancelUpdateWalletBalanceEvent;
+import com.nerdysoft.axon.event.wallet.CancelUpdateWalletBalanceEvent;
 import com.nerdysoft.axon.event.deposit.CancelWithdrawDepositEvent;
-import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceCommand;
-import com.nerdysoft.axon.event.deposit.UpdateWalletBalanceEvent;
+import com.nerdysoft.axon.event.wallet.UpdateWalletBalanceCommand;
+import com.nerdysoft.axon.event.wallet.UpdateWalletBalanceEvent;
 import com.nerdysoft.axon.event.deposit.WithdrawDepositEvent;
 import com.nerdysoft.axon.query.FindAvailableForWithdrawalDepositByAccountIdQuery;
 import com.nerdysoft.entity.deposit.Deposit;
