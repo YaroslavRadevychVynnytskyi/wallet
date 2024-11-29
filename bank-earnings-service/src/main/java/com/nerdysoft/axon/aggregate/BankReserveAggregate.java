@@ -1,9 +1,11 @@
 package com.nerdysoft.axon.aggregate;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
-import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankreserve.ReceiveCommissionCommand;
+import com.nerdysoft.axon.command.bankreserve.UpdateBalanceCommand;
 import com.nerdysoft.axon.event.bankreserve.BalanceCreatedEvent;
 import com.nerdysoft.axon.event.bankreserve.BalanceUpdatedEvent;
+import com.nerdysoft.axon.event.bankreserve.ReceivedCommissionEvent;
 import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;
@@ -58,5 +60,27 @@ public class BankReserveAggregate {
 
     AggregateLifecycle.apply(updateBalanceEvent);
     return updateBalanceResponseDto;
+  }
+
+  @CommandHandler
+  public void handle(ReceiveCommissionCommand command, BankReserveService bankReserveService) {
+    bankReserveService.receiveCommission(command.getReserveType(), command.getCommission());
+
+    ReceivedCommissionEvent event = ReceivedCommissionEvent.builder()
+        .commissionId(command.getCommissionId())
+        .transactionId(command.getTransactionId())
+        .loanLimitId(command.getLoanLimitId())
+        .accountId(command.getAccountId())
+        .fromWalletId(command.getFromWalletId())
+        .toWalletId(command.getToWalletId())
+        .cleanAmount(command.getCleanAmount())
+        .operationCurrency(command.getOperationCurrency())
+        .walletCurrency(command.getWalletCurrency())
+        .usedLoanLimit(command.isUsedLoanLimit())
+        .usedLoanLimitAmount(command.getUsedLoanLimitAmount())
+        .commission(command.getCommission())
+        .build();
+
+    AggregateLifecycle.apply(event);
   }
 }

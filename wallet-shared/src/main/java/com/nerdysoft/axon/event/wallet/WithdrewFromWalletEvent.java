@@ -10,8 +10,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WithdrawFromWalletFailureEvent {
+public class WithdrewFromWalletEvent {
   private UUID transactionId;
+
+  private UUID accountId;
 
   private UUID walletId;
 

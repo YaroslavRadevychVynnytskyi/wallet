@@ -1,17 +1,15 @@
 package com.nerdysoft.axon.command.loanlimit;
 
-import com.nerdysoft.model.enums.Currency;
 import java.util.UUID;
-import lombok.Builder;
-import lombok.Data;
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
-@Builder
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TakeLoanLimitCommand {
-    @TargetAggregateIdentifier
-    private UUID id;
     private UUID accountId;
-    private String accountEmail;
-    private Currency currency;
+
+    private String email;
 }

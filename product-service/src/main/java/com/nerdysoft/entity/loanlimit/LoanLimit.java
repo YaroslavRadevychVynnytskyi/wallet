@@ -1,28 +1,25 @@
 package com.nerdysoft.entity.loanlimit;
 
-import com.nerdysoft.model.enums.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.EqualsAndHashCode;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@Builder
 @NoArgsConstructor
-@ToString
+@AllArgsConstructor
 public class LoanLimit {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,10 +29,7 @@ public class LoanLimit {
     private UUID accountId;
 
     @Column(nullable = false)
-    private String accountEmail;
-
-    @Column(nullable = false)
-    private UUID walletId;
+    private String email;
 
     @Column(nullable = false)
     private BigDecimal availableAmount;
@@ -46,19 +40,5 @@ public class LoanLimit {
     @Column(nullable = false)
     private boolean repaid;
 
-    @Enumerated(EnumType.STRING)
-    private Currency currency;
-
-    private LocalDateTime timestamp = LocalDateTime.now();
-
     private final LocalDateTime dueDate = LocalDateTime.now().plusMonths(1).withDayOfMonth(25);
-
-    public LoanLimit(UUID accountId, String accountEmail, UUID walletId, Currency currency, BigDecimal initialAmount) {
-        this.accountId = accountId;
-        this.accountEmail = accountEmail;
-        this.walletId = walletId;
-        this.availableAmount = initialAmount;
-        this.initialAmount = initialAmount;
-        this.currency = currency;
-    }
 }

@@ -4,6 +4,7 @@ import com.nerdysoft.annotation.BasicInfoController;
 import com.nerdysoft.axon.command.wallet.CreateWalletCommand;
 import com.nerdysoft.axon.command.wallet.DeleteWalletCommand;
 import com.nerdysoft.axon.command.wallet.DepositToWalletCommand;
+import com.nerdysoft.axon.command.wallet.TransferToAnotherWalletCommand;
 import com.nerdysoft.axon.command.wallet.UpdateWalletCurrencyCommand;
 import com.nerdysoft.axon.command.wallet.WithdrawFromWalletCommand;
 import com.nerdysoft.axon.query.wallet.FindWalletByAccountIdAndCurrencyQuery;
@@ -76,10 +77,9 @@ public class WalletController {
 
   @PostMapping("{walletId}/transfer")
   private ResponseEntity<TransferResponseDto> transfer(@PathVariable UUID walletId, @RequestBody TransferRequestDto dto) {
-    return null;
-//    return new ResponseEntity<>((TransferResponseDto) commandGateway.sendAndWait(
-//        null));
-//        new TransferToAnotherWalletCommand(walletId, dto.toWalletId(), dto.amount(), dto.currency())), HttpStatus.ACCEPTED);
+    TransferToAnotherWalletCommand command = new TransferToAnotherWalletCommand(walletId, dto.getToWalletId(),
+        dto.getAmount(), dto.getCurrency());
+    return new ResponseEntity<>((TransferResponseDto) commandGateway.sendAndWait(command), HttpStatus.ACCEPTED);
   }
 
   @GetMapping("account/{accountId}")

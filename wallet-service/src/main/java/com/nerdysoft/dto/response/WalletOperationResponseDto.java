@@ -15,6 +15,8 @@ import lombok.experimental.SuperBuilder;
 public abstract class WalletOperationResponseDto {
   private UUID transactionId;
 
+  private UUID accountId;
+
   private BigDecimal amount;
 
   private BigDecimal walletBalance;

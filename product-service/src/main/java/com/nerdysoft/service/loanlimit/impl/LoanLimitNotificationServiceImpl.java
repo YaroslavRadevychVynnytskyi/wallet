@@ -29,7 +29,7 @@ public class LoanLimitNotificationServiceImpl implements LoanLimitNotificationSe
         List<LoanLimit> overdueLoans = loanLimitRepository.findAllNotRepaidLoanLimitsByDueDate(LocalDateTime.now());
 
         overdueLoans.stream()
-                .map(LoanLimit::getAccountEmail)
+                .map(LoanLimit::getEmail)
                 .forEach(e -> notificationService.sendEmail(e, subject, body));
     }
 }

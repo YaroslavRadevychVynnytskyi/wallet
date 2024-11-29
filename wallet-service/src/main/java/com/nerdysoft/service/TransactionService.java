@@ -5,6 +5,7 @@ import com.nerdysoft.entity.Transaction;
 import com.nerdysoft.model.enums.TransactionStatus;
 import com.nerdysoft.repository.TransactionRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,13 @@ public class TransactionService {
         .orElseThrow(() -> new EntityNotFoundException("Transaction not found"));
   }
 
+  public List<Transaction> findSuccessfulTransactionsByAccountIdInLastMonth(UUID accountId) {
+    return transactionRepository.findSuccessfulTransactionsByAccountIdInLastMonth(accountId, LocalDateTime.now().minusMonths(1));
+  }
+
   public Transaction saveTransaction(CreateTransactionCommand command) {
     Transaction.TransactionBuilder builder = Transaction.builder()
+        .accountId(command.getAccountId())
         .walletId(command.getWalletId())
         .walletBalance(command.getWalletBalance())
         .amount(command.getAmount())
@@ -36,6 +42,7 @@ public class TransactionService {
 
     if (command.getToWalletId() != null) {
       builder.toWalletId(command.getToWalletId());
+      builder.commission(command.getCommission());
     }
 
     return transactionRepository.save(builder.build());

@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.command.bankearnings;
+package com.nerdysoft.axon.command.bankreserve;
 
 import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.ReserveType;

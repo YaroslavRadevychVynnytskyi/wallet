@@ -12,8 +12,8 @@ public interface LoanLimitRepository extends JpaRepository<LoanLimit, UUID> {
     @Query("SELECT COUNT(ll) > 0 FROM LoanLimit ll WHERE ll.accountId = :accountId AND ll.repaid = FALSE")
     boolean checkIfExistsNotRepaidLoanLimitByAccountId(UUID accountId);
 
-    @Query("SELECT ll FROM LoanLimit ll WHERE ll.walletId = :walletId AND ll.repaid = FALSE")
-    Optional<LoanLimit> findNotRepaidLoanLimitByWalletId(UUID walletId);
+//    @Query("SELECT ll FROM LoanLimit ll WHERE ll.walletId = :walletId AND ll.repaid = FALSE")
+//    Optional<LoanLimit> findNotRepaidLoanLimitByWalletId(UUID walletId);
 
     @Query("SELECT ll FROM LoanLimit ll WHERE ll.accountId = :accountId AND ll.repaid = FALSE")
     Optional<LoanLimit> findNotRepaidLoanLimitByAccountId(UUID accountId);

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubtractedFromLoanLimitEvent {
+public class UpdatedLoanLimitAfterWithdrawEvent {
   private UUID transactionId;
 
   private UUID loanLimitId;

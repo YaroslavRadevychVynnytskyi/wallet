@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 public class DepositToWalletSuccessEvent {
   private UUID transactionId;
 
+  private UUID accountId;
+
   private UUID walletId;
 
   private BigDecimal amount;

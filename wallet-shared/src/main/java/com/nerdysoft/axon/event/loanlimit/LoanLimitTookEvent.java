@@ -1,21 +1,29 @@
 package com.nerdysoft.axon.event.loanlimit;
 
-import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
-public class TakeLoanLimitEvent {
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoanLimitTookEvent {
     private UUID id;
+
     private UUID accountId;
-    private String accountEmail;
-    private UUID walletId;
+
+    private String email;
+
     private BigDecimal availableAmount;
+
     private BigDecimal initialAmount;
-    private boolean isRepaid;
-    private Currency currency;
-    private LocalDateTime timestamp;
+
+    private boolean repaid;
+
     private LocalDateTime dueDate;
 }

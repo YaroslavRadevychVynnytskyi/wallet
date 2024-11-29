@@ -1,9 +1,9 @@
 package com.nerdysoft.axon.handler;
 
-import com.nerdysoft.axon.query.CalculateCommissionQuery;
+import com.nerdysoft.axon.query.commission.CalculateCommissionQuery;
 import com.nerdysoft.axon.query.FindCommissionByIdQuery;
 import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
-import com.nerdysoft.dto.api.response.CalcCommissionResponseDto;
+import com.nerdysoft.dto.commission.CalcCommissionResponseDto;
 import com.nerdysoft.entity.Commission;
 import com.nerdysoft.service.CommissionService;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,8 @@ public class CommissionQueryHandler {
 
   @QueryHandler
   public CalcCommissionResponseDto handle(CalculateCommissionQuery query) {
-    CalcCommissionRequestDto dto = new CalcCommissionRequestDto(query.getWalletAmount(), query.isLoanLimitUsed(),
-        query.getLoanLimitAmount(), query.getFromWalletCurrency(), query.getToWalletCurrency(),
+    CalcCommissionRequestDto dto = new CalcCommissionRequestDto(query.getUsedWalletOwnAmount(), query.isLoanLimitUsed(),
+        query.getUsedLoanLimitAmount(), query.getFromWalletCurrency(), query.getToWalletCurrency(),
         query.getTransactionCurrency());
     return commissionService.calculateCommission(dto);
   }
