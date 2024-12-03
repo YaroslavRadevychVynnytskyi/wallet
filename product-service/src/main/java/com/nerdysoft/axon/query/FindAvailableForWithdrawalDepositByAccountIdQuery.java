@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.event.deposit;
+package com.nerdysoft.axon.query;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WithdrawDepositEvent {
-    private UUID id;
+public class FindAvailableForWithdrawalDepositByAccountIdQuery {
     private UUID accountId;
 }

@@ -1,6 +1,7 @@
 package com.nerdysoft.axon.handler.deposit;
 
 import com.nerdysoft.axon.command.wallet.DepositToWalletCommand;
+import com.nerdysoft.axon.event.deposit.CancelWithdrawDepositEvent;
 import com.nerdysoft.axon.event.deposit.CancelWithdrawForDepositEvent;
 import com.nerdysoft.axon.event.deposit.DepositDeletedEvent;
 import com.nerdysoft.axon.event.deposit.WithdrawDepositEvent;
@@ -35,5 +36,14 @@ public class DepositEventsHandler {
     @EventHandler
     public void on(DepositDeletedEvent depositDeletedEvent) {
         depositService.deleteById(depositDeletedEvent.getId());
+    }
+
+    @EventHandler
+    public void on(CancelWithdrawDepositEvent cancelWithdrawDepositEvent) {
+        depositService.cancelWithdrawDeposit(cancelWithdrawDepositEvent.getId(),
+                cancelWithdrawDepositEvent.getAmount(),
+                cancelWithdrawDepositEvent.getMaturityDate(),
+                cancelWithdrawDepositEvent.getNotificationDate(),
+                cancelWithdrawDepositEvent.getDepositStatus());
     }
 }

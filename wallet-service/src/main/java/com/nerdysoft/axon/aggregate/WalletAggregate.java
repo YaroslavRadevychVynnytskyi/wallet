@@ -1,6 +1,7 @@
 package com.nerdysoft.axon.aggregate;
 
 import com.nerdysoft.axon.command.wallet.CancelTransferToAnotherWalletCommand;
+import com.nerdysoft.axon.command.wallet.CancelUpdateWalletBalanceCommand;
 import com.nerdysoft.axon.command.wallet.CancelWithdrawFromWalletCommand;
 import com.nerdysoft.axon.command.wallet.CreateWalletCommand;
 import com.nerdysoft.axon.command.wallet.DeleteWalletCommand;
@@ -9,10 +10,13 @@ import com.nerdysoft.axon.command.wallet.TransferToAnotherWalletCommand;
 import com.nerdysoft.axon.command.wallet.UpdateReceiveWalletBalanceCommand;
 import com.nerdysoft.axon.command.wallet.UpdateWalletCurrencyCommand;
 import com.nerdysoft.axon.command.wallet.WithdrawFromWalletCommand;
+import com.nerdysoft.axon.event.wallet.CancelUpdateWalletBalanceEvent;
 import com.nerdysoft.axon.event.wallet.CanceledTransferToAnotherWalletEvent;
 import com.nerdysoft.axon.event.wallet.CanceledWithdrawFromWalletEvent;
 import com.nerdysoft.axon.event.wallet.DepositToWalletSuccessEvent;
 import com.nerdysoft.axon.event.wallet.TransferredToAnotherWalletEvent;
+import com.nerdysoft.axon.event.wallet.UpdateWalletBalanceCommand;
+import com.nerdysoft.axon.event.wallet.UpdateWalletBalanceEvent;
 import com.nerdysoft.axon.event.wallet.UpdatedReceiveWalletBalanceEvent;
 import com.nerdysoft.axon.event.wallet.UpdatedWalletCurrencyEvent;
 import com.nerdysoft.axon.event.wallet.WalletCreatedEvent;
@@ -35,6 +39,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.springframework.beans.BeanUtils;
 
 @Aggregate
 @NoArgsConstructor
@@ -176,5 +181,21 @@ public class WalletAggregate {
         .build();
 
     AggregateLifecycle.apply(event);
+  }
+
+  @CommandHandler
+  public void handle(UpdateWalletBalanceCommand updateWalletBalanceCommand) {
+    UpdateWalletBalanceEvent updateWalletBalanceEvent = new UpdateWalletBalanceEvent();
+    BeanUtils.copyProperties(updateWalletBalanceCommand, updateWalletBalanceEvent);
+
+    AggregateLifecycle.apply(updateWalletBalanceEvent);
+  }
+
+  @CommandHandler
+  public void handle(CancelUpdateWalletBalanceCommand cancelUpdateWalletBalanceCommand) {
+    CancelUpdateWalletBalanceEvent cancelUpdateWalletBalanceEvent = new CancelUpdateWalletBalanceEvent();
+    BeanUtils.copyProperties(cancelUpdateWalletBalanceCommand, cancelUpdateWalletBalanceEvent);
+
+    AggregateLifecycle.apply(cancelUpdateWalletBalanceEvent);
   }
 }

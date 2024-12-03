@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.command.deposit;
+package com.nerdysoft.axon.command.loan;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -9,8 +9,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WithdrawDepositCommand {
+public class HandleRejectedLoanCommand {
     @TargetAggregateIdentifier
     private UUID id;
-    private UUID accountId;
 }

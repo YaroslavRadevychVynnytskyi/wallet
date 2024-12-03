@@ -40,12 +40,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LoanServiceImpl implements LoanService {
     private final CurrencyExchangeFeignClient currencyExchangeFeignClient;
-    private final BankReserveFeignClient bankReserveFeignClient;
     private final WalletBalanceAnalyzer walletBalanceAnalyzer;
     private final WalletFeignClient walletFeignClient;
     private final LoanStrategy loanStrategy;
     private final LoanRepository loanRepository;
     private final LoanPaymentRepository loanPaymentRepository;
+    private final BankReserveFeignClient bankReserveFeignClient;
 
     @Transactional
     @Override
@@ -125,6 +125,11 @@ public class LoanServiceImpl implements LoanService {
 
         loans.forEach(this::commitPayment);
         loanRepository.saveAll(loans);
+    }
+
+    @Override
+    public void deleteById(UUID loanId) {
+        loanRepository.deleteById(loanId);
     }
 
     private void hasExistingLoan(UUID accountId) {

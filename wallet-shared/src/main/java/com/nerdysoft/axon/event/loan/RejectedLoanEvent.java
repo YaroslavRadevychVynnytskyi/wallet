@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.event.deposit;
+package com.nerdysoft.axon.event.loan;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WithdrawDepositEvent {
+public class RejectedLoanEvent {
     private UUID id;
-    private UUID accountId;
 }

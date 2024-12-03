@@ -1,8 +1,12 @@
 package com.nerdysoft.axon.aggregate;
 
 import com.nerdysoft.axon.command.loan.ApplyLoanCommand;
+import com.nerdysoft.axon.command.loan.DeleteLoanCommand;
+import com.nerdysoft.axon.command.loan.HandleRejectedLoanCommand;
 import com.nerdysoft.axon.command.loan.RepayLoanCommand;
 import com.nerdysoft.axon.event.loan.ApplyLoanEvent;
+import com.nerdysoft.axon.event.loan.DeleteLoanEvent;
+import com.nerdysoft.axon.event.loan.RejectedLoanEvent;
 import com.nerdysoft.axon.event.loan.RepayLoanEvent;
 import com.nerdysoft.entity.loan.Loan;
 import com.nerdysoft.model.enums.ApprovalStatus;
@@ -102,5 +106,24 @@ public class LoanAggregate {
         if (totalPaymentsMade.compareTo(repaymentTermInMonths) == 0) {
             this.repaymentStatus = RepaymentStatus.COMPLETED;
         }
+    }
+
+    @CommandHandler
+    public void handle(HandleRejectedLoanCommand handleRejectedLoanCommand) {
+        RejectedLoanEvent rejectedLoanEvent = new RejectedLoanEvent(handleRejectedLoanCommand.getId());
+
+        AggregateLifecycle.apply(rejectedLoanEvent);
+    }
+
+    @CommandHandler
+    public void handle(DeleteLoanCommand deleteLoanCommand) {
+        DeleteLoanEvent deleteLoanEvent = new DeleteLoanEvent(deleteLoanCommand.getId());
+
+        AggregateLifecycle.apply(deleteLoanEvent);
+    }
+
+    @EventSourcingHandler
+    public void on(DeleteLoanEvent deleteLoanEvent) {
+        AggregateLifecycle.markDeleted();
     }
 }
