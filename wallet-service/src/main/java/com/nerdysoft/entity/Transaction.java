@@ -29,6 +29,9 @@ public class Transaction {
   private UUID transactionId;
 
   @Column(nullable = false)
+  private UUID accountId;
+
+  @Column(nullable = false)
   private UUID walletId;
 
   private UUID toWalletId;
@@ -43,6 +46,8 @@ public class Transaction {
   private boolean usedLoanLimit;
 
   private BigDecimal usedLoanLimitAmount;
+
+  private BigDecimal commission;
 
   @Enumerated(EnumType.STRING)
   private Currency operationCurrency;

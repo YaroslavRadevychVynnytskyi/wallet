@@ -2,10 +2,14 @@ package com.nerdysoft.axon.event.loanlimit;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@NoArgsConstructor
 @AllArgsConstructor
-public class RepayLoanLimitEvent {
+public class LoanLimitRepaidEvent {
+    private UUID loanLimitId;
+
     private UUID accountId;
 }

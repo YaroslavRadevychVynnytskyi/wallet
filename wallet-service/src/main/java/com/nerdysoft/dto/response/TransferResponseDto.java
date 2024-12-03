@@ -14,7 +14,9 @@ public class TransferResponseDto extends WalletOperationResponseDto {
 
   private UUID toWalletId;
 
-  private boolean isUsedLoanLimit;
+  private boolean usedLoanLimit;
 
   private BigDecimal usedLoanLimitAmount;
+
+  private BigDecimal commission;
 }

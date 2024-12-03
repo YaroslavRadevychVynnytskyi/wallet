@@ -1,6 +1,6 @@
 package com.nerdysoft.axon.aggregate;
 
-import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankreserve.UpdateBalanceCommand;
 import com.nerdysoft.axon.command.deposit.ApplyDepositCommand;
 import com.nerdysoft.axon.command.deposit.CancelWithdrawForDepositCommand;
 import com.nerdysoft.axon.command.deposit.DeleteDepositCommand;

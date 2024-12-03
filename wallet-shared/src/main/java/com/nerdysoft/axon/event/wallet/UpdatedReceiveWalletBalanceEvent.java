@@ -4,24 +4,36 @@ import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WithdrawFromWalletSuccessEvent {
+public class UpdatedReceiveWalletBalanceEvent {
+  private UUID commissionId;
+
   private UUID transactionId;
 
-  private UUID walletId;
+  private UUID loanLimitId;
 
-  private BigDecimal amount;
+  private UUID accountId;
 
-  private BigDecimal balance;
+  private UUID fromWalletId;
+
+  private UUID toWalletId;
+
+  private BigDecimal cleanAmount;
+
+  private Currency operationCurrency;
+
+  private Currency walletCurrency;
 
   private boolean usedLoanLimit;
 
   private BigDecimal usedLoanLimitAmount;
 
-  private Currency operationCurrency;
+  private BigDecimal commission;
 }

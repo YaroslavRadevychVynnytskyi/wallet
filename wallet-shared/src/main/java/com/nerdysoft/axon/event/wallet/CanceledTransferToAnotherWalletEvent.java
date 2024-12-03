@@ -1,4 +1,4 @@
-package com.nerdysoft.axon.query.loanlimit;
+package com.nerdysoft.axon.event.wallet;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-public class FindLoanLimitByWalletIdQuery {
-    private UUID walletId;
+@AllArgsConstructor
+public class CanceledTransferToAnotherWalletEvent {
+  private UUID transactionId;
 }

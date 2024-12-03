@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateTransactionCommand {
+  private UUID accountId;
+
   private UUID walletId;
 
   private BigDecimal walletBalance;
@@ -25,6 +27,8 @@ public class CreateTransactionCommand {
   private BigDecimal usedLoanLimitAmount;
 
   private UUID toWalletId;
+
+  private BigDecimal commission;
 
   private Currency operationCurrency;
 

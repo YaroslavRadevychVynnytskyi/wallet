@@ -1,0 +1,44 @@
+package com.nerdysoft.axon.command.bankreserve;
+
+import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.ReserveType;
+import java.math.BigDecimal;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ReceiveCommissionCommand {
+  @TargetAggregateIdentifier
+  private ReserveType reserveType;
+
+  private UUID commissionId;
+
+  private UUID transactionId;
+
+  private UUID loanLimitId;
+
+  private UUID accountId;
+
+  private UUID fromWalletId;
+
+  private UUID toWalletId;
+
+  private BigDecimal cleanAmount;
+
+  private Currency operationCurrency;
+
+  private Currency walletCurrency;
+
+  private boolean usedLoanLimit;
+
+  private BigDecimal usedLoanLimitAmount;
+
+  private BigDecimal commission;
+}

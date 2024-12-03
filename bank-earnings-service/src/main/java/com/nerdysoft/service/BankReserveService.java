@@ -1,7 +1,7 @@
 package com.nerdysoft.service;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
-import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankreserve.UpdateBalanceCommand;
 import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
 import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.model.reserve.BankReserve;
@@ -17,11 +17,11 @@ public interface BankReserveService {
 
     Optional<BankReserve> getByName(ReserveType reserveType);
 
-    BankReserve findById(UUID id);
-
     UUID getBankReserveIdByType(ReserveType type);
 
     boolean hasAllReserveTypesStored();
 
     BankReserve findByReserveType(ReserveType reserveType);
+
+    void receiveCommission(ReserveType reserveType, BigDecimal commission);
 }

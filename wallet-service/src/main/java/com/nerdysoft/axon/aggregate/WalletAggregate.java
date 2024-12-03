@@ -1,34 +1,36 @@
 package com.nerdysoft.axon.aggregate;
 
+import com.nerdysoft.axon.command.wallet.CancelTransferToAnotherWalletCommand;
 import com.nerdysoft.axon.command.wallet.CancelWithdrawFromWalletCommand;
 import com.nerdysoft.axon.command.wallet.CreateWalletCommand;
 import com.nerdysoft.axon.command.wallet.DeleteWalletCommand;
 import com.nerdysoft.axon.command.wallet.DepositToWalletCommand;
 import com.nerdysoft.axon.command.wallet.TransferToAnotherWalletCommand;
+import com.nerdysoft.axon.command.wallet.UpdateReceiveWalletBalanceCommand;
 import com.nerdysoft.axon.command.wallet.UpdateWalletCurrencyCommand;
 import com.nerdysoft.axon.command.wallet.WithdrawFromWalletCommand;
+import com.nerdysoft.axon.event.wallet.CanceledTransferToAnotherWalletEvent;
 import com.nerdysoft.axon.event.wallet.CanceledWithdrawFromWalletEvent;
-import com.nerdysoft.axon.event.wallet.DepositToWalletFailureEvent;
 import com.nerdysoft.axon.event.wallet.DepositToWalletSuccessEvent;
+import com.nerdysoft.axon.event.wallet.TransferredToAnotherWalletEvent;
+import com.nerdysoft.axon.event.wallet.UpdatedReceiveWalletBalanceEvent;
 import com.nerdysoft.axon.event.wallet.UpdatedWalletCurrencyEvent;
 import com.nerdysoft.axon.event.wallet.WalletCreatedEvent;
 import com.nerdysoft.axon.event.wallet.WalletDeletedEvent;
-import com.nerdysoft.axon.event.wallet.WithdrawFromWalletFailureEvent;
-import com.nerdysoft.axon.event.wallet.WithdrawFromWalletSuccessEvent;
+import com.nerdysoft.axon.event.wallet.WithdrewFromWalletEvent;
 import com.nerdysoft.dto.request.CreateWalletDto;
 import com.nerdysoft.dto.request.DepositRequestDto;
+import com.nerdysoft.dto.request.TransferRequestDto;
 import com.nerdysoft.dto.request.WithdrawRequestDto;
 import com.nerdysoft.dto.response.DepositResponseDto;
 import com.nerdysoft.dto.response.TransferResponseDto;
 import com.nerdysoft.dto.response.WithdrawResponseDto;
 import com.nerdysoft.entity.Wallet;
-import com.nerdysoft.model.enums.TransactionStatus;
 import com.nerdysoft.service.WalletService;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.NoArgsConstructor;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
@@ -42,7 +44,8 @@ public class WalletAggregate {
 
   @CommandHandler
   public WalletAggregate(CreateWalletCommand command, WalletService walletService) {
-    Wallet wallet = walletService.createWallet(new CreateWalletDto(command.getAccountId(), command.getCurrency()));
+    Wallet wallet = walletService.createWallet(
+        new CreateWalletDto(command.getAccountId(), command.getCurrency()));
     AggregateLifecycle.apply(new WalletCreatedEvent(wallet.getWalletId()));
   }
 
@@ -54,7 +57,9 @@ public class WalletAggregate {
   @CommandHandler
   public Wallet handle(UpdateWalletCurrencyCommand command, WalletService walletService) {
     Wallet wallet = walletService.updateCurrency(command.getWalletId(), command.getCurrency());
-    AggregateLifecycle.apply(new UpdatedWalletCurrencyEvent(wallet.getWalletId(), wallet.getBalance(), wallet.getCurrency()));
+    AggregateLifecycle.apply(
+        new UpdatedWalletCurrencyEvent(wallet.getWalletId(), wallet.getBalance(),
+            wallet.getCurrency()));
     return wallet;
   }
 
@@ -78,34 +83,28 @@ public class WalletAggregate {
         .build();
     DepositResponseDto dto = walletService.deposit(command.getWalletId(), depositRequestDto);
 
-    if (dto.getStatus().equals(TransactionStatus.SUCCESS)) {
-      AggregateLifecycle.apply(new DepositToWalletSuccessEvent(dto.getTransactionId(), dto.getWalletId(),
-          dto.getAmount(), dto.getWalletBalance(), dto.getOperationCurrency()));
-    } else {
-      AggregateLifecycle.apply(new DepositToWalletFailureEvent(dto.getTransactionId(), dto.getWalletId(),
-          dto.getAmount(), dto.getWalletBalance(), dto.getOperationCurrency()));
-    }
+    AggregateLifecycle.apply(
+        new DepositToWalletSuccessEvent(dto.getTransactionId(), dto.getAccountId(),
+            dto.getWalletId(),
+            dto.getAmount(), dto.getWalletBalance(), dto.getOperationCurrency()));
 
     return dto;
   }
 
   @CommandHandler
-  public WithdrawResponseDto handle(WithdrawFromWalletCommand command, WalletService walletService) {
+  public WithdrawResponseDto handle(WithdrawFromWalletCommand command,
+      WalletService walletService) {
     WithdrawRequestDto withdrawRequestDto = WithdrawRequestDto.builder()
         .amount(command.getAmount())
         .currency(command.getCurrency())
         .build();
     WithdrawResponseDto dto = walletService.withdraw(command.getWalletId(), withdrawRequestDto);
 
-    if (dto.getStatus().equals(TransactionStatus.PENDING)) {
-      AggregateLifecycle.apply(new WithdrawFromWalletSuccessEvent(dto.getTransactionId(), dto.getWalletId(),
-          dto.getAmount(), dto.getWalletBalance(), dto.isUsedLoanLimit(), dto.getUsedLoanLimitAmount(),
-          dto.getOperationCurrency()));
-    } else if (dto.getStatus().equals(TransactionStatus.FAILURE)) {
-      AggregateLifecycle.apply(new WithdrawFromWalletFailureEvent(dto.getTransactionId(), dto.getWalletId(),
-          dto.getAmount(), dto.getWalletBalance(), dto.isUsedLoanLimit(), dto.getUsedLoanLimitAmount(),
-          dto.getOperationCurrency()));
-    }
+    AggregateLifecycle.apply(
+        new WithdrewFromWalletEvent(dto.getTransactionId(), dto.getAccountId(), dto.getWalletId(),
+            dto.getAmount(), dto.getWalletBalance(), dto.isUsedLoanLimit(),
+            dto.getUsedLoanLimitAmount(),
+            dto.getOperationCurrency()));
 
     return dto;
   }
@@ -114,24 +113,68 @@ public class WalletAggregate {
   public void handle(CancelWithdrawFromWalletCommand command, WalletService walletService) {
     BigDecimal balance = walletService.cancelWithdraw(command);
 
-    AggregateLifecycle.apply(new CanceledWithdrawFromWalletEvent(command.getWalletId(), command.getTransactionId(),
-        balance));
+    AggregateLifecycle.apply(
+        new CanceledWithdrawFromWalletEvent(command.getWalletId(), command.getTransactionId(),
+            balance));
   }
 
   @CommandHandler
-  public TransferResponseDto handle(TransferToAnotherWalletCommand command, WalletService walletService,
-      CommandGateway commandGateway) {
-    TransferResponseDto dto = null;
-//    TransferResponseDto dto = walletService.transferToAnotherWallet(command.getFromWalletId(),
-//        new TransferRequestDto(command.getToWalletId(), command.getAmount(), command.getCurrency()));
-//    if (dto.status().equals(TransactionStatus.SUCCESS)) {
-//      Wallet receiverWallet = walletService.findById(dto.toWalletId());
-//      commandGateway.sendAndWait(new UpdateBalanceForReceiverWalletCommand(receiverWallet.getWalletId(), receiverWallet.getBalance()));
-//      AggregateLifecycle.apply(new TransferSuccessEvent(dto.fromWalletId(), dto.toWalletId(), dto.walletBalance(),
-//          receiverWallet.getBalance(), dto.amount(), dto.currency(), dto.transactionId()));
-//    } else {
-//      AggregateLifecycle.apply(new TransferFailureEvent(dto.fromWalletId(), dto.toWalletId(), dto.amount(), dto.currency(), dto.transactionId()));
-//    }
+  public TransferResponseDto handle(TransferToAnotherWalletCommand command,
+      WalletService walletService) {
+    TransferRequestDto transferRequestDto = TransferRequestDto.builder()
+        .toWalletId(command.getToWalletId())
+        .amount(command.getAmount())
+        .currency(command.getCurrency())
+        .build();
+    TransferResponseDto dto = walletService.transferToAnotherWallet(command.getFromWalletId(),
+        transferRequestDto);
+
+    TransferredToAnotherWalletEvent event = TransferredToAnotherWalletEvent.builder()
+        .transactionId(dto.getTransactionId())
+        .accountId(dto.getAccountId())
+        .fromWalletId(dto.getFromWalletId())
+        .toWalletId(dto.getToWalletId())
+        .cleanAmount(dto.getAmount())
+        .operationCurrency(dto.getOperationCurrency())
+        .walletCurrency(dto.getWalletCurrency())
+        .usedLoanLimit(dto.isUsedLoanLimit())
+        .usedLoanLimitAmount(dto.getUsedLoanLimitAmount())
+        .commission(dto.getCommission())
+        .build();
+
+    AggregateLifecycle.apply(event);
+
     return dto;
+  }
+
+  @CommandHandler
+  public void handle(CancelTransferToAnotherWalletCommand command, WalletService walletService) {
+    walletService.cancelTransferToAnotherWallet(command.getFromWalletId(), command.getCleanAmount(),
+        command.getOperationCurrency(), command.getCommission());
+
+    AggregateLifecycle.apply(new CanceledTransferToAnotherWalletEvent(command.getTransactionId()));
+  }
+
+  @CommandHandler
+  public void handle(UpdateReceiveWalletBalanceCommand command, WalletService walletService) {
+    walletService.updateReceiveWalletBalance(command.getToWalletId(), command.getCleanAmount(),
+        command.getOperationCurrency());
+
+    UpdatedReceiveWalletBalanceEvent event = UpdatedReceiveWalletBalanceEvent.builder()
+        .commissionId(command.getCommissionId())
+        .transactionId(command.getTransactionId())
+        .loanLimitId(command.getLoanLimitId())
+        .accountId(command.getAccountId())
+        .fromWalletId(command.getFromWalletId())
+        .toWalletId(command.getToWalletId())
+        .cleanAmount(command.getCleanAmount())
+        .operationCurrency(command.getOperationCurrency())
+        .walletCurrency(command.getWalletCurrency())
+        .usedLoanLimit(command.isUsedLoanLimit())
+        .usedLoanLimitAmount(command.getUsedLoanLimitAmount())
+        .commission(command.getCommission())
+        .build();
+
+    AggregateLifecycle.apply(event);
   }
 }

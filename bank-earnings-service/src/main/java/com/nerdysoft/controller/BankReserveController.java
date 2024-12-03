@@ -1,7 +1,7 @@
 package com.nerdysoft.controller;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
-import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankreserve.UpdateBalanceCommand;
 import com.nerdysoft.axon.query.FindBankReserveByTypeQuery;
 import com.nerdysoft.axon.query.FindBankReserveIdByTypeQuery;
 import com.nerdysoft.dto.api.request.BankReserveTypeDto;

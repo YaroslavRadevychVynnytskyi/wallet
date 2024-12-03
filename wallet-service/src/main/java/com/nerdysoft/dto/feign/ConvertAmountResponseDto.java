@@ -1,4 +1,4 @@
-package com.nerdysoft.dto.response;
+package com.nerdysoft.dto.feign;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

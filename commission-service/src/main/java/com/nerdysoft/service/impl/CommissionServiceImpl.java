@@ -1,12 +1,11 @@
 package com.nerdysoft.service.impl;
 
+import com.nerdysoft.axon.command.commission.SaveCommissionCommand;
 import com.nerdysoft.dto.api.request.CalcCommissionRequestDto;
-import com.nerdysoft.dto.api.request.SaveCommissionRequestDto;
-import com.nerdysoft.dto.api.response.CalcCommissionResponseDto;
+import com.nerdysoft.dto.commission.CalcCommissionResponseDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
-import com.nerdysoft.feign.CurrencyExchangeFeignClient;
-import com.nerdysoft.mapper.CommissionMapper;
 import com.nerdysoft.entity.Commission;
+import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.repo.CommissionRepository;
 import com.nerdysoft.service.CommissionService;
 import com.nerdysoft.service.strategy.CommissionStrategy;
@@ -27,12 +26,11 @@ public class CommissionServiceImpl implements CommissionService {
     private final LoanCommissionHandler loanCommissionHandler;
     private final CommissionRepository commissionRepository;
     private final CommissionStrategy commissionStrategy;
-    private final CommissionMapper commissionMapper;
 
     @Override
     public CalcCommissionResponseDto calculateCommission(CalcCommissionRequestDto requestDto) {
-        BigDecimal walletAmount = convertToUsd(requestDto, CalcCommissionRequestDto::getWalletAmount);
-        BigDecimal loanLimitAmount = convertToUsd(requestDto, CalcCommissionRequestDto::getLoanLimitAmount);
+        BigDecimal walletAmount = convertToUsd(requestDto, CalcCommissionRequestDto::getUsedWalletOwnAmount);
+        BigDecimal loanLimitAmount = requestDto.getUsedLoanLimitAmount();
 
         List<CommissionHandler> commissionHandlers = commissionStrategy.get(walletAmount, requestDto.isLoanLimitUsed());
 
@@ -40,20 +38,34 @@ public class CommissionServiceImpl implements CommissionService {
                 .map(ch -> calculateCommissionForHandler(ch, requestDto, loanLimitAmount, walletAmount))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal originalCurrencyCommission = convertCommissionToOriginalCurrency(requestDto.getFromWalletCurrency(), totalCommissionAmount);
-
-        return new CalcCommissionResponseDto(totalCommissionAmount, originalCurrencyCommission, requestDto);
+        return CalcCommissionResponseDto.builder()
+            .commissionAmount(totalCommissionAmount)
+            .build();
     }
 
     @Override
-    public Commission saveCommission(SaveCommissionRequestDto requestDto) {
-        Commission commission = commissionMapper.toCommission(requestDto);
+    public Commission saveCommission(SaveCommissionCommand command) {
+        Commission commission = Commission.builder()
+            .accountId(command.getAccountId())
+            .transactionId(command.getTransactionId())
+            .usedWalletOwnAmount(command.getCleanAmount())
+            .loanLimitUsed(command.isUsedLoanLimit())
+            .usedLoanLimitAmount(command.getUsedLoanLimitAmount())
+            .commissionAmount(command.getCommission())
+            .build();
+
         return commissionRepository.save(commission);
     }
 
     @Override
     public Commission findById(UUID id) {
         return commissionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Commission not found"));
+    }
+
+    @Override
+    public void delete(UUID id) {
+        findById(id);
+        commissionRepository.deleteById(id);
     }
 
     private BigDecimal convertToUsd(CalcCommissionRequestDto requestDto,
@@ -77,17 +89,5 @@ public class CommissionServiceImpl implements CommissionService {
         return handler.equals(loanCommissionHandler)
                 ? handler.getCommission(requestDto, loanLimitAmount)
                 : handler.getCommission(requestDto, walletAmount);
-    }
-
-    private BigDecimal convertCommissionToOriginalCurrency(String originalCurrency, BigDecimal commission) {
-        if (!originalCurrency.equals("USD")) {
-            commission = currencyExchangeFeignClient.convert(new ConvertAmountRequestDto(
-                    "USD",
-                    originalCurrency,
-                    commission
-            )).getBody().convertedAmount();
-        }
-
-        return commission;
     }
 }

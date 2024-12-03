@@ -1,11 +1,11 @@
 package com.nerdysoft.axon.aggregate;
 
-import com.nerdysoft.axon.command.SaveCommissionCommand;
+import com.nerdysoft.axon.command.commission.DeleteCommissionCommand;
+import com.nerdysoft.axon.command.commission.SaveCommissionCommand;
+import com.nerdysoft.axon.event.commission.CommissionDeletedEvent;
 import com.nerdysoft.axon.event.commission.CommissionSavedEvent;
-import com.nerdysoft.dto.api.request.SaveCommissionRequestDto;
 import com.nerdysoft.entity.Commission;
 import com.nerdysoft.service.CommissionService;
-import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.NoArgsConstructor;
 import org.axonframework.commandhandling.CommandHandler;
@@ -20,49 +20,56 @@ public class CommissionAggregate {
   @AggregateIdentifier
   private UUID commissionId;
 
-  private UUID transactionId;
-
-  private BigDecimal walletAmount;
-
-  private boolean isLoanLimitUsed;
-
-  private BigDecimal loanLimitAmount;
-
-  private BigDecimal usdCommissionAmount;
-
-  private BigDecimal senderCurrencyCommissionAmount;
-
-  private String fromWalletCurrency;
-
-  private String toWalletCurrency;
-
-  private String transactionCurrency;
-
   @CommandHandler
   public CommissionAggregate(SaveCommissionCommand command, CommissionService commissionService) {
-    SaveCommissionRequestDto dto = new SaveCommissionRequestDto(command.getTransactionId(), command.getUsdCommission(),
-        command.getOriginalCurrencyCommission(), command.getWalletAmount(), command.isLoanLimitUsed(),
-        command.getLoanLimitAmount(), command.getFromWalletCurrency(), command.getToWalletCurrency(),
-        command.getTransactionCurrency());
-    Commission commission = commissionService.saveCommission(dto);
-    AggregateLifecycle.apply(new CommissionSavedEvent(commission.getCommissionId(), commission.getTransactionId(),
-        commission.getWalletAmount(), commission.isLoanLimitUsed(), commission.getLoanLimitAmount(),
-        commission.getUsdCommissionAmount(), commission.getSenderCurrencyCommissionAmount(),
-        commission.getFromWalletCurrency(), commission.getToWalletCurrency(), commission.getTransactionCurrency()
-        ));
+    Commission commission = commissionService.saveCommission(command);
+
+    CommissionSavedEvent event = CommissionSavedEvent.builder()
+        .commissionId(commission.getCommissionId())
+        .transactionId(command.getTransactionId())
+        .loanLimitId(command.getLoanLimitId())
+        .accountId(command.getAccountId())
+        .fromWalletId(command.getFromWalletId())
+        .toWalletId(command.getToWalletId())
+        .cleanAmount(command.getCleanAmount())
+        .operationCurrency(command.getOperationCurrency())
+        .walletCurrency(command.getWalletCurrency())
+        .usedLoanLimit(command.isUsedLoanLimit())
+        .usedLoanLimitAmount(command.getUsedLoanLimitAmount())
+        .commission(commission.getCommissionAmount())
+        .build();
+
+    AggregateLifecycle.apply(event);
   }
 
   @EventSourcingHandler
   public void on(CommissionSavedEvent event) {
     commissionId = event.getCommissionId();
-    transactionId = event.getTransactionId();
-    walletAmount = event.getWalletAmount();
-    isLoanLimitUsed = event.isLoanLimitUsed();
-    loanLimitAmount = event.getLoanLimitAmount();
-    usdCommissionAmount = event.getUsdCommissionAmount();
-    senderCurrencyCommissionAmount = event.getSenderCurrencyCommissionAmount();
-    fromWalletCurrency = event.getFromWalletCurrency();
-    toWalletCurrency = event.getToWalletCurrency();
-    transactionCurrency = event.getTransactionCurrency();
+  }
+
+  @CommandHandler
+  public void handle(DeleteCommissionCommand command, CommissionService commissionService) {
+    commissionService.delete(command.getCommissionId());
+
+    CommissionDeletedEvent event = CommissionDeletedEvent.builder()
+        .transactionId(command.getTransactionId())
+        .loanLimitId(command.getLoanLimitId())
+        .accountId(command.getAccountId())
+        .fromWalletId(command.getFromWalletId())
+        .toWalletId(command.getToWalletId())
+        .cleanAmount(command.getCleanAmount())
+        .operationCurrency(command.getOperationCurrency())
+        .walletCurrency(command.getWalletCurrency())
+        .usedLoanLimit(command.isUsedLoanLimit())
+        .usedLoanLimitAmount(command.getUsedLoanLimitAmount())
+        .commission(command.getCommission())
+        .build();
+
+    AggregateLifecycle.apply(event);
+  }
+
+  @EventSourcingHandler
+  public void on(CommissionDeletedEvent event) {
+    AggregateLifecycle.markDeleted();
   }
 }

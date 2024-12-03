@@ -1,7 +1,7 @@
 package com.nerdysoft.axon.handler.loanlimit;
 
 import com.nerdysoft.axon.query.FindLoanLimitByIdQuery;
-import com.nerdysoft.axon.query.loanlimit.FindLoanLimitByWalletIdQuery;
+import com.nerdysoft.axon.query.loanlimit.FindLoanLimitByAccountIdQuery;
 import com.nerdysoft.dto.loanlimit.LoanLimitDto;
 import com.nerdysoft.entity.loanlimit.LoanLimit;
 import com.nerdysoft.service.loanlimit.LoanLimitService;
@@ -21,8 +21,8 @@ public class LoanLimitQueryHandler {
     }
 
     @QueryHandler
-    public LoanLimitDto findLoanLimitByWalletId(FindLoanLimitByWalletIdQuery query) {
-        LoanLimit loanLimit = loanLimitService.getLoanLimitByWalletId(query.getWalletId());
+    public LoanLimitDto findLoanLimitByWalletId(FindLoanLimitByAccountIdQuery query) {
+        LoanLimit loanLimit = loanLimitService.getLoanLimitByAccountId(query.getAccountId());
         LoanLimitDto dto = new LoanLimitDto();
 
         BeanUtils.copyProperties(loanLimit, dto);

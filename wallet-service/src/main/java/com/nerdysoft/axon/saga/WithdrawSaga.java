@@ -1,15 +1,13 @@
 package com.nerdysoft.axon.saga;
 
-import com.nerdysoft.axon.command.loanlimit.CancelSubtractionFromLoanLimitCommand;
-import com.nerdysoft.axon.command.loanlimit.SubtractFromLoanLimitCommand;
+import com.nerdysoft.axon.command.loanlimit.UpdateLoanLimitAfterWithdrawCommand;
 import com.nerdysoft.axon.command.transaction.SetTransactionFinalStatusCommand;
 import com.nerdysoft.axon.command.wallet.CancelWithdrawFromWalletCommand;
-import com.nerdysoft.axon.event.loanlimit.CanceledSubtractionFromLoanLimitEvent;
-import com.nerdysoft.axon.event.loanlimit.SubtractedFromLoanLimitEvent;
+import com.nerdysoft.axon.event.loanlimit.UpdatedLoanLimitAfterWithdrawEvent;
 import com.nerdysoft.axon.event.transaction.TransactionSetFinalStatusEvent;
 import com.nerdysoft.axon.event.wallet.CanceledWithdrawFromWalletEvent;
-import com.nerdysoft.axon.event.wallet.WithdrawFromWalletSuccessEvent;
-import com.nerdysoft.axon.query.loanlimit.FindLoanLimitByWalletIdQuery;
+import com.nerdysoft.axon.event.wallet.WithdrewFromWalletEvent;
+import com.nerdysoft.axon.query.loanlimit.FindLoanLimitByAccountIdQuery;
 import com.nerdysoft.dto.loanlimit.LoanLimitDto;
 import com.nerdysoft.model.enums.TransactionStatus;
 import lombok.extern.log4j.Log4j2;
@@ -32,11 +30,11 @@ public class WithdrawSaga {
 
   @StartSaga
   @SagaEventHandler(associationProperty = "transactionId")
-  public void handle(WithdrawFromWalletSuccessEvent event) {
+  public void handle(WithdrewFromWalletEvent event) {
     if (event.isUsedLoanLimit()) {
-      queryGateway.query(new FindLoanLimitByWalletIdQuery(event.getWalletId()), LoanLimitDto.class)
+      queryGateway.query(new FindLoanLimitByAccountIdQuery(event.getAccountId()), LoanLimitDto.class)
           .thenApply(LoanLimitDto::getId)
-          .thenAccept(loanLimitId -> commandGateway.send(new SubtractFromLoanLimitCommand(
+          .thenAccept(loanLimitId -> commandGateway.send(new UpdateLoanLimitAfterWithdrawCommand(
                       loanLimitId,
                       event.getTransactionId(),
                       event.getUsedLoanLimitAmount(),
@@ -49,7 +47,13 @@ public class WithdrawSaga {
                       event.getAmount(),
                       event.getUsedLoanLimitAmount()
                   )))
-          );
+          )
+          .exceptionally(e -> commandGateway.sendAndWait(new CancelWithdrawFromWalletCommand(
+              event.getWalletId(),
+              event.getTransactionId(),
+              event.getAmount(),
+              event.getUsedLoanLimitAmount()
+          )));
     } else {
       commandGateway.send(
               new SetTransactionFinalStatusCommand(event.getTransactionId(), TransactionStatus.SUCCESS))
@@ -63,37 +67,20 @@ public class WithdrawSaga {
   }
 
   @SagaEventHandler(associationProperty = "transactionId")
-  public void handle(SubtractedFromLoanLimitEvent event) {
-    commandGateway.send(
-            new SetTransactionFinalStatusCommand(event.getTransactionId(), TransactionStatus.SUCCESS))
-        .exceptionally(e -> commandGateway.sendAndWait(new CancelSubtractionFromLoanLimitCommand(
-            event.getLoanLimitId(),
-            event.getTransactionId(),
-            event.getUsedAvailableAmount(),
-            event.getWalletId(),
-            event.getAmount()
-        )));
+  public void handle(UpdatedLoanLimitAfterWithdrawEvent event) {
+    commandGateway.sendAndWait(
+            new SetTransactionFinalStatusCommand(event.getTransactionId(), TransactionStatus.SUCCESS));
   }
 
   @EndSaga
   @SagaEventHandler(associationProperty = "transactionId")
   public void handle(TransactionSetFinalStatusEvent event) {
-    log.info(String.format("End of withdraw saga. Transaction status %s", event.getStatus()));
+    log.info(String.format("End of withdraw saga. Transaction '%s' with status %s", event.getTransactionId(), event.getStatus()));
   }
 
   @SagaEventHandler(associationProperty = "transactionId")
   public void handle(CanceledWithdrawFromWalletEvent event) {
     commandGateway.sendAndWait(
         new SetTransactionFinalStatusCommand(event.getTransactionId(), TransactionStatus.FAILURE));
-  }
-
-  @SagaEventHandler(associationProperty = "transactionId")
-  public void handle(CanceledSubtractionFromLoanLimitEvent event) {
-    commandGateway.sendAndWait(new CancelWithdrawFromWalletCommand(
-        event.getWalletId(),
-        event.getTransactionId(),
-        event.getAmount(),
-        event.getUsedLoanLimitAmount()
-    ));
   }
 }

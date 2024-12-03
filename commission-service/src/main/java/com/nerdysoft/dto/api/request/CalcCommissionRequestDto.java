@@ -11,9 +11,9 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class CalcCommissionRequestDto {
-    private BigDecimal walletAmount;
-    private boolean isLoanLimitUsed;
-    private BigDecimal loanLimitAmount;
+    private BigDecimal usedWalletOwnAmount;
+    private boolean loanLimitUsed;
+    private BigDecimal usedLoanLimitAmount;
     private String fromWalletCurrency;
     private String toWalletCurrency;
     private String transactionCurrency;

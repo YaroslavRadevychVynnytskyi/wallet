@@ -3,19 +3,21 @@ package com.nerdysoft.axon.command.wallet;
 import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class TransferToAnotherWalletCommand {
   @TargetAggregateIdentifier
-  private final UUID fromWalletId;
+  private UUID fromWalletId;
 
-  private final UUID toWalletId;
+  private UUID toWalletId;
 
-  private final BigDecimal amount;
+  private BigDecimal amount;
 
-  private final Currency currency;
+  private Currency currency;
 }
