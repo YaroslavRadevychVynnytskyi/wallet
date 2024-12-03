@@ -54,9 +54,9 @@ public class DepositServiceImpl implements DepositService {
         Deposit deposit = Deposit.builder()
                 .accountId(accountId)
                 .accountEmail(accountEmail)
-                .walletId(wallet.walletId())
-                .amount(convert(walletCurrency, wallet.currency(), amount))
-                .currency(wallet.currency())
+                .walletId(wallet.getWalletId())
+                .amount(convert(walletCurrency, wallet.getCurrency(), amount))
+                .currency(wallet.getCurrency())
                 .depositDate(LocalDate.now())
                 .maturityDate(LocalDate.now().plusMonths(4))
                 .yearInterestRate(BigDecimal.valueOf(0.05))
@@ -142,8 +142,8 @@ public class DepositServiceImpl implements DepositService {
     }
 
     private void checkIfEnoughMoney(Wallet wallet, BigDecimal amount) {
-        if (wallet.balance().compareTo(amount) < 0) {
-            throw new IllegalStateException("Insufficient balance for wallet with ID: " + wallet.walletId());
+        if (wallet.getBalance().compareTo(amount) < 0) {
+            throw new IllegalStateException("Insufficient balance for wallet with ID: " + wallet.getWalletId());
         }
     }
 

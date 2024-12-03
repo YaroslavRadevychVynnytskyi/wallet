@@ -1,6 +1,6 @@
 package com.nerdysoft.axon.handler;
 
-import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankreserve.UpdateBalanceCommand;
 import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;

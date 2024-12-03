@@ -8,11 +8,11 @@ import lombok.Data;
 public class SaveCommissionResponseDto {
     private UUID commissionId;
     private UUID transactionId;
-    private BigDecimal usdCommission;
-    private BigDecimal originalCurrencyCommission;
-    private BigDecimal walletAmount;
-    private boolean isLoanLimitUsed;
-    private BigDecimal loanLimitAmount;
+    private BigDecimal usedWalletOwnAmount;
+    private boolean loanLimitUsed;
+    private BigDecimal usedLoanLimitAmount;
+    private BigDecimal usdCommissionAmount;
+    private BigDecimal senderCurrencyCommissionAmount;
     private String fromWalletCurrency;
     private String toWalletCurrency;
     private String transactionCurrency;

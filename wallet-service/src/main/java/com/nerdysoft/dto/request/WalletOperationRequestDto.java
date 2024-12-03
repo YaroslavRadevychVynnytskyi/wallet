@@ -2,12 +2,15 @@ package com.nerdysoft.dto.request;
 
 import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-public interface WalletOperationRequestDto {
-  Currency getCurrency();
+@Getter
+@SuperBuilder
+@NoArgsConstructor
+public abstract class WalletOperationRequestDto {
+  private BigDecimal amount;
 
-  BigDecimal getAmount();
-
-  UUID getToWalletId();
+  private Currency currency;
 }

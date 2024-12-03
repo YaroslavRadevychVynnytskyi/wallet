@@ -1,15 +1,19 @@
 package com.nerdysoft.service.loanlimit;
 
 import com.nerdysoft.entity.loanlimit.LoanLimit;
-import com.nerdysoft.model.enums.Currency;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface LoanLimitService {
-    LoanLimit getLoanLimit(UUID accountID, String accountEmail, Currency currency);
+    LoanLimit findById(UUID id);
 
-    LoanLimit getLoanLimitByWalletId(UUID walletId);
+    LoanLimit getLoanLimit(UUID accountID, String email);
 
-    LoanLimit updateByWalletId(UUID walletId, LoanLimit loanLimit);
+    LoanLimit getLoanLimitByAccountId(UUID walletId);
+
+    LoanLimit subtractAvailableLoanLimitAmount(UUID loanLimitId, BigDecimal usedLoanLimitAmount);
 
     LoanLimit repayLoanLimit(UUID accountId);
+
+    LoanLimit cancelUpdateLoanLimit(UUID loanLimitId, BigDecimal usedAvailableAmount);
 }

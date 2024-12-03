@@ -1,12 +1,15 @@
 package com.nerdysoft.axon.event.commission;
 
+import com.nerdysoft.model.enums.Currency;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommissionSavedEvent {
@@ -14,19 +17,23 @@ public class CommissionSavedEvent {
 
   private UUID transactionId;
 
-  private BigDecimal walletAmount;
+  private UUID loanLimitId;
 
-  private boolean isLoanLimitUsed;
+  private UUID accountId;
 
-  private BigDecimal loanLimitAmount;
+  private UUID fromWalletId;
 
-  private BigDecimal usdCommissionAmount;
+  private UUID toWalletId;
 
-  private BigDecimal senderCurrencyCommissionAmount;
+  private BigDecimal cleanAmount;
 
-  private String fromWalletCurrency;
+  private Currency operationCurrency;
 
-  private String toWalletCurrency;
+  private Currency walletCurrency;
 
-  private String transactionCurrency;
+  private boolean usedLoanLimit;
+
+  private BigDecimal usedLoanLimitAmount;
+
+  private BigDecimal commission;
 }

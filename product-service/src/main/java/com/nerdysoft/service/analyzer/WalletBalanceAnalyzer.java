@@ -8,4 +8,8 @@ public interface WalletBalanceAnalyzer {
     BigDecimal getMaxBalanceForLastMonth(UUID walletId);
 
     BigDecimal getTurnoverForLastMonth(UUID walletId, Currency walletCurrency);
+
+    BigDecimal getMaxBalanceForLastMonthByAccount(UUID accountId);
+
+    BigDecimal getTurnoverForLastMonthByAccount(UUID accountId);
 }

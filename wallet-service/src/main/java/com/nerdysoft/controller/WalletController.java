@@ -10,10 +10,12 @@ import com.nerdysoft.axon.command.wallet.WithdrawFromWalletCommand;
 import com.nerdysoft.axon.query.wallet.FindWalletByAccountIdAndCurrencyQuery;
 import com.nerdysoft.axon.query.wallet.FindWalletByIdQuery;
 import com.nerdysoft.dto.request.CreateWalletDto;
-import com.nerdysoft.dto.request.TransactionRequestDto;
+import com.nerdysoft.dto.request.DepositRequestDto;
 import com.nerdysoft.dto.request.TransferRequestDto;
-import com.nerdysoft.dto.response.TransactionResponseDto;
+import com.nerdysoft.dto.response.DepositResponseDto;
 import com.nerdysoft.dto.response.TransferResponseDto;
+import com.nerdysoft.dto.response.WithdrawResponseDto;
+import com.nerdysoft.dto.wallet.WalletDto;
 import com.nerdysoft.entity.Wallet;
 import com.nerdysoft.model.enums.Currency;
 import java.util.UUID;
@@ -64,23 +66,24 @@ public class WalletController {
   }
 
   @PostMapping("{walletId}/deposit")
-  private ResponseEntity<TransactionResponseDto> deposit(@PathVariable UUID walletId, @RequestBody TransactionRequestDto dto) {
-    return new ResponseEntity<>((TransactionResponseDto) commandGateway.sendAndWait(new DepositToWalletCommand(walletId, dto.amount(), dto.currency())), HttpStatus.ACCEPTED);
+  private ResponseEntity<DepositResponseDto> deposit(@PathVariable UUID walletId, @RequestBody DepositRequestDto dto) {
+    return new ResponseEntity<>((DepositResponseDto) commandGateway.sendAndWait(new DepositToWalletCommand(walletId, dto.getAmount(), dto.getCurrency())), HttpStatus.ACCEPTED);
   }
 
   @PostMapping("{walletId}/withdraw")
-  private ResponseEntity<TransactionResponseDto> withdraw(@PathVariable UUID walletId, @RequestBody TransactionRequestDto dto) {
-    return new ResponseEntity<>((TransactionResponseDto) commandGateway.sendAndWait(new WithdrawFromWalletCommand(walletId, dto.amount(), dto.currency())), HttpStatus.ACCEPTED);
+  private ResponseEntity<WithdrawResponseDto> withdraw(@PathVariable UUID walletId, @RequestBody DepositRequestDto dto) {
+    return new ResponseEntity<>((WithdrawResponseDto) commandGateway.sendAndWait(new WithdrawFromWalletCommand(walletId, dto.getAmount(), dto.getCurrency())), HttpStatus.ACCEPTED);
   }
 
   @PostMapping("{walletId}/transfer")
   private ResponseEntity<TransferResponseDto> transfer(@PathVariable UUID walletId, @RequestBody TransferRequestDto dto) {
-    return new ResponseEntity<>((TransferResponseDto) commandGateway.sendAndWait(
-        new TransferToAnotherWalletCommand(walletId, dto.toWalletId(), dto.amount(), dto.currency())), HttpStatus.ACCEPTED);
+    TransferToAnotherWalletCommand command = new TransferToAnotherWalletCommand(walletId, dto.getToWalletId(),
+        dto.getAmount(), dto.getCurrency());
+    return new ResponseEntity<>((TransferResponseDto) commandGateway.sendAndWait(command), HttpStatus.ACCEPTED);
   }
 
   @GetMapping("account/{accountId}")
-  private ResponseEntity<Wallet> findWalletByAccountIdAndCurrency(@PathVariable UUID accountId, @RequestParam Currency currency) {
-    return ResponseEntity.ok(queryGateway.query(new FindWalletByAccountIdAndCurrencyQuery(accountId, currency), Wallet.class).join());
+  private ResponseEntity<WalletDto> findWalletByAccountIdAndCurrency(@PathVariable UUID accountId, @RequestParam Currency currency) {
+    return ResponseEntity.ok(queryGateway.query(new FindWalletByAccountIdAndCurrencyQuery(accountId, currency), WalletDto.class).join());
   }
 }

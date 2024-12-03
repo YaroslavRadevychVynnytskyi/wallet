@@ -1,16 +1,21 @@
 package com.nerdysoft.service.loan.impl;
 
+import com.nerdysoft.dto.feign.BankReserveTypeDto;
 import com.nerdysoft.dto.feign.ConvertAmountRequestDto;
 import com.nerdysoft.dto.feign.TransactionRequestDto;
+import com.nerdysoft.dto.feign.UpdateBalanceDto;
 import com.nerdysoft.dto.feign.Wallet;
 import com.nerdysoft.entity.loan.Loan;
 import com.nerdysoft.entity.loan.LoanPayment;
+import com.nerdysoft.feign.BankReserveFeignClient;
 import com.nerdysoft.feign.CurrencyExchangeFeignClient;
 import com.nerdysoft.feign.WalletFeignClient;
 import com.nerdysoft.model.enums.ApprovalStatus;
 import com.nerdysoft.model.enums.Currency;
+import com.nerdysoft.model.enums.OperationType;
 import com.nerdysoft.model.enums.PaymentType;
 import com.nerdysoft.model.enums.RepaymentStatus;
+import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.repo.loan.LoanPaymentRepository;
 import com.nerdysoft.repo.loan.LoanRepository;
 import com.nerdysoft.service.analyzer.WalletBalanceAnalyzer;
@@ -40,6 +45,7 @@ public class LoanServiceImpl implements LoanService {
     private final LoanStrategy loanStrategy;
     private final LoanRepository loanRepository;
     private final LoanPaymentRepository loanPaymentRepository;
+    private final BankReserveFeignClient bankReserveFeignClient;
 
     @Transactional
     @Override
@@ -48,24 +54,24 @@ public class LoanServiceImpl implements LoanService {
 
         Wallet wallet = walletFeignClient.getWalletByAccountIdAndCurrency(accountId, currency).getBody();
 
-        BigDecimal maxBalanceForLastMonth = walletBalanceAnalyzer.getMaxBalanceForLastMonth(wallet.walletId());
-        BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.walletId(), wallet.currency());
+        BigDecimal maxBalanceForLastMonth = walletBalanceAnalyzer.getMaxBalanceForLastMonth(wallet.getWalletId());
+        BigDecimal turnoverForLastMonth = walletBalanceAnalyzer.getTurnoverForLastMonth(wallet.getWalletId(), wallet.getCurrency());
 
         LoanHandler loanHandler = loanStrategy.get(
-                convertToUsd(wallet.currency(), maxBalanceForLastMonth),
-                convertToUsd(wallet.currency(), turnoverForLastMonth)
+                convertToUsd(wallet.getCurrency(), maxBalanceForLastMonth),
+                convertToUsd(wallet.getCurrency(), turnoverForLastMonth)
         );
 
         BigDecimal usdLoanAmount = convertToUsd(requestedAmount, currency);
         LoanDetails loanDetails = loanHandler.getLoan(usdLoanAmount);
 
-        BigDecimal walletCurrencyRepaymentAmount = convert(Currency.USD, wallet.currency(), loanDetails.getRepaymentAmount());
+        BigDecimal walletCurrencyRepaymentAmount = convert(Currency.USD, wallet.getCurrency(), loanDetails.getRepaymentAmount());
 
         Loan loan = Loan.builder()
                 .accountId(accountId)
                 .accountEmail(email)
-                .walletId(wallet.walletId())
-                .walletCurrency(wallet.currency())
+                .walletId(wallet.getWalletId())
+                .walletCurrency(wallet.getCurrency())
                 .approvalStatus(loanDetails.getApprovalStatus())
                 .paymentType(paymentType)
                 .walletCurrencyLoanAmount(requestedAmount)
@@ -84,6 +90,13 @@ public class LoanServiceImpl implements LoanService {
                 .nextPayment((loanDetails.getApprovalStatus().equals(ApprovalStatus.REJECTED)) ? null : LocalDate.now().plusMonths(1))
                 .dueDate((loanDetails.getApprovalStatus().equals(ApprovalStatus.REJECTED)) ? null : LocalDateTime.now().plusMonths(loanDetails.getRepaymentTermInMonths().intValue()))
                 .build();
+
+        if (loan.getApprovalStatus().equals(ApprovalStatus.APPROVED)) {
+            UUID bankReserveId = bankReserveFeignClient.getReserveIdByType(new BankReserveTypeDto(
+                ReserveType.LOAN)).getBody();
+            bankReserveFeignClient.updateBalance(new UpdateBalanceDto(bankReserveId, ReserveType.LOAN, usdLoanAmount, OperationType.WITHDRAW));
+            walletFeignClient.deposit(wallet.getWalletId(), new TransactionRequestDto(loan.getWalletCurrencyLoanAmount(), wallet.getCurrency()));
+        }
 
         return loanRepository.save(loan);
     }

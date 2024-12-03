@@ -1,7 +1,6 @@
 package com.nerdysoft.entity;
 
 import com.nerdysoft.model.enums.Currency;
-import com.nerdysoft.dto.request.CreateWalletDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,10 +34,4 @@ public class Wallet {
   private Currency currency;
 
   private final LocalDateTime createdAt = LocalDateTime.now();
-
-  public Wallet(CreateWalletDto createWalletDto) {
-    this.accountId = createWalletDto.accountId();
-    this.balance = BigDecimal.valueOf(0.0);
-    this.currency = createWalletDto.currency();
-  }
 }

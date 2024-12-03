@@ -1,7 +1,7 @@
 package com.nerdysoft.service.impl;
 
 import com.nerdysoft.axon.command.CreateBalanceCommand;
-import com.nerdysoft.axon.command.bankearnings.UpdateBalanceCommand;
+import com.nerdysoft.axon.command.bankreserve.UpdateBalanceCommand;
 import com.nerdysoft.dto.api.response.UpdateBalanceResponseDto;
 import com.nerdysoft.model.enums.ReserveType;
 import com.nerdysoft.model.exception.UniqueException;
@@ -64,11 +64,6 @@ public class BankReserveServiceImpl implements BankReserveService {
     }
 
     @Override
-    public BankReserve findById(UUID id) {
-        return bankReserveRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("No bank reserve with this id"));
-    }
-
-    @Override
     public UUID getBankReserveIdByType(ReserveType type) {
         return bankReserveRepository.findByType(type).orElseThrow(() -> new EntityNotFoundException("Can't find bank reserve with this name")).getId();
     }
@@ -82,5 +77,14 @@ public class BankReserveServiceImpl implements BankReserveService {
     public BankReserve findByReserveType(ReserveType reserveType) {
         return bankReserveRepository.findByType(reserveType).orElseThrow(() ->
                 new EntityNotFoundException("Can't find bank reserve of type" + reserveType.name()));
+    }
+
+    @Override
+    public void receiveCommission(ReserveType reserveType, BigDecimal commission) {
+        BankReserve bankReserve = findByReserveType(reserveType);
+
+        bankReserve.setTotalFunds(bankReserve.getTotalFunds().add(commission));
+
+        bankReserveRepository.save(bankReserve);
     }
 }

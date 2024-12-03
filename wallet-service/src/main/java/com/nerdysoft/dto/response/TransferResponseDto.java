@@ -1,18 +1,22 @@
 package com.nerdysoft.dto.response;
 
-import com.nerdysoft.dto.request.WalletOperationResponseDto;
-import com.nerdysoft.model.enums.Currency;
-import com.nerdysoft.model.enums.TransactionStatus;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-public record TransferResponseDto(UUID transactionId,
-                                  UUID fromWalletId,
-                                  UUID toWalletId,
-                                  BigDecimal amount,
-                                  BigDecimal walletBalance,
-                                  Currency currency,
-                                  TransactionStatus status,
-                                  LocalDateTime createdAt) implements WalletOperationResponseDto {
+@Getter
+@SuperBuilder
+@NoArgsConstructor
+public class TransferResponseDto extends WalletOperationResponseDto {
+  private UUID fromWalletId;
+
+  private UUID toWalletId;
+
+  private boolean usedLoanLimit;
+
+  private BigDecimal usedLoanLimitAmount;
+
+  private BigDecimal commission;
 }

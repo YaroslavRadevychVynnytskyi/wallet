@@ -1,23 +1,13 @@
 package com.nerdysoft.dto.request;
 
-import com.nerdysoft.model.enums.Currency;
-import java.math.BigDecimal;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-public record TransferRequestDto(UUID toWalletId, BigDecimal amount, Currency currency) implements
-    WalletOperationRequestDto {
-  @Override
-  public Currency getCurrency() {
-    return currency();
-  }
-
-  @Override
-  public BigDecimal getAmount() {
-    return amount();
-  }
-
-  @Override
-  public UUID getToWalletId() {
-    return toWalletId();
-  }
+@Getter
+@SuperBuilder
+@NoArgsConstructor
+public class TransferRequestDto extends WalletOperationRequestDto {
+  private UUID toWalletId;
 }
