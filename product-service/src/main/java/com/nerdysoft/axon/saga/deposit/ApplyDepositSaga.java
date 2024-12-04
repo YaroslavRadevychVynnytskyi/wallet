@@ -1,6 +1,6 @@
 package com.nerdysoft.axon.saga.deposit;
 
-import com.nerdysoft.axon.command.bankearnings.UpdateBankReserveCommand;
+import com.nerdysoft.axon.command.bankreserve.UpdateBankReserveCommand;
 import com.nerdysoft.axon.command.deposit.CancelWithdrawForDepositCommand;
 import com.nerdysoft.axon.command.deposit.DeleteDepositCommand;
 import com.nerdysoft.axon.command.deposit.WithdrawForDepositCommand;
