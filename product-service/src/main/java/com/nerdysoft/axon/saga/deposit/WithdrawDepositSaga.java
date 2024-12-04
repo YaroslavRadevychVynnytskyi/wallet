@@ -1,5 +1,6 @@
 package com.nerdysoft.axon.saga.deposit;
 
+import com.nerdysoft.axon.command.bankreserve.UpdateBankReserveCommand;
 import com.nerdysoft.axon.command.deposit.CancelWithdrawDepositCommand;
 import com.nerdysoft.axon.command.wallet.CancelUpdateWalletBalanceCommand;
 import com.nerdysoft.axon.event.bankreserve.BankReserveUpdatedEvent;
@@ -83,7 +84,7 @@ public class WithdrawDepositSaga {
     public void handle(UpdateWalletBalanceEvent updateWalletBalanceEvent) {
         log.info("Wallet Balance Update successfully executed. Proceeding with bank reserve update...");
 
-        com.nerdysoft.axon.command.bankearnings.UpdateBankReserveCommand updateBankReserveCommand = com.nerdysoft.axon.command.bankearnings.UpdateBankReserveCommand.builder()
+        UpdateBankReserveCommand updateBankReserveCommand = UpdateBankReserveCommand.builder()
                 .id(updateWalletBalanceEvent.getId())
                 .reserveType(ReserveType.DEPOSIT)
                 .amount(updateWalletBalanceEvent.getAmount())

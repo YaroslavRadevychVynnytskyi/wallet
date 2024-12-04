@@ -1,6 +1,6 @@
 package com.nerdysoft.axon.saga.loan;
 
-import com.nerdysoft.axon.command.bankearnings.UpdateBankReserveCommand;
+import com.nerdysoft.axon.command.bankreserve.UpdateBankReserveCommand;
 import com.nerdysoft.axon.command.loan.DeleteLoanCommand;
 import com.nerdysoft.axon.command.loan.HandleRejectedLoanCommand;
 import com.nerdysoft.axon.command.wallet.CancelUpdateWalletBalanceCommand;
